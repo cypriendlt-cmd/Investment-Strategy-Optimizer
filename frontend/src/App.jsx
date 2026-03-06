@@ -4,6 +4,8 @@ import { usePriceRefreshManager } from './hooks/usePriceRefresh'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import StrategyLab from './pages/StrategyLab'
+import ProjectionGlobale from './pages/strategy/ProjectionGlobale'
+import ObjectifFinancier from './pages/strategy/ObjectifFinancier'
 import Portfolio from './pages/Portfolio'
 import Crypto from './pages/Crypto'
 import PEA from './pages/PEA'
@@ -59,6 +61,8 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/strategy" element={<StrategyLab />} />
+              <Route path="/strategy/projection" element={<ProjectionGlobale />} />
+              <Route path="/strategy/objective" element={<ObjectifFinancier />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/crypto" element={<Crypto />} />
               <Route path="/portfolio/pea" element={<PEA />} />

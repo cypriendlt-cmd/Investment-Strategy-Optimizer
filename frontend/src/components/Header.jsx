@@ -8,6 +8,8 @@ import { getDueNotifications, markNotificationDone } from '../services/notificat
 const PAGE_TITLES = {
   '/': 'Tableau de bord',
   '/strategy': 'Strategy Lab',
+  '/strategy/projection': 'Projection globale',
+  '/strategy/objective': 'Objectif financier',
   '/portfolio': 'Patrimoine',
   '/portfolio/crypto': 'Crypto',
   '/portfolio/pea': 'PEA',

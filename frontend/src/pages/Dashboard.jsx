@@ -16,6 +16,7 @@ import { getInsights, getDashboardSummary } from '../services/insights'
 import { getFearGreed } from '../services/market'
 import { getMonthlyDcaSummary, getLinkedAsset, computeDcaProgress } from '../services/dcaEngine'
 import { Link } from 'react-router-dom'
+import { runProjection } from '../services/strategy'
 
 const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
 const fmtPct = (n) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`
@@ -123,7 +124,7 @@ function buildPortfolioHistory(portfolio, totals, rangeKey = '6m') {
 
 function buildProjectionData(currentTotal) {
   const years = 10
-  const rate = 0.07 // 7% annual return hypothesis
+  const rate = 0.07
   const monthlyContribution = 500
   const data = []
   let projected = currentTotal
@@ -139,6 +140,19 @@ function buildProjectionData(currentTotal) {
     nominal = nominal + monthlyContribution * 12
   }
   return data
+}
+
+function useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans) {
+  return useMemo(() => {
+    try {
+      const result = runProjection(portfolio, totals, accountBalances || [], aggregates || [], dcaPlans, {
+        horizonYears: 10,
+      })
+      return result
+    } catch {
+      return null
+    }
+  }, [portfolio, totals, accountBalances, aggregates, dcaPlans])
 }
 
 function GaugeChart({ value, label }) {
@@ -244,7 +258,16 @@ export default function Dashboard() {
   ].reduce((a, b) => a + b, 0)
   const totalGain = totals.total + bankLivrets - totalLivrets - totals.fundraising - totalInvested
 
-  const projectionData = useMemo(() => buildProjectionData(patrimoineNet), [patrimoineNet])
+  const projectionData = useMemo(() => {
+    if (strategyResult?.viewModel?.chartData) {
+      return strategyResult.viewModel.chartData.map(p => ({
+        year: p.label,
+        projected: p.nominal,
+        nominal: p.contributions + (strategyResult.viewModel.chartData[0]?.nominal || 0),
+      }))
+    }
+    return buildProjectionData(patrimoineNet)
+  }, [strategyResult, patrimoineNet])
   const projectedTarget = projectionData[projectionData.length - 1]?.projected || 0
 
   // Objective placeholder
@@ -278,6 +301,8 @@ export default function Dashboard() {
     const monthly = getMonthlyDcaSummary(enabled, portfolio, currentMonth)
     return { totalInvested: totalInvestedDca, onTrack, total: enabled.length, nextDates: nextDates.slice(0, 3), monthPlanned: monthly.planned_total, monthActual: monthly.actual_total }
   }, [dcaPlans, portfolio])
+
+  const strategyResult = useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans)
 
   const lastAgg = aggregates?.[aggregates.length - 1]
   const monthIncome = lastAgg?.income || 0

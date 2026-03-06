@@ -7041,3 +7041,397 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+   PROJECTION & OBJECTIVE PAGES
+   ============================================ */
+
+.projection-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.projection-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.projection-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  white-space: nowrap;
+  margin-top: 4px;
+}
+.projection-back:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.projection-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.projection-subtitle {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: 4px 0 0;
+}
+
+.projection-controls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.projection-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+.projection-control label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.projection-control select,
+.projection-control input {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.projection-control select:focus,
+.projection-control input:focus {
+  border-color: var(--accent);
+}
+
+.projection-input-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.projection-input-group input {
+  width: 100px;
+}
+.projection-input-group span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.projection-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.projection-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.projection-kpi-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.projection-kpi-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+.projection-kpi-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.projection-chart-card {
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.projection-chart-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.projection-chart-legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.projection-chart-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.projection-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.projection-dot--dashed {
+  border: 2px dashed var(--text-muted);
+  background: transparent !important;
+  width: 6px;
+  height: 6px;
+}
+
+.projection-milestones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.projection-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.projection-drivers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.projection-drivers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.projection-driver-card {
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.projection-driver-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.projection-driver-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.projection-driver-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.projection-driver-values {
+  display: flex;
+  gap: 16px;
+}
+.projection-driver-values > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.projection-driver-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.projection-driver-value {
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.projection-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.projection-insight {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.projection-insight--success {
+  border-left: 3px solid var(--success);
+}
+.projection-insight--warning {
+  border-left: 3px solid var(--warning);
+}
+.projection-insight--info {
+  border-left: 3px solid var(--accent);
+}
+
+.projection-insight-icon {
+  margin-top: 2px;
+  color: var(--text-muted);
+}
+.projection-insight--success .projection-insight-icon { color: var(--success); }
+.projection-insight--warning .projection-insight-icon { color: var(--warning); }
+.projection-insight--info .projection-insight-icon { color: var(--accent); }
+
+.projection-insight-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.projection-insight-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.projection-hypotheses {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Objective Result Banner */
+.objective-result {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 24px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+.objective-result--success {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+.objective-result--warning {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+.objective-result-icon {
+  flex-shrink: 0;
+}
+.objective-result--success .objective-result-icon { color: var(--success); }
+.objective-result--warning .objective-result-icon { color: var(--warning); }
+
+.objective-result-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.objective-result-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Objective Progress Bar */
+.objective-progress-section {
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.objective-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.objective-progress-pct {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+}
+.objective-progress-bar {
+  width: 100%;
+  height: 10px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.objective-progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+.objective-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .projection-controls {
+    flex-direction: column;
+  }
+  .projection-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+  .projection-drivers-grid {
+    grid-template-columns: 1fr;
+  }
+  .projection-header {
+    flex-direction: column;
+  }
+  .objective-result {
+    flex-direction: column;
+    text-align: center;
+  }
+}
