@@ -36,7 +36,7 @@ export default function Login() {
         </div>
 
         <div className="login-features">
-          {['Crypto, PEA, Livrets & Levées de fonds', 'Analyses IA en temps réel', 'Synchronisation Binance', 'Données stockées sur Google Drive'].map(f => (
+          {['Projection et trajectoire patrimoniale', 'Comparaison de stratégies d\'investissement', 'Suivi crypto, PEA, livrets & levées', 'Données sécurisées sur Google Drive'].map(f => (
             <div key={f} className="login-feature">
               <span className="login-feature-dot" style={{ background: THEME_META[theme]?.accent }} />
               {f}

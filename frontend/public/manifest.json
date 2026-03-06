@@ -1,7 +1,7 @@
 {
-  "name": "Portfolio Manager Pro",
-  "short_name": "Portfolio Pro",
-  "description": "Gérez votre portefeuille d'investissement - Crypto, Actions, Livrets",
+  "name": "Investment Strategy Optimizer",
+  "short_name": "Strategy",
+  "description": "Optimisez votre trajectoire patrimoniale - Projection, Stratégie, Objectifs",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

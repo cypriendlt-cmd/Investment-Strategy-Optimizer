@@ -429,7 +429,7 @@ export default function Settings() {
       <div style={{ textAlign: 'center', padding: '8px 0' }}>
         <span className="text-xs text-muted">
           <Info size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-          PortfolioManager v{packageJson.version}
+          Strategy Optimizer v{packageJson.version}
         </span>
       </div>
 

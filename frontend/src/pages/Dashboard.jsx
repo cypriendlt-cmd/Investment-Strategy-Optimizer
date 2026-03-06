@@ -6,7 +6,7 @@ import {
 import {
   TrendingUp, TrendingDown, Target, Zap, ArrowRight, FlaskConical,
   Wallet, Activity, Award, AlertTriangle, Sparkles, BarChart3, Shield,
-  Lightbulb, Landmark, CreditCard, Heart, Calendar, Layers, GitBranch, Compass
+  Lightbulb, Calendar, Layers, GitBranch, Compass
 } from 'lucide-react'
 import { usePortfolio } from '../context/PortfolioContext'
 import { useBank } from '../context/BankContext'
