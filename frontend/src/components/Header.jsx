@@ -6,16 +6,18 @@ import { usePrivacy } from '../context/PrivacyContext'
 import { getDueNotifications, markNotificationDone } from '../services/notifications'
 
 const PAGE_TITLES = {
-  '/': 'Dashboard',
-  '/crypto': 'Crypto',
-  '/pea': 'PEA',
-  '/livrets': 'Livrets',
-  '/fundraising': 'Levées de fonds',
-  '/objectives': 'Objectifs',
-  '/insights': 'Insights IA',
-  '/dca': 'DCA',
+  '/': 'Tableau de bord',
+  '/strategy': 'Strategy Lab',
+  '/portfolio': 'Patrimoine',
+  '/portfolio/crypto': 'Crypto',
+  '/portfolio/pea': 'PEA',
+  '/portfolio/livrets': 'Livrets',
+  '/portfolio/fundraising': 'Levées de fonds',
+  '/portfolio/objectives': 'Objectifs',
+  '/portfolio/banking': 'Banque & Cashflow',
+  '/portfolio/dca': 'DCA',
+  '/insights': 'Insights',
   '/settings': 'Paramètres',
-  '/banking': 'Banque & Cashflow',
 }
 
 export default function Header({ onMenuClick }) {
@@ -27,9 +29,8 @@ export default function Header({ onMenuClick }) {
   const [notifOpen, setNotifOpen] = useState(false)
   const notifRef = useRef(null)
 
-  const title = PAGE_TITLES[location.pathname] || 'Portfolio Manager'
+  const title = PAGE_TITLES[location.pathname] || 'Strategy Optimizer'
 
-  // Check due notifications every 30s and on mount
   useEffect(() => {
     const check = () => setDueNotifs(getDueNotifications())
     check()
@@ -37,7 +38,6 @@ export default function Header({ onMenuClick }) {
     return () => clearInterval(interval)
   }, [])
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {

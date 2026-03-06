@@ -3,6 +3,8 @@ import { useAuth } from './context/AuthContext'
 import { usePriceRefreshManager } from './hooks/usePriceRefresh'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
+import StrategyLab from './pages/StrategyLab'
+import Portfolio from './pages/Portfolio'
 import Crypto from './pages/Crypto'
 import PEA from './pages/PEA'
 import Livrets from './pages/Livrets'
@@ -16,10 +18,6 @@ import Login from './pages/Login'
 import InstallPrompt from './components/InstallPrompt'
 import { BankProvider } from './context/BankContext'
 
-/**
- * Inner component that lives inside PortfolioProvider so it can access the context.
- * Starts the global 60s price refresh loop.
- */
 function PriceRefreshManager({ children }) {
   usePriceRefreshManager(60000)
   return children
@@ -32,7 +30,7 @@ function ProtectedRoute({ children }) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--bg-primary)' }}>
         <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-          <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--accent)', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.5rem', fontWeight: 700 }}>P</div>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--accent)', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.5rem', fontWeight: 700 }}>S</div>
           <p>Chargement...</p>
         </div>
       </div>
@@ -60,14 +58,24 @@ export default function App() {
           <Layout>
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/crypto" element={<Crypto />} />
-              <Route path="/pea" element={<PEA />} />
-              <Route path="/livrets" element={<Livrets />} />
-              <Route path="/fundraising" element={<Fundraising />} />
-              <Route path="/objectives" element={<Objectives />} />
+              <Route path="/strategy" element={<StrategyLab />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/portfolio/crypto" element={<Crypto />} />
+              <Route path="/portfolio/pea" element={<PEA />} />
+              <Route path="/portfolio/livrets" element={<Livrets />} />
+              <Route path="/portfolio/fundraising" element={<Fundraising />} />
+              <Route path="/portfolio/objectives" element={<Objectives />} />
+              <Route path="/portfolio/banking" element={<Banking />} />
+              <Route path="/portfolio/dca" element={<DCA />} />
               <Route path="/insights" element={<Insights />} />
-              <Route path="/banking" element={<Banking />} />
-              <Route path="/dca" element={<DCA />} />
+              {/* Legacy redirects */}
+              <Route path="/crypto" element={<Navigate to="/portfolio/crypto" replace />} />
+              <Route path="/pea" element={<Navigate to="/portfolio/pea" replace />} />
+              <Route path="/livrets" element={<Navigate to="/portfolio/livrets" replace />} />
+              <Route path="/fundraising" element={<Navigate to="/portfolio/fundraising" replace />} />
+              <Route path="/objectives" element={<Navigate to="/portfolio/objectives" replace />} />
+              <Route path="/banking" element={<Navigate to="/portfolio/banking" replace />} />
+              <Route path="/dca" element={<Navigate to="/portfolio/dca" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Layout>
