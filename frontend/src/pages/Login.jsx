@@ -30,9 +30,9 @@ export default function Login() {
 
       <div className="login-card">
         <div className="login-logo">
-          <div className="login-logo-icon" style={{ background: THEME_META[theme]?.accent }}>P</div>
-          <h1 className="login-title">Portfolio Manager</h1>
-          <p className="login-subtitle">Gérez votre patrimoine financier en un seul endroit</p>
+          <div className="login-logo-icon" style={{ background: THEME_META[theme]?.accent }}>S</div>
+          <h1 className="login-title">Strategy Optimizer</h1>
+          <p className="login-subtitle">Optimisez votre trajectoire patrimoniale</p>
         </div>
 
         <div className="login-features">
