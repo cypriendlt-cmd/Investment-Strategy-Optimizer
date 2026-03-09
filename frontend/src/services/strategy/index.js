@@ -6,7 +6,7 @@
  */
 
 import { buildPortfolioSnapshot, getDcaMonthlyContribution } from './portfolioDataProvider.js'
-import { buildStrategyInputs, buildObjectiveInputs, DEFAULT_RETURNS, DEFAULT_INFLATION } from './strategyInputBuilder.js'
+import { buildStrategyInputs, buildObjectiveInputs, buildEnvelopeContributions, DEFAULT_RETURNS, DEFAULT_INFLATION } from './strategyInputBuilder.js'
 import { projectPortfolio, projectTrajectory, computeRequiredContribution, computeTimeToTarget, computeMilestones, toAnnualSeries } from './projectionEngine.js'
 import { analyzeGrowthDrivers, generateInsights } from './strategyInsightsEngine.js'
 import { buildProjectionViewModel, buildObjectiveViewModel } from './strategyViewModelBuilder.js'
@@ -14,7 +14,7 @@ import { buildProjectionViewModel, buildObjectiveViewModel } from './strategyVie
 // Re-export everything consumers might need
 export {
   buildPortfolioSnapshot, getDcaMonthlyContribution,
-  buildStrategyInputs, buildObjectiveInputs, DEFAULT_RETURNS, DEFAULT_INFLATION,
+  buildStrategyInputs, buildObjectiveInputs, buildEnvelopeContributions, DEFAULT_RETURNS, DEFAULT_INFLATION,
   projectPortfolio, projectTrajectory, computeRequiredContribution, computeTimeToTarget, computeMilestones, toAnnualSeries,
   analyzeGrowthDrivers, generateInsights,
   buildProjectionViewModel, buildObjectiveViewModel,

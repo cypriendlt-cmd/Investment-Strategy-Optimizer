@@ -5,6 +5,7 @@ import { usePortfolio } from '../../context/PortfolioContext'
 import { useBank } from '../../context/BankContext'
 import { usePrivacyMask } from '../../hooks/usePrivacyMask'
 import { createGoal, updateGoal, deleteGoal, computeAllGoalsProgress } from '../../services/goalsEngine'
+import { fmtMonths } from '../../services/goalProjectionEngine'
 import { fmt } from '../../utils/format'
 
 const GOAL_TYPES = {
@@ -16,7 +17,7 @@ const GOAL_TYPES = {
 const ICON_MAP = { home: Home, shield: Shield, 'trending-up': TrendingUp, star: Star, plane: Plane, default: Target }
 const ICON_OPTIONS = ['home', 'shield', 'trending-up', 'star', 'plane', 'default']
 
-const EMPTY_FORM = { label: '', type: 'short_term', targetAmount: '', targetDate: '', icon: 'default' }
+const EMPTY_FORM = { label: '', type: 'short_term', targetAmount: '', targetDate: '', icon: 'default', monthlyContribution: '' }
 
 export default function Objectifs() {
   const { portfolio, totals, updateAndSave } = usePortfolio()
@@ -49,6 +50,7 @@ export default function Objectifs() {
       targetAmount: goal.targetAmount,
       targetDate: goal.targetDate || '',
       icon: goal.icon || 'default',
+      monthlyContribution: goal.monthlyContribution || '',
     })
     setShowModal(true)
   }
@@ -71,6 +73,7 @@ export default function Objectifs() {
           targetAmount: Number(form.targetAmount),
           targetDate: form.targetDate || null,
           icon: form.icon,
+          monthlyContribution: form.monthlyContribution ? Number(form.monthlyContribution) : 0,
         }),
       }))
     } else {
@@ -80,6 +83,7 @@ export default function Objectifs() {
         targetAmount: Number(form.targetAmount),
         targetDate: form.targetDate || null,
         icon: form.icon,
+        monthlyContribution: form.monthlyContribution ? Number(form.monthlyContribution) : 0,
       })
       updateAndSave(p => ({ ...p, goals: [...(p.goals || []), newGoal] }))
     }
@@ -171,7 +175,10 @@ export default function Objectifs() {
 
                 {/* Estimated date */}
                 <div className="goals-card-meta">
-                  Date cible : {estimatedDate ? new Date(estimatedDate).toLocaleDateString('fr-FR') : '—'}
+                  Date estimée : {estimatedDate ? new Date(estimatedDate + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : '—'}
+                  {goal.progress.monthsToReach != null && goal.progress.monthsToReach > 0 && (
+                    <span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>({fmtMonths(goal.progress.monthsToReach)})</span>
+                  )}
                 </div>
 
                 {/* Linked assets */}
@@ -179,6 +186,16 @@ export default function Objectifs() {
                   <div className="goals-card-meta">
                     Actifs liés : {linkedAssetsDetail.map(a => a.label).join(', ')}
                   </div>
+                )}
+
+                {/* Link to projection for long-term goals */}
+                {goal.type === 'long_term' && (
+                  <Link
+                    to={`/strategy/objective?target=${goal.targetAmount}`}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.82rem', color: 'var(--accent)', marginTop: 8, textDecoration: 'none', fontWeight: 600 }}
+                  >
+                    <TrendingUp size={14} /> Voir la projection
+                  </Link>
                 )}
               </div>
             )
@@ -212,7 +229,14 @@ export default function Objectifs() {
                       <td>
                         <span style={{ color: typeInfo.color, fontWeight: 600 }}>{goal.progress.progressPct.toFixed(0)}%</span>
                       </td>
-                      <td>{goal.progress.estimatedDate ? new Date(goal.progress.estimatedDate).toLocaleDateString('fr-FR') : '—'}</td>
+                      <td>
+                        {goal.progress.estimatedDate
+                          ? new Date(goal.progress.estimatedDate + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                          : '—'}
+                        {goal.progress.monthsToReach != null && goal.progress.monthsToReach > 0 && (
+                          <span style={{ color: 'var(--text-muted)', marginLeft: 6, fontSize: '0.82rem' }}>({fmtMonths(goal.progress.monthsToReach)})</span>
+                        )}
+                      </td>
                     </tr>
                   )
                 })}
@@ -278,6 +302,22 @@ export default function Objectifs() {
                 onChange={e => setForm(f => ({ ...f, targetAmount: e.target.value }))}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Épargne mensuelle dédiée (optionnel)</label>
+              <input
+                className="form-input"
+                type="number"
+                min="0"
+                step="50"
+                placeholder="Ex : 200"
+                value={form.monthlyContribution}
+                onChange={e => setForm(f => ({ ...f, monthlyContribution: e.target.value }))}
+              />
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                Permet de calculer la date estimée d'atteinte de l'objectif
+              </span>
             </div>
 
             <div className="form-group">

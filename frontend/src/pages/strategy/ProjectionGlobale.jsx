@@ -3,12 +3,12 @@ import {
   AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
   BarChart, Bar, Cell,
 } from 'recharts'
-import { TrendingUp, ArrowLeft, Wallet, Shield, PiggyBank, Sparkles, Info } from 'lucide-react'
+import { TrendingUp, ArrowLeft, Wallet, Shield, PiggyBank, Sparkles, Info, AlertTriangle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { usePortfolio } from '../../context/PortfolioContext'
 import { useBank } from '../../context/BankContext'
 import { usePrivacyMask } from '../../hooks/usePrivacyMask'
-import { runProjection, DEFAULT_RETURNS, DEFAULT_INFLATION } from '../../services/strategy'
+import { runProjection, getDcaMonthlyContribution, buildPortfolioSnapshot, DEFAULT_RETURNS, DEFAULT_INFLATION } from '../../services/strategy'
 import { fmt } from '../../utils/format'
 
 const HORIZON_OPTIONS = [
@@ -31,8 +31,17 @@ export default function ProjectionGlobale() {
   const { accountBalances, aggregates } = useBank() || {}
   const { m } = usePrivacyMask()
 
+  // Initialize contribution from DCA plans, then estimated savings, then 500 fallback
+  const initialContribution = useMemo(() => {
+    const dca = getDcaMonthlyContribution(dcaPlans)
+    if (dca > 0) return Math.round(dca)
+    const snapshot = buildPortfolioSnapshot(portfolio, totals, accountBalances || [], aggregates || [])
+    const avgSavings = snapshot?.estimatedMonthlySavings || 0
+    return avgSavings > 0 ? Math.round(avgSavings) : 500
+  }, [dcaPlans, portfolio, totals, accountBalances, aggregates])
+
   const [horizon, setHorizon] = useState(10)
-  const [contribution, setContribution] = useState(500)
+  const [contribution, setContribution] = useState(initialContribution)
   const [inflation, setInflation] = useState(DEFAULT_INFLATION * 100)
 
   const result = useMemo(() => {
@@ -74,6 +83,9 @@ export default function ProjectionGlobale() {
             <input type="number" value={contribution} onChange={e => setContribution(Math.max(0, Number(e.target.value)))} min="0" step="50" />
             <span>€/mois</span>
           </div>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+            Pré-rempli à partir de vos plans d'investissement actifs
+          </span>
         </div>
         <div className="projection-control">
           <label>Inflation</label>
@@ -211,6 +223,15 @@ export default function ProjectionGlobale() {
         <p>
           Croissance estimée utilisée : ETF {(DEFAULT_RETURNS.etf * 100)}%, Crypto {(DEFAULT_RETURNS.crypto * 100)}%, Cash {(DEFAULT_RETURNS.cash * 100)}%, Autres {(DEFAULT_RETURNS.other * 100)}%.
           Ces projections sont indicatives et ne constituent pas un conseil financier.
+        </p>
+      </div>
+      <div className="projection-hypotheses" style={{ borderColor: 'var(--warning)' }}>
+        <AlertTriangle size={14} style={{ color: 'var(--warning)', minWidth: 14 }} />
+        <p>
+          Les taux de rendement affichés (ETF {DEFAULT_RETURNS.etf * 100}%, Crypto {DEFAULT_RETURNS.crypto * 100}%) sont des moyennes historiques longues.
+          Les performances passées ne préjugent pas des performances futures.
+          Les actifs volatils (crypto, actions) peuvent perdre une part significative de leur valeur.
+          Ces projections sont des estimations à titre indicatif uniquement.
         </p>
       </div>
     </div>

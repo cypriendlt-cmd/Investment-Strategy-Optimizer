@@ -131,6 +131,8 @@ export default function Objectives() {
   const { m } = usePrivacyMask()
   const [showModal, setShowModal] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
+  const [editingAmountId, setEditingAmountId] = useState(null)
+  const [editAmountValue, setEditAmountValue] = useState('')
 
   const totalTarget = portfolio.objectives.reduce((s, o) => s + o.targetAmount, 0)
   const totalCurrent = portfolio.objectives.reduce((s, o) => s + o.currentAmount, 0)
@@ -189,7 +191,45 @@ export default function Objectives() {
               </div>
 
               <div className="flex justify-between mb-8">
-                <span className="text-xl font-bold">{m(fmt(obj.currentAmount))}</span>
+                {editingAmountId === obj.id ? (
+                  <form onSubmit={(e) => {
+                    e.preventDefault()
+                    const val = parseFloat(editAmountValue)
+                    if (!isNaN(val) && val >= 0) {
+                      updateObjective(obj.id, { currentAmount: val })
+                    }
+                    setEditingAmountId(null)
+                  }} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="form-input"
+                      style={{ width: 120, padding: '4px 8px', fontSize: '1.1rem', fontWeight: 700 }}
+                      value={editAmountValue}
+                      onChange={e => setEditAmountValue(e.target.value)}
+                      autoFocus
+                      onBlur={() => {
+                        const val = parseFloat(editAmountValue)
+                        if (!isNaN(val) && val >= 0) {
+                          updateObjective(obj.id, { currentAmount: val })
+                        }
+                        setEditingAmountId(null)
+                      }}
+                      onKeyDown={e => { if (e.key === 'Escape') setEditingAmountId(null) }}
+                    />
+                  </form>
+                ) : (
+                  <span
+                    className="text-xl font-bold"
+                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                    onClick={() => { setEditingAmountId(obj.id); setEditAmountValue(String(obj.currentAmount)) }}
+                    title="Cliquer pour modifier le montant actuel"
+                  >
+                    {m(fmt(obj.currentAmount))}
+                    <Edit2 size={14} style={{ color: 'var(--text-muted)', opacity: 0.6 }} />
+                  </span>
+                )}
                 <span className="text-muted text-sm">{m(fmt(obj.targetAmount))}</span>
               </div>
 

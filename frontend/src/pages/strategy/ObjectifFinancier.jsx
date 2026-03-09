@@ -3,7 +3,7 @@ import {
   AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
   ReferenceLine,
 } from 'recharts'
-import { Target, ArrowLeft, CheckCircle, AlertTriangle, TrendingUp, Info } from 'lucide-react'
+import { Target, ArrowLeft, CheckCircle, AlertTriangle, TrendingUp, Info, Lightbulb } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { usePortfolio } from '../../context/PortfolioContext'
 import { useBank } from '../../context/BankContext'
@@ -23,11 +23,25 @@ export default function ObjectifFinancier() {
   const { accountBalances, aggregates } = useBank() || {}
   const { m } = usePrivacyMask()
 
-  const [targetAmount, setTargetAmount] = useState(100000)
+  // Check for long-term goal to suggest as target
+  const longTermGoal = useMemo(() => {
+    const goals = portfolio?.goals || []
+    return goals.find(g => g.type === 'long_term') || null
+  }, [portfolio?.goals])
+
+  // Read target from URL query param if provided
+  const urlTarget = useMemo(() => {
+    const params = new URLSearchParams(window.location.search)
+    const t = params.get('target')
+    return t ? Number(t) : null
+  }, [])
+
+  const [targetAmount, setTargetAmount] = useState(urlTarget || 100000)
   const [horizonYears, setHorizonYears] = useState(10)
   const [contribution, setContribution] = useState(500)
   const [strategyProfile, setStrategyProfile] = useState('balanced')
   const [inflation, setInflation] = useState(DEFAULT_INFLATION * 100)
+  const [goalBannerDismissed, setGoalBannerDismissed] = useState(false)
 
   const selectedProfile = STRATEGY_PROFILES.find(p => p.value === strategyProfile)
 
@@ -57,6 +71,24 @@ export default function ObjectifFinancier() {
           </p>
         </div>
       </div>
+
+      {/* Goal suggestion banner */}
+      {longTermGoal && !goalBannerDismissed && !urlTarget && (
+        <div className="projection-hypotheses" style={{ borderColor: 'var(--accent)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Lightbulb size={16} style={{ color: 'var(--accent)', minWidth: 16 }} />
+          <div style={{ flex: 1 }}>
+            <p style={{ margin: 0 }}>
+              Vous avez défini un objectif long terme : <strong>{longTermGoal.label}</strong> ({fmt(longTermGoal.targetAmount)}). Voulez-vous l'utiliser comme cible ici ?
+            </p>
+          </div>
+          <button className="btn btn-primary btn-sm" onClick={() => { setTargetAmount(longTermGoal.targetAmount); setGoalBannerDismissed(true) }} style={{ whiteSpace: 'nowrap' }}>
+            Utiliser cet objectif
+          </button>
+          <button className="btn btn-ghost btn-sm" onClick={() => setGoalBannerDismissed(true)} style={{ padding: '4px 8px' }}>
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Controls */}
       <div className="projection-controls">
@@ -194,6 +226,14 @@ export default function ObjectifFinancier() {
           Croissance estimée : {(selectedProfile.returnRate * 100)}% / an ({selectedProfile.label}).
           Inflation : {inflation}%/an.
           Ces projections sont indicatives et ne constituent pas un conseil financier.
+        </p>
+      </div>
+      <div className="projection-hypotheses" style={{ borderColor: 'var(--warning)' }}>
+        <AlertTriangle size={14} style={{ color: 'var(--warning)', minWidth: 14 }} />
+        <p>
+          Les performances passées ne préjugent pas des performances futures.
+          Les actifs volatils (crypto, actions) peuvent perdre une part significative de leur valeur.
+          Ces projections sont des estimations à titre indicatif uniquement.
         </p>
       </div>
     </div>

@@ -270,9 +270,15 @@ export default function Dashboard() {
   }, [strategyResult, patrimoineNet])
   const projectedTarget = projectionData[projectionData.length - 1]?.projected || 0
 
-  // Objective placeholder
-  const objective = 500000
-  const progressPct = Math.min((patrimoineNet / objective) * 100, 100)
+  // Objective from portfolio.goals (long_term goals)
+  const objective = useMemo(() => {
+    const goals = portfolio?.goals || []
+    const longTermGoals = goals.filter(g => g.type === 'long_term')
+    if (longTermGoals.length === 1) return longTermGoals[0].targetAmount
+    if (longTermGoals.length > 1) return longTermGoals.reduce((s, g) => s + g.targetAmount, 0)
+    return null
+  }, [portfolio?.goals])
+  const progressPct = objective ? Math.min((patrimoineNet / objective) * 100, 100) : 0
 
   const allocationData = [
     { name: 'Crypto', value: totals.crypto, color: '#3b82f6' },
@@ -362,8 +368,17 @@ export default function Dashboard() {
             <div className="dash-stat-icon" style={{ background: 'var(--warning-light)', color: 'var(--warning)' }}><Target size={17} /></div>
             <span className="dash-stat-label">Objectif patrimonial</span>
           </div>
-          <div className="dash-stat-value">{m(fmt(objective))}</div>
-          <div className="dash-stat-sub" style={{ color: 'var(--accent)' }}>{progressPct.toFixed(0)}% atteint</div>
+          {objective ? (
+            <>
+              <div className="dash-stat-value">{m(fmt(objective))}</div>
+              <div className="dash-stat-sub" style={{ color: 'var(--accent)' }}>{progressPct.toFixed(0)}% atteint</div>
+            </>
+          ) : (
+            <>
+              <div className="dash-stat-value" style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Non défini</div>
+              <Link to="/strategy/objectifs" className="dash-stat-sub" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Définir un objectif</Link>
+            </>
+          )}
         </div>
 
         <div className="dash-stat" style={{ '--stat-accent': '#8b5cf6' }}>
@@ -440,29 +455,43 @@ export default function Dashboard() {
           </div>
           <Link to="/strategy" className="insight-link" style={{ margin: 0, padding: 0 }}>Strategy Lab <ArrowRight size={12} /></Link>
         </div>
-        <div className="objective-progress-container">
-          <div className="objective-progress-bar">
-            <div className="objective-progress-fill" style={{ width: `${progressPct}%` }} />
+        {objective ? (
+          <>
+            <div className="objective-progress-container">
+              <div className="objective-progress-bar">
+                <div className="objective-progress-fill" style={{ width: `${progressPct}%` }} />
+              </div>
+              <div className="objective-progress-labels">
+                <span>{m(fmt(patrimoineNet))}</span>
+                <span className="text-muted">{m(fmt(objective))}</span>
+              </div>
+            </div>
+            <div className="objective-stats">
+              <div className="objective-stat">
+                <span className="objective-stat-label">Progression</span>
+                <span className="objective-stat-value" style={{ color: 'var(--accent)' }}>{progressPct.toFixed(1)}%</span>
+              </div>
+              <div className="objective-stat">
+                <span className="objective-stat-label">Écart restant</span>
+                <span className="objective-stat-value">{m(fmt(Math.max(objective - patrimoineNet, 0)))}</span>
+              </div>
+              <div className="objective-stat">
+                <span className="objective-stat-label">Horizon estimé</span>
+                <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} ans</span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
+            <Target size={32} style={{ color: 'var(--text-muted)', marginBottom: '0.75rem' }} />
+            <p style={{ color: 'var(--text-muted)', margin: '0 0 1rem', fontSize: '0.9rem' }}>
+              Définissez un objectif patrimonial pour suivre votre progression.
+            </p>
+            <Link to="/strategy/objectifs" className="btn btn-primary btn-sm">
+              <Target size={14} /> Définir votre objectif
+            </Link>
           </div>
-          <div className="objective-progress-labels">
-            <span>{m(fmt(patrimoineNet))}</span>
-            <span className="text-muted">{m(fmt(objective))}</span>
-          </div>
-        </div>
-        <div className="objective-stats">
-          <div className="objective-stat">
-            <span className="objective-stat-label">Progression</span>
-            <span className="objective-stat-value" style={{ color: 'var(--accent)' }}>{progressPct.toFixed(1)}%</span>
-          </div>
-          <div className="objective-stat">
-            <span className="objective-stat-label">Écart restant</span>
-            <span className="objective-stat-value">{m(fmt(Math.max(objective - patrimoineNet, 0)))}</span>
-          </div>
-          <div className="objective-stat">
-            <span className="objective-stat-label">Horizon estimé</span>
-            <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} ans</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* ═══ E. Optimization Levers ═══ */}

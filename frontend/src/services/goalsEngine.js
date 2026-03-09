@@ -1,7 +1,9 @@
 /**
  * Goals Engine — CRUD, asset assignment, and progress computation for financial goals.
- * Pure functions, no side effects, no external imports.
+ * Pure functions, no side effects.
  */
+
+import { projectGoal } from './goalProjectionEngine.js'
 
 // ─── UUID Generator ─────────────────────────────────────────────────────────────
 
@@ -15,13 +17,14 @@ function generateId() {
 
 // ─── CRUD ────────────────────────────────────────────────────────────────────────
 
-function createGoal({ label, type, targetAmount, targetDate = null, icon = 'default' }) {
+function createGoal({ label, type, targetAmount, targetDate = null, icon = 'default', monthlyContribution = 0 }) {
   return {
     id: generateId(),
     label,
     type,
     targetAmount,
     targetDate,
+    monthlyContribution,
     linkedAssets: [],
     createdAt: new Date().toISOString(),
     icon,
@@ -93,7 +96,11 @@ function resolveAssetValue(assetId, assetType, portfolio, accountBalances) {
   if (assetType === 'fundraising') {
     const asset = (portfolio.fundraising || []).find((a) => a.id === assetId)
     if (!asset) return { value: 0, label: null }
-    return { value: asset.amountInvested || 0, label: asset.projectName || asset.name || assetId }
+    // Use current value if available (price × quantity), otherwise fall back to amountInvested
+    const currentPrice = asset.currentPrice || asset.unitPrice || 0
+    const quantity = asset.quantity || 1
+    const currentValue = currentPrice > 0 ? currentPrice * quantity : asset.amountInvested || 0
+    return { value: currentValue, label: asset.projectName || asset.name || assetId }
   }
 
   if (assetType === 'bankAccount') {
@@ -123,30 +130,19 @@ function computeGoalProgress(goal, portfolio, totals, accountBalances) {
     : 0
   const gap = Math.max(targetAmount - currentAmount, 0)
 
-  const estimatedDate = goal.targetDate || null
+  // Dynamically compute estimated date using goalProjectionEngine
+  const goalProjection = projectGoal({
+    type: goal.type,
+    targetAmount,
+    currentAmount,
+    monthlyContribution: goal.monthlyContribution || 0,
+  })
 
-  let isAchievable = progressPct > 0
-  if (goal.targetDate && progressPct < 100 && progressPct > 0) {
-    const now = Date.now()
-    const target = new Date(goal.targetDate).getTime()
-    const msRemaining = target - now
+  const estimatedDate = goalProjection.projectedDate || goal.targetDate || null
+  const monthsToReach = goalProjection.monthsToReach
+  const isAchievable = monthsToReach !== null
 
-    if (msRemaining <= 0) {
-      isAchievable = false
-    } else {
-      // Simple linear extrapolation: project when 100% would be reached
-      // at the current accumulation rate, and check if that's before targetDate.
-      // We assume the current amount was accumulated linearly since goal creation.
-      const msElapsed = now - new Date(goal.createdAt).getTime()
-      if (msElapsed > 0) {
-        const ratePerMs = currentAmount / msElapsed
-        const msToTarget = targetAmount / ratePerMs
-        isAchievable = msToTarget <= msElapsed + msRemaining
-      }
-    }
-  }
-
-  return { currentAmount, progressPct, estimatedDate, isAchievable, gap, linkedAssetsDetail }
+  return { currentAmount, progressPct, estimatedDate, monthsToReach, isAchievable, gap, linkedAssetsDetail }
 }
 
 function computeAllGoalsProgress(goals, portfolio, totals, accountBalances) {

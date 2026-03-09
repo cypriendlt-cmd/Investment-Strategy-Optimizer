@@ -22,17 +22,19 @@ L'application repose sur trois couches :
 - Enrichissement des données marché
 - Import bancaire Excel, catégorisation AI
 
-### Strategy Engine (en construction)
+### Strategy Engine
 - `portfolioDataProvider` — agrège les données du Portfolio Core en entrée stratégique
-- `strategyInputBuilder` — construit les hypothèses (rendement, inflation, effort d'épargne)
+- `strategyInputBuilder` — construit les hypothèses (rendement, inflation, effort d'épargne) + distribution DCA par enveloppe
 - `projectionEngine` — moteur de projection patrimoniale sur N années
-- `scenarioEngine` — compare plusieurs scénarios (actuel, optimisé, ambitieux)
+- `scenarioEngine` — compare 3 scénarios (actuel / recommandé / ambitieux)
+- `fireEngine` — calcul Freedom Number, règle des 4 %, scénarios FIRE
 - `strategyInsightsEngine` — génère des recommandations et leviers d'optimisation
 - `strategyViewModelBuilder` — formate les données pour les composants UI
 
 ### Goals Engine
 - `goalsEngine.js` — CRUD, asset assignment (1 asset = 1 goal), progress computation
-- Pure functions, no side effects, no external imports
+- `goalProjectionEngine.js` — compound-interest projections, date estimée dynamique
+- Pure functions, no side effects
 - `Objectifs.jsx` — Strategy Lab page for creating/managing goals
 - `GoalSelector.jsx` — inline selector on asset rows (Crypto, PEA, Livrets, Fundraising)
 - Persistence via `portfolio.goals[]` in Google Drive
@@ -63,15 +65,16 @@ Navigation principale :
 
 ## Strategy Lab
 
-Le Strategy Lab est le cœur différenciant du produit. Il est composé de 4 modules :
+Le Strategy Lab est le cœur différenciant du produit. Il est composé de 6 modules :
 
-| Module | Description |
-|--------|-------------|
-| **Projection globale** | Projection du patrimoine total sur 10-30 ans |
-| **Objectif financier** | Définir un objectif, calculer l'écart et le chemin |
-| **Vos objectifs** | CRUD d'objectifs, assignation d'actifs, suivi de progression |
-| **Projection par enveloppe** | Projection détaillée par classe d'actifs (à venir) |
-| **Comparateur de scénarios** | Comparer actuel vs optimisé vs ambitieux (à venir) |
+| Module | Route | Description |
+|--------|-------|-------------|
+| **Projection globale** | `/strategy/projection` | Projection du patrimoine total sur 10-30 ans |
+| **Objectif financier** | `/strategy/objective` | Définir un objectif, calculer l'écart et le chemin |
+| **Vos objectifs** | `/strategy/objectifs` | CRUD d'objectifs, assignation d'actifs, suivi de progression |
+| **Liberté financière** | `/strategy/fire` | FIRE Calculator — Freedom Number, règle des 4 % |
+| **Comparateur de scénarios** | `/strategy/scenarios` | Comparer actuel vs recommandé vs ambitieux |
+| **Projection par enveloppe** | — | Projection détaillée par classe d'actifs (à venir) |
 
 Tous les modules utilisent un moteur de projection commun (`projectionEngine`).
 
@@ -121,7 +124,7 @@ backend/
 | **Phase 1** ✅ | Repositionnement produit + nouveau dashboard stratégique |
 | **Phase 2** ✅ | Moteur de projection globale (`projectionEngine`) |
 | **Phase 3** ✅ | Goals Engine + Objectifs + Lexique pédagogique |
-| **Phase 4** | Comparateur de scénarios (actuel / optimisé / ambitieux) |
+| **Phase 4** ✅ | Scenario Engine + FIRE Calculator + corrections financières |
 | **Phase 5** | Allocation optimizer |
 | **Phase 6** | Time optimizer (gagner du temps vers l'objectif) |
 
@@ -147,3 +150,12 @@ backend/
 - Pas de base de données — tout sur Google Drive (JSON)
 - CORS proxy Cloudflare Worker pour APIs bloquées
 - 5 thèmes × 2 modes (light/dark) via CSS variables
+
+## Corrections financières Phase 4
+- Dashboard : objectif lu depuis `portfolio.goals` (type `long_term`), CTA si aucun objectif
+- Contribution initiale : pré-remplie depuis DCA actif, puis moyenne épargne, puis 500 € fallback
+- Distribution contribution : DCA par enveloppe en priorité, proportionnel en fallback (`buildEnvelopeContributions`)
+- Goals : date estimée calculée dynamiquement via `goalProjectionEngine.projectGoal()`
+- Fundraising : valeur courante utilisée (`currentPrice × quantity`) au lieu de `amountInvested`
+- Objectifs unifiés : `ObjectifFinancier` propose d'utiliser un objectif `long_term` existant ; `Objectifs` offre un lien "Voir la projection" vers `/strategy/objective`
+- Disclaimer de risque visible sur toutes les pages de projection (obligation légale)

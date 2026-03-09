@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { TrendingUp, Layers, GitBranch, Target, Crosshair, ArrowRight, Lock } from 'lucide-react'
+import { TrendingUp, Layers, GitBranch, Target, Crosshair, ArrowRight, Lock, Sunrise } from 'lucide-react'
 
 const MODULES = [
   {
@@ -30,6 +30,24 @@ const MODULES = [
     colorLight: 'var(--success-light)',
   },
   {
+    id: 'fire',
+    icon: Sunrise,
+    title: 'Liberté financière',
+    description: 'Calculez votre "Freedom Number" et estimez quand vous pourrez vivre de vos revenus passifs selon la règle des 4 %.',
+    status: 'active',
+    color: '#f59e0b',
+    colorLight: 'rgba(245, 158, 11, 0.12)',
+  },
+  {
+    id: 'scenarios',
+    icon: GitBranch,
+    title: 'Comparateur de scénarios',
+    description: 'Comparez 3 stratégies d\'investissement et voyez laquelle vous rapproche le plus vite de votre objectif.',
+    status: 'active',
+    color: 'var(--danger)',
+    colorLight: 'rgba(239, 68, 68, 0.12)',
+  },
+  {
     id: 'envelopes',
     icon: Layers,
     title: 'Projection par type de compte',
@@ -37,15 +55,6 @@ const MODULES = [
     status: 'coming',
     color: '#8b5cf6',
     colorLight: 'rgba(139, 92, 246, 0.12)',
-  },
-  {
-    id: 'scenarios',
-    icon: GitBranch,
-    title: 'Comparateur de scénarios',
-    description: 'Comparez plusieurs façons d\'investir et voyez laquelle vous rapproche le plus vite de vos objectifs.',
-    status: 'coming',
-    color: 'var(--danger)',
-    colorLight: 'rgba(239, 68, 68, 0.12)',
   },
 ]
 

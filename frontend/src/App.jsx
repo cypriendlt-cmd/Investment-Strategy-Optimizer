@@ -7,6 +7,8 @@ import StrategyLab from './pages/StrategyLab'
 import ProjectionGlobale from './pages/strategy/ProjectionGlobale'
 import ObjectifFinancier from './pages/strategy/ObjectifFinancier'
 import Objectifs from './pages/strategy/Objectifs'
+import FIRECalculator from './pages/strategy/FIRECalculator'
+import Scenarios from './pages/strategy/Scenarios'
 import Portfolio from './pages/Portfolio'
 import Crypto from './pages/Crypto'
 import PEA from './pages/PEA'
@@ -65,6 +67,8 @@ export default function App() {
               <Route path="/strategy/projection" element={<ProjectionGlobale />} />
               <Route path="/strategy/objective" element={<ObjectifFinancier />} />
               <Route path="/strategy/objectifs" element={<Objectifs />} />
+              <Route path="/strategy/fire" element={<FIRECalculator />} />
+              <Route path="/strategy/scenarios" element={<Scenarios />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/crypto" element={<Crypto />} />
               <Route path="/portfolio/pea" element={<PEA />} />
