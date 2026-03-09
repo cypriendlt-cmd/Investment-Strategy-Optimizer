@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
-import { Plus, X, PiggyBank, Trash2, ChevronDown, ChevronUp, TrendingUp, Calendar, ArrowUpRight, ArrowDownLeft, Settings, Pencil } from 'lucide-react'
+import { Plus, X, PiggyBank, Trash2, ChevronDown, ChevronUp, TrendingUp, Calendar, ArrowUpRight, ArrowDownLeft, Pencil } from 'lucide-react'
 import { usePortfolio } from '../context/PortfolioContext'
 import { useBank } from '../context/BankContext'
 import { usePrivacyMask } from '../hooks/usePrivacyMask'
@@ -59,7 +59,7 @@ function AddLivretModal({ onClose, onAdd }) {
           <div className="form-group">
             <label className="form-label">Solde actuel (EUR)</label>
             <input className="form-input" type="number" step="0.01" placeholder="10000" required value={form.balance} onChange={e => setForm({ ...form, balance: e.target.value })} />
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Solde initial et date permettent un calcul plus precis des interets</span>
+            <span className="livret-hint">Solde initial et date permettent un calcul plus precis des interets</span>
           </div>
           <div className="form-group">
             <label className="form-label">Date d'ouverture (optionnel)</label>
@@ -93,18 +93,18 @@ function MovementForm({ livretId, onAdd }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, flexWrap: 'wrap' }}>
-      <input type="date" className="form-input" style={{ width: 150, padding: '6px 8px', fontSize: '0.85rem' }} value={date} onChange={e => setDate(e.target.value)} />
-      <input type="number" className="form-input" style={{ width: 120, padding: '6px 8px', fontSize: '0.85rem' }} step="0.01" min="0.01" placeholder="Montant" required value={amount} onChange={e => setAmount(e.target.value)} />
-      <div style={{ display: 'flex', borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)' }}>
-        <button type="button" onClick={() => setType('deposit')} style={{ padding: '6px 12px', fontSize: '0.8rem', background: type === 'deposit' ? 'var(--success)' : 'transparent', color: type === 'deposit' ? '#fff' : 'var(--text-secondary)', border: 'none', cursor: 'pointer' }}>
-          <ArrowDownLeft size={12} style={{ marginRight: 4 }} />Depot
+    <form onSubmit={handleSubmit} className="livret-movement-form">
+      <input type="date" className="form-input" value={date} onChange={e => setDate(e.target.value)} />
+      <input type="number" className="form-input form-input-amount" step="0.01" min="0.01" placeholder="Montant" required value={amount} onChange={e => setAmount(e.target.value)} />
+      <div className="livret-type-toggle">
+        <button type="button" className={type === 'deposit' ? 'active-deposit' : ''} onClick={() => setType('deposit')}>
+          <ArrowDownLeft size={12} />Depot
         </button>
-        <button type="button" onClick={() => setType('withdrawal')} style={{ padding: '6px 12px', fontSize: '0.8rem', background: type === 'withdrawal' ? 'var(--danger)' : 'transparent', color: type === 'withdrawal' ? '#fff' : 'var(--text-secondary)', border: 'none', cursor: 'pointer' }}>
-          <ArrowUpRight size={12} style={{ marginRight: 4 }} />Retrait
+        <button type="button" className={type === 'withdrawal' ? 'active-withdrawal' : ''} onClick={() => setType('withdrawal')}>
+          <ArrowUpRight size={12} />Retrait
         </button>
       </div>
-      <button type="submit" className="btn btn-primary btn-sm" style={{ padding: '6px 12px' }}>
+      <button type="submit" className="btn btn-primary btn-sm">
         <Plus size={14} /> Ajouter
       </button>
     </form>
@@ -143,7 +143,7 @@ function ConfigureBankLivretModal({ account, onClose, onSave }) {
                 <option key={key} value={key}>{val.label} (plafond {fmt(val.max)})</option>
               ))}
             </select>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            <span className="livret-hint">
               Associer un type permet le calcul des intérêts et le suivi du plafond
             </span>
           </div>
@@ -207,9 +207,9 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
 
   return (
     <>
-      <div style={{ marginTop: 32, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Livrets importés (relevés bancaires)</h3>
-        <Link to="/banking" className="btn btn-ghost" style={{ fontSize: '0.8rem' }}>Voir détails →</Link>
+      <div className="livret-bank-header">
+        <h3>Livrets importés (relevés bancaires)</h3>
+        <Link to="/banking" className="btn btn-ghost">Voir détails →</Link>
       </div>
 
       <div className="grid grid-3 mb-24 gap-20">
@@ -256,7 +256,7 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
               {/* Card header */}
               <div className="flex items-center justify-between mb-16">
                 <div className="flex items-center gap-12">
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: (info ? color : 'var(--accent)') + '22', color: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="livret-card-icon" style={{ background: (info ? color : 'var(--accent)') + '22', color: color }}>
                     <PiggyBank size={20} />
                   </div>
                   <div>
@@ -289,15 +289,15 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
               {/* Interest stats (only if type configured) */}
               {type && (
                 <div className="grid grid-3 gap-12 mb-12">
-                  <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '10px 14px' }}>
+                  <div className="livret-stat-box">
                     <div className="text-xs text-muted mb-4">Intérêts YTD</div>
                     <div className="font-semibold text-success">{m(fmt(ytd))}</div>
                   </div>
-                  <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '10px 14px' }}>
+                  <div className="livret-stat-box">
                     <div className="text-xs text-muted mb-4">Estimation annuelle</div>
                     <div className="font-semibold text-success">{m(fmt(annual))}</div>
                   </div>
-                  <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '10px 14px' }}>
+                  <div className="livret-stat-box">
                     <div className="text-xs text-muted mb-4">Moy. / quinzaine</div>
                     <div className="font-semibold text-success">{m(fmt(annual / 24))}</div>
                   </div>
@@ -305,15 +305,14 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
               )}
 
               {!type && (
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '12px 16px', marginBottom: 12, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                <div className="livret-info-box">
                   Configurez le type de livret pour activer le calcul des intérêts et le suivi du plafond.
                 </div>
               )}
 
               {/* Expand toggle */}
               <button
-                className="btn btn-ghost btn-sm"
-                style={{ width: '100%', justifyContent: 'center', gap: 6 }}
+                className="btn btn-ghost btn-sm livret-expand-btn"
                 onClick={() => setExpandedId(isExpanded ? null : `bank_${a.id}`)}
               >
                 {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -322,25 +321,25 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
 
               {/* Expanded section */}
               {isExpanded && (
-                <div style={{ marginTop: 16 }}>
+                <div className="mt-16">
                   {/* Movements */}
-                  <h4 style={{ fontSize: '0.9rem', marginBottom: 8 }}>Mouvements ({movements.length})</h4>
+                  <h4 className="livret-section-title">Mouvements ({movements.length})</h4>
                   {movements.length === 0 && (
-                    <p className="text-sm text-muted" style={{ marginBottom: 8 }}>Aucun mouvement importé.</p>
+                    <p className="text-sm text-muted mb-8">Aucun mouvement importé.</p>
                   )}
                   {movements.length > 0 && (
-                    <div style={{ maxHeight: 250, overflowY: 'auto', marginBottom: 8 }}>
+                    <div className="livret-movement-scroll">
                       {movements.map((mv, idx) => (
-                        <div key={idx} className="flex items-center justify-between" style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+                        <div key={idx} className="flex items-center justify-between livret-movement-item">
                           <div className="flex items-center gap-8">
                             {mv.amount > 0
-                              ? <ArrowDownLeft size={14} style={{ color: 'var(--success)' }} />
-                              : <ArrowUpRight size={14} style={{ color: 'var(--danger)' }} />
+                              ? <ArrowDownLeft size={14} className="text-success" />
+                              : <ArrowUpRight size={14} className="text-danger" />
                             }
                             <span className="text-sm">{fmtDate(mv.date)}</span>
-                            <span className="text-xs text-muted" style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{mv.label}</span>
+                            <span className="text-xs text-muted livret-movement-label">{mv.label}</span>
                           </div>
-                          <span className="text-sm font-semibold" style={{ color: mv.amount > 0 ? 'var(--success)' : 'var(--danger)' }}>
+                          <span className={`text-sm font-semibold ${mv.amount > 0 ? 'text-success' : 'text-danger'}`}>
                             {m(`${mv.amount > 0 ? '+' : ''}${fmt(mv.amount)}`)}
                           </span>
                         </div>
@@ -351,24 +350,24 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
                   {/* Quinzaine table (only if type configured) */}
                   {type && byQuinzaine.length > 0 && (
                     <>
-                      <h4 style={{ fontSize: '0.9rem', marginTop: 20, marginBottom: 8 }}>Détail par quinzaine</h4>
-                      <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-                        <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
+                      <h4 className="livret-section-title-spaced">Détail par quinzaine</h4>
+                      <div className="livret-quinzaine-scroll">
+                        <table className="livret-quinzaine-table">
                           <thead>
-                            <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left' }}>
-                              <th style={{ padding: '6px 8px' }}>Période</th>
-                              <th style={{ padding: '6px 8px', textAlign: 'right' }}>Solde</th>
-                              <th style={{ padding: '6px 8px', textAlign: 'right' }}>Taux</th>
-                              <th style={{ padding: '6px 8px', textAlign: 'right' }}>Intérêts</th>
+                            <tr>
+                              <th>Période</th>
+                              <th className="text-right">Solde</th>
+                              <th className="text-right">Taux</th>
+                              <th className="text-right">Intérêts</th>
                             </tr>
                           </thead>
-                          <tbody style={{ fontFamily: 'monospace' }}>
+                          <tbody>
                             {byQuinzaine.map((q, i) => (
-                              <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                                <td style={{ padding: '4px 8px' }}>{fmtDate(q.start)} - {fmtDate(q.end)}</td>
-                                <td style={{ padding: '4px 8px', textAlign: 'right' }}>{m(fmt(q.balance))}</td>
-                                <td style={{ padding: '4px 8px', textAlign: 'right' }}>{fmtPct(q.rate)}</td>
-                                <td style={{ padding: '4px 8px', textAlign: 'right', color: 'var(--success)' }}>{m(fmt(q.interest))}</td>
+                              <tr key={i}>
+                                <td>{fmtDate(q.start)} - {fmtDate(q.end)}</td>
+                                <td className="text-right">{m(fmt(q.balance))}</td>
+                                <td className="text-right">{fmtPct(q.rate)}</td>
+                                <td className="text-right text-success">{m(fmt(q.interest))}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -477,7 +476,7 @@ export default function Livrets() {
               {/* Card header */}
               <div className="flex items-center justify-between mb-16">
                 <div className="flex items-center gap-12">
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: info.color + '22', color: info.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="livret-card-icon" style={{ background: info.color + '22', color: info.color }}>
                     <PiggyBank size={20} />
                   </div>
                   <div>
@@ -511,15 +510,15 @@ export default function Livrets() {
 
               {/* Interest stats */}
               <div className="grid grid-3 gap-12 mb-12">
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '10px 14px' }}>
+                <div className="livret-stat-box">
                   <div className="text-xs text-muted mb-4">Interets YTD</div>
                   <div className="font-semibold text-success">{m(fmt(ytd))}</div>
                 </div>
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '10px 14px' }}>
+                <div className="livret-stat-box">
                   <div className="text-xs text-muted mb-4">Estimation annuelle</div>
                   <div className="font-semibold text-success">{m(fmt(annual))}</div>
                 </div>
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '10px 14px' }}>
+                <div className="livret-stat-box">
                   <div className="text-xs text-muted mb-4">Moy. / quinzaine</div>
                   <div className="font-semibold text-success">{m(fmt(annual / 24))}</div>
                 </div>
@@ -527,8 +526,7 @@ export default function Livrets() {
 
               {/* Expand toggle */}
               <button
-                className="btn btn-ghost btn-sm"
-                style={{ width: '100%', justifyContent: 'center', gap: 6 }}
+                className="btn btn-ghost btn-sm livret-expand-btn"
                 onClick={() => setExpandedId(isExpanded ? null : l.id)}
               >
                 {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -537,25 +535,25 @@ export default function Livrets() {
 
               {/* Expanded section */}
               {isExpanded && (
-                <div style={{ marginTop: 16 }}>
+                <div className="mt-16">
                   {/* Movements */}
-                  <h4 style={{ fontSize: '0.9rem', marginBottom: 8 }}>Mouvements</h4>
+                  <h4 className="livret-section-title">Mouvements</h4>
                   {movements.length === 0 && (
-                    <p className="text-sm text-muted" style={{ marginBottom: 8 }}>Aucun mouvement enregistre.</p>
+                    <p className="text-sm text-muted mb-8">Aucun mouvement enregistre.</p>
                   )}
                   {movements.length > 0 && (
-                    <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: 8 }}>
+                    <div className="livret-movement-scroll-short">
                       {movements.map((mv, idx) => (
-                        <div key={idx} className="flex items-center justify-between" style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+                        <div key={idx} className="flex items-center justify-between livret-movement-item">
                           <div className="flex items-center gap-8">
                             {mv.amount > 0
-                              ? <ArrowDownLeft size={14} style={{ color: 'var(--success)' }} />
-                              : <ArrowUpRight size={14} style={{ color: 'var(--danger)' }} />
+                              ? <ArrowDownLeft size={14} className="text-success" />
+                              : <ArrowUpRight size={14} className="text-danger" />
                             }
                             <span className="text-sm">{fmtDate(mv.date)}</span>
                           </div>
                           <div className="flex items-center gap-8">
-                            <span className="text-sm font-semibold" style={{ color: mv.amount > 0 ? 'var(--success)' : 'var(--danger)' }}>
+                            <span className={`text-sm font-semibold ${mv.amount > 0 ? 'text-success' : 'text-danger'}`}>
                               {m(`${mv.amount > 0 ? '+' : ''}${fmt(mv.amount)}`)}
                             </span>
                             <button className="btn btn-ghost btn-icon btn-sm" onClick={() => deleteLivretMovement(l.id, idx)}>
@@ -570,24 +568,24 @@ export default function Livrets() {
                   <MovementForm livretId={l.id} onAdd={addLivretMovement} />
 
                   {/* Quinzaine table */}
-                  <h4 style={{ fontSize: '0.9rem', marginTop: 20, marginBottom: 8 }}>Detail par quinzaine</h4>
-                  <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-                    <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
+                  <h4 className="livret-section-title-spaced">Detail par quinzaine</h4>
+                  <div className="livret-quinzaine-scroll">
+                    <table className="livret-quinzaine-table">
                       <thead>
-                        <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left' }}>
-                          <th style={{ padding: '6px 8px' }}>Periode</th>
-                          <th style={{ padding: '6px 8px', textAlign: 'right' }}>Solde</th>
-                          <th style={{ padding: '6px 8px', textAlign: 'right' }}>Taux</th>
-                          <th style={{ padding: '6px 8px', textAlign: 'right' }}>Interets</th>
+                        <tr>
+                          <th>Periode</th>
+                          <th className="text-right">Solde</th>
+                          <th className="text-right">Taux</th>
+                          <th className="text-right">Interets</th>
                         </tr>
                       </thead>
-                      <tbody style={{ fontFamily: 'monospace' }}>
+                      <tbody>
                         {byQuinzaine.map((q, i) => (
-                          <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                            <td style={{ padding: '4px 8px' }}>{fmtDate(q.start)} - {fmtDate(q.end)}</td>
-                            <td style={{ padding: '4px 8px', textAlign: 'right' }}>{m(fmt(q.balance))}</td>
-                            <td style={{ padding: '4px 8px', textAlign: 'right' }}>{fmtPct(q.rate)}</td>
-                            <td style={{ padding: '4px 8px', textAlign: 'right', color: 'var(--success)' }}>{m(fmt(q.interest))}</td>
+                          <tr key={i}>
+                            <td>{fmtDate(q.start)} - {fmtDate(q.end)}</td>
+                            <td className="text-right">{m(fmt(q.balance))}</td>
+                            <td className="text-right">{fmtPct(q.rate)}</td>
+                            <td className="text-right text-success">{m(fmt(q.interest))}</td>
                           </tr>
                         ))}
                       </tbody>

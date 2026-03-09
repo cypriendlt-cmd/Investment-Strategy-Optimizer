@@ -78,11 +78,11 @@ export default function Fundraising() {
 
   return (
     <div className="animate-fade-in">
-      <div className="card mb-24" style={{ background: 'var(--gradient-card)', borderColor: 'var(--border-strong)' }}>
+      <div className="card mb-24 page-hero">
         <div className="flex items-center justify-between">
           <div>
             <p className="stat-label">Total investi — Levées de fonds</p>
-            <p className="stat-value" style={{ fontSize: '2.5rem', marginTop: 4 }}>{m(fmt(totals.fundraising))}</p>
+            <p className="stat-value page-hero-value">{m(fmt(totals.fundraising))}</p>
             <p className="stat-sub mt-8">{portfolio.fundraising.length} projet{portfolio.fundraising.length > 1 ? 's' : ''}</p>
           </div>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
@@ -91,7 +91,7 @@ export default function Fundraising() {
         </div>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card card--table">
         <div className="table-container">
           <table>
             <thead>
@@ -110,7 +110,7 @@ export default function Fundraising() {
                 <tr key={f.id}>
                   <td>
                     <div className="flex items-center gap-12">
-                      <div style={{ width: 36, height: 36, borderRadius: 8, background: 'var(--accent-light)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className="fundraising-project-icon">
                         <Rocket size={16} />
                       </div>
                       <span className="font-semibold">{f.projectName}</span>

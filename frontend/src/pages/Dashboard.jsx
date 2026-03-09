@@ -1,18 +1,18 @@
 import { useState, useEffect, useMemo } from 'react'
 import {
-  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area,
+  PieChart, Pie, Cell, AreaChart, Area,
   ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid
 } from 'recharts'
 import {
-  TrendingUp, TrendingDown, Target, Zap, ArrowRight, FlaskConical,
-  Wallet, Activity, Award, AlertTriangle, Sparkles, BarChart3, Shield,
-  Lightbulb, Calendar, Layers, GitBranch, Compass
+  TrendingUp, TrendingDown, Target, Zap, ArrowRight,
+  Activity, Award, AlertTriangle, Sparkles,
+  Calendar, GitBranch
 } from 'lucide-react'
 import { usePortfolio } from '../context/PortfolioContext'
 import { useBank } from '../context/BankContext'
 import { useAuth } from '../context/AuthContext'
 import { usePrivacyMask } from '../hooks/usePrivacyMask'
-import { getInsights, getDashboardSummary } from '../services/insights'
+import { getInsights } from '../services/insights'
 import { getFearGreed } from '../services/market'
 import { getMonthlyDcaSummary, getLinkedAsset, computeDcaProgress } from '../services/dcaEngine'
 import { Link } from 'react-router-dom'
@@ -33,22 +33,16 @@ const TIME_RANGES = [
 
 function getAllMovements(portfolio) {
   const allMovements = []
-  for (const c of portfolio.crypto) {
-    for (const m of (c.movements || [])) {
+
+  for (const asset of [...portfolio.crypto, ...portfolio.pea]) {
+    for (const m of (asset.movements || [])) {
       allMovements.push({
         date: new Date(m.date),
         delta: m.type === 'sell' ? -(m.quantity * m.price) : (m.quantity * m.price + (m.fees || 0))
       })
     }
   }
-  for (const p of portfolio.pea) {
-    for (const m of (p.movements || [])) {
-      allMovements.push({
-        date: new Date(m.date),
-        delta: m.type === 'sell' ? -(m.quantity * m.price) : (m.quantity * m.price + (m.fees || 0))
-      })
-    }
-  }
+
   for (const l of portfolio.livrets) {
     for (const m of (l.movements || [])) {
       allMovements.push({
@@ -57,6 +51,7 @@ function getAllMovements(portfolio) {
       })
     }
   }
+
   allMovements.sort((a, b) => b.date - a.date)
   return allMovements
 }
@@ -143,10 +138,9 @@ function buildProjectionData(currentTotal) {
 function useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans) {
   return useMemo(() => {
     try {
-      const result = runProjection(portfolio, totals, accountBalances || [], aggregates || [], dcaPlans, {
+      return runProjection(portfolio, totals, accountBalances || [], aggregates || [], dcaPlans, {
         horizonYears: 10,
       })
-      return result
     } catch {
       return null
     }
@@ -206,13 +200,12 @@ function GaugeChart({ value, label }) {
 
 export default function Dashboard() {
   const { portfolio, totals, dcaPlans } = usePortfolio()
-  const { accountBalances, aggregates, healthScore, coachInsights } = useBank() || {}
+  const { accountBalances, aggregates } = useBank() || {}
   const { isGuest } = useAuth()
   const { m, mp } = usePrivacyMask()
   const [fearGreed, setFearGreed] = useState({ crypto: 0, market: 0 })
   const [insight, setInsight] = useState(null)
   const [insightLoading, setInsightLoading] = useState(true)
-  const [analysis, setAnalysis] = useState(null)
   const [timeRange, setTimeRange] = useState('6m')
 
   useEffect(() => {
@@ -232,17 +225,6 @@ export default function Dashboard() {
       .catch(() => {})
       .finally(() => setInsightLoading(false))
   }, [isGuest])
-
-  useEffect(() => {
-    if (isGuest || !portfolio || !totals.total) return
-    getDashboardSummary({
-      crypto: portfolio.crypto || [], pea: portfolio.pea || [],
-      livrets: portfolio.livrets || [], fundraising: portfolio.fundraising || [], totals,
-    })
-      .then(res => { if (res.data.synthesis) setAnalysis(res.data) })
-      .catch(() => {})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totals.total])
 
   const perfData = buildPortfolioHistory(portfolio, totals, timeRange)
   const bankLivrets = (accountBalances || []).filter(a => a.type !== 'courant').reduce((s, a) => s + a.balance, 0)
@@ -270,7 +252,6 @@ export default function Dashboard() {
   }, [strategyResult, patrimoineNet])
   const projectedTarget = projectionData[projectionData.length - 1]?.projected || 0
 
-  // Objective from portfolio.goals (long_term goals)
   const objective = useMemo(() => {
     const goals = portfolio?.goals || []
     const longTermGoals = goals.filter(g => g.type === 'long_term')
@@ -281,13 +262,12 @@ export default function Dashboard() {
   const progressPct = objective ? Math.min((patrimoineNet / objective) * 100, 100) : 0
 
   const allocationData = [
-    { name: 'Crypto', value: totals.crypto, color: '#3b82f6' },
-    { name: 'PEA', value: totals.pea, color: '#10b981' },
-    { name: 'Livrets', value: totalLivrets, color: '#f59e0b' },
-    { name: 'Levées', value: totals.fundraising, color: '#8b5cf6' },
+    { name: 'Crypto', value: totals.crypto, color: 'var(--color-crypto)' },
+    { name: 'PEA', value: totals.pea, color: 'var(--color-pea)' },
+    { name: 'Livrets', value: totalLivrets, color: 'var(--color-livrets)' },
+    { name: 'Levées', value: totals.fundraising, color: 'var(--color-fundraising)' },
   ]
 
-  // DCA summary
   const dcaSummary = useMemo(() => {
     const plans = dcaPlans?.plans || []
     const enabled = plans.filter(p => p.enabled)
@@ -309,234 +289,88 @@ export default function Dashboard() {
   }, [dcaPlans, portfolio])
 
   const lastAgg = aggregates?.[aggregates.length - 1]
-  const monthIncome = lastAgg?.income || 0
-  const monthExpenses = lastAgg?.expenses || 0
-  const monthSavings = monthIncome - monthExpenses
+  const monthSavings = (lastAgg?.income || 0) - (lastAgg?.expenses || 0)
+
+  // Best and worst performers
+  const performers = useMemo(() => {
+    const cryptoGains = portfolio.crypto.map(c => ({
+      name: c.symbol,
+      gain: ((c.currentPrice || c.buyPrice) - c.buyPrice) / c.buyPrice * 100
+    }))
+    const sorted = [...cryptoGains].sort((a, b) => b.gain - a.gain)
+    return { best: sorted[0] || null, worst: sorted[sorted.length - 1] || null }
+  }, [portfolio.crypto])
 
   return (
     <div className="dashboard">
 
-      {/* ═══ A. Strategic Hero ═══ */}
+      {/* ═══ 1. HERO — Patrimoine total + performance ═══ */}
       <div className="dashboard-hero">
         <div className="dashboard-hero-content">
-          <p className="dashboard-hero-eyebrow">Votre trajectoire patrimoniale</p>
+          <p className="dashboard-hero-eyebrow">Patrimoine total</p>
           <p className="dashboard-total">{m(fmt(patrimoineNet))}</p>
           <span className={`dashboard-hero-badge ${totalGain >= 0 ? 'dashboard-hero-badge--up' : 'dashboard-hero-badge--down'}`}>
             {totalGain >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-            {m(fmt(totalGain))} depuis le début
+            {m(fmt(totalGain))} ({mp(fmtPct(totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0))})
           </span>
-          <div className="dashboard-hero-actions">
-            <Link to="/strategy" className="btn btn-primary btn-sm">
-              <FlaskConical size={14} /> Strategy Lab
-            </Link>
-            <Link to="/portfolio/objectives" className="btn btn-ghost btn-sm">
-              <Target size={14} /> Définir un objectif
-            </Link>
-          </div>
         </div>
-        <div className="dashboard-hero-chart">
-          <ResponsiveContainer width="100%" height={80}>
-            <LineChart data={perfData}>
-              <Line type="monotone" dataKey="value" stroke="var(--accent)" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* ═══ B. Strategic KPIs ═══ */}
-      <div className="dashboard-stats">
-        <div className="dash-stat" style={{ '--stat-accent': 'var(--accent)' }}>
-          <div className="dash-stat-header">
-            <div className="dash-stat-icon" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}><Wallet size={17} /></div>
-            <span className="dash-stat-label">Patrimoine actuel</span>
-          </div>
-          <div className="dash-stat-value">{m(fmt(patrimoineNet))}</div>
-          <div className={`dash-stat-sub ${totalGain >= 0 ? 'text-success' : 'text-danger'}`}>{mp(fmtPct(totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0))}</div>
-        </div>
-
-        <div className="dash-stat" style={{ '--stat-accent': 'var(--success)' }}>
-          <div className="dash-stat-header">
-            <div className="dash-stat-icon" style={{ background: 'var(--success-light)', color: 'var(--success)' }}><TrendingUp size={17} /></div>
-            <span className="dash-stat-label">Trajectoire 10 ans</span>
-          </div>
-          <div className="dash-stat-value">{m(fmt(projectedTarget))}</div>
-          <div className="dash-stat-sub text-muted">Croissance estimée 7% / an</div>
-        </div>
-
-        <div className="dash-stat" style={{ '--stat-accent': 'var(--warning)' }}>
-          <div className="dash-stat-header">
-            <div className="dash-stat-icon" style={{ background: 'var(--warning-light)', color: 'var(--warning)' }}><Target size={17} /></div>
-            <span className="dash-stat-label">Objectif patrimonial</span>
-          </div>
-          {objective ? (
-            <>
-              <div className="dash-stat-value">{m(fmt(objective))}</div>
-              <div className="dash-stat-sub" style={{ color: 'var(--accent)' }}>{progressPct.toFixed(0)}% atteint</div>
-            </>
-          ) : (
-            <>
-              <div className="dash-stat-value" style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Non défini</div>
-              <Link to="/strategy/objectifs" className="dash-stat-sub" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Définir un objectif</Link>
-            </>
-          )}
-        </div>
-
-        <div className="dash-stat" style={{ '--stat-accent': '#8b5cf6' }}>
-          <div className="dash-stat-header">
-            <div className="dash-stat-icon" style={{ background: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6' }}><Zap size={17} /></div>
-            <span className="dash-stat-label">Épargne mensuelle</span>
-          </div>
-          <div className="dash-stat-value">{m(fmt(monthSavings > 0 ? monthSavings : 500))}</div>
-          <div className="dash-stat-sub text-muted">/ mois</div>
-        </div>
-      </div>
-
-      {/* ═══ C. Trajectory Chart ═══ */}
-      <div className="dashboard-charts">
-        <div className="dash-card dash-card--wide">
-          <div className="perf-chart-header">
-            <div className="dash-card-title">Trajectoire patrimoniale</div>
-            <div className="time-range-selector">
-              {TIME_RANGES.map(r => (
-                <button key={r.key} className={`time-range-btn${timeRange === r.key ? ' active' : ''}`} onClick={() => setTimeRange(r.key)}>
-                  {r.label}
-                </button>
-              ))}
+        <div className="dashboard-hero-right">
+          <div className="dashboard-hero-kpis">
+            <div className="dashboard-hero-kpi">
+              <span className="dashboard-hero-kpi-label">Projection 10 ans</span>
+              <span className="dashboard-hero-kpi-value">{m(fmt(projectedTarget))}</span>
             </div>
-          </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={perfData}>
-              <defs>
-                <linearGradient id="trajectoryGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.25} />
-                  <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v) => [m(fmt(v)), 'Valeur']} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
-              <Area type="monotone" dataKey="value" stroke="var(--accent)" strokeWidth={2.5} fill="url(#trajectoryGrad)" dot={{ fill: 'var(--accent)', r: 3, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="dash-card">
-          <div className="dash-card-title">Projection estimée</div>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={projectionData}>
-              <defs>
-                <linearGradient id="projGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--success)" stopOpacity={0.2} />
-                  <stop offset="100%" stopColor="var(--success)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="year" tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v) => [m(fmt(v))]} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
-              <Area type="monotone" dataKey="projected" stroke="var(--success)" strokeWidth={2} fill="url(#projGrad)" name="Avec rendement" />
-              <Area type="monotone" dataKey="nominal" stroke="var(--text-muted)" strokeWidth={1.5} strokeDasharray="4 4" fill="none" name="Épargne seule" />
-            </AreaChart>
-          </ResponsiveContainer>
-          <div className="projection-legend">
-            <span className="projection-legend-item"><span className="projection-dot" style={{ background: 'var(--success)' }} /> Avec rendement</span>
-            <span className="projection-legend-item"><span className="projection-dot projection-dot--dashed" /> Épargne seule</span>
+            <div className="dashboard-hero-kpi">
+              <span className="dashboard-hero-kpi-label">Épargne / mois</span>
+              <span className="dashboard-hero-kpi-value">{m(fmt(monthSavings > 0 ? monthSavings : 500))}</span>
+            </div>
+            {objective && (
+              <div className="dashboard-hero-kpi">
+                <span className="dashboard-hero-kpi-label">Objectif</span>
+                <span className="dashboard-hero-kpi-value dashboard-hero-kpi-value--accent">{progressPct.toFixed(0)}%</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ═══ D. Objective Progress ═══ */}
-      <div className="dash-card objective-card">
-        <div className="objective-card-header">
-          <div className="flex items-center gap-8">
-            <Target size={16} style={{ color: 'var(--warning)' }} />
-            <span className="dash-card-title" style={{ margin: 0 }}>Objectif patrimonial</span>
-          </div>
-          <Link to="/strategy" className="insight-link" style={{ margin: 0, padding: 0 }}>Strategy Lab <ArrowRight size={12} /></Link>
-        </div>
-        {objective ? (
-          <>
-            <div className="objective-progress-container">
-              <div className="objective-progress-bar">
-                <div className="objective-progress-fill" style={{ width: `${progressPct}%` }} />
-              </div>
-              <div className="objective-progress-labels">
-                <span>{m(fmt(patrimoineNet))}</span>
-                <span className="text-muted">{m(fmt(objective))}</span>
-              </div>
-            </div>
-            <div className="objective-stats">
-              <div className="objective-stat">
-                <span className="objective-stat-label">Progression</span>
-                <span className="objective-stat-value" style={{ color: 'var(--accent)' }}>{progressPct.toFixed(1)}%</span>
-              </div>
-              <div className="objective-stat">
-                <span className="objective-stat-label">Écart restant</span>
-                <span className="objective-stat-value">{m(fmt(Math.max(objective - patrimoineNet, 0)))}</span>
-              </div>
-              <div className="objective-stat">
-                <span className="objective-stat-label">Horizon estimé</span>
-                <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} ans</span>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
-            <Target size={32} style={{ color: 'var(--text-muted)', marginBottom: '0.75rem' }} />
-            <p style={{ color: 'var(--text-muted)', margin: '0 0 1rem', fontSize: '0.9rem' }}>
-              Définissez un objectif patrimonial pour suivre votre progression.
-            </p>
-            <Link to="/strategy/objectifs" className="btn btn-primary btn-sm">
-              <Target size={14} /> Définir votre objectif
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* ═══ E. Optimization Levers ═══ */}
-      <div className="dashboard-levers">
-        <div className="dash-card-title" style={{ marginBottom: 12 }}>Leviers d'optimisation</div>
-        <div className="levers-grid">
-          <div className="lever-card">
-            <div className="lever-icon" style={{ background: 'var(--success-light)', color: 'var(--success)' }}><TrendingUp size={16} /></div>
-            <div className="lever-content">
-              <span className="lever-title">Augmenter l'épargne mensuelle</span>
-              <span className="lever-desc">+100€/mois pourrait vous rapprocher de 2 ans de votre objectif</span>
-            </div>
-          </div>
-          <div className="lever-card">
-            <div className="lever-icon" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}><Layers size={16} /></div>
-            <div className="lever-content">
-              <span className="lever-title">Mieux répartir votre argent</span>
-              <span className="lever-desc">Rééquilibrer vers des placements à meilleure croissance long terme</span>
-            </div>
-          </div>
-          <div className="lever-card">
-            <div className="lever-icon" style={{ background: 'var(--warning-light)', color: 'var(--warning)' }}><Zap size={16} /></div>
-            <div className="lever-content">
-              <span className="lever-title">Réduire le cash dormant</span>
-              <span className="lever-desc">Mobiliser l'épargne non investie vers des supports performants</span>
-            </div>
-          </div>
-          <div className="lever-card">
-            <div className="lever-icon" style={{ background: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6' }}><Compass size={16} /></div>
-            <div className="lever-content">
-              <span className="lever-title">Accélérer la date d'atteinte</span>
-              <span className="lever-desc">Combinez les leviers pour atteindre votre objectif plus vite</span>
-            </div>
+      {/* ═══ 2. TRAJECTORY CHART ═══ */}
+      <div className="dash-card">
+        <div className="perf-chart-header">
+          <div className="dash-card-title">Évolution du patrimoine</div>
+          <div className="time-range-selector">
+            {TIME_RANGES.map(r => (
+              <button key={r.key} className={`time-range-btn${timeRange === r.key ? ' active' : ''}`} onClick={() => setTimeRange(r.key)}>
+                {r.label}
+              </button>
+            ))}
           </div>
         </div>
+        <ResponsiveContainer width="100%" height={260}>
+          <AreaChart data={perfData}>
+            <defs>
+              <linearGradient id="trajectoryGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+            <Tooltip formatter={(v) => [m(fmt(v)), 'Valeur']} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
+            <Area type="monotone" dataKey="value" stroke="var(--accent)" strokeWidth={2.5} fill="url(#trajectoryGrad)" dot={{ fill: 'var(--accent)', r: 3, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
 
-      {/* ═══ F. Growth Engines + Allocation ═══ */}
+      {/* ═══ 3. ALLOCATION + MARKET SENTIMENT ═══ */}
       <div className="dashboard-middle">
         <div className="dash-card">
-          <div className="dash-card-title">Répartition de votre argent</div>
+          <div className="dash-card-title">Allocation d'actifs</div>
           <div className="dashboard-pie-row">
-            <ResponsiveContainer width={200} height={200}>
+            <ResponsiveContainer width={180} height={180}>
               <PieChart>
-                <Pie data={allocationData} cx={95} cy={95} innerRadius={50} outerRadius={85} paddingAngle={3} dataKey="value">
+                <Pie data={allocationData} cx={85} cy={85} innerRadius={45} outerRadius={78} paddingAngle={3} dataKey="value">
                   {allocationData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip formatter={(v) => m(fmt(v))} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
@@ -562,45 +396,106 @@ export default function Dashboard() {
             <GaugeChart value={fearGreed.crypto} label="Crypto" />
             <GaugeChart value={fearGreed.market} label="Marchés" />
           </div>
+          {performers.best && (
+            <div className="dashboard-performers">
+              <div className="dashboard-performer">
+                <Award size={13} className="text-success" />
+                <span className="dashboard-performer-name">{performers.best.name}</span>
+                <span className="dashboard-performer-gain text-success">{fmtPct(performers.best.gain)}</span>
+              </div>
+              {performers.worst && performers.worst.name !== performers.best.name && (
+                <div className="dashboard-performer">
+                  <AlertTriangle size={13} className="text-danger" />
+                  <span className="dashboard-performer-name">{performers.worst.name}</span>
+                  <span className="dashboard-performer-gain text-danger">{fmtPct(performers.worst.gain)}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ═══ G. Scenarios Preview ═══ */}
+      {/* ═══ 4. OBJECTIVE PROGRESS ═══ */}
+      <div className="dash-card objective-card">
+        <div className="objective-card-header">
+          <div className="flex items-center gap-8">
+            <Target size={16} className="text-warning" />
+            <span className="dash-card-title" style={{ margin: 0 }}>Objectif patrimonial</span>
+          </div>
+          <Link to="/strategy" className="insight-link" style={{ margin: 0, padding: 0 }}>Strategy Lab <ArrowRight size={12} /></Link>
+        </div>
+        {objective ? (
+          <>
+            <div className="objective-progress-container">
+              <div className="objective-progress-bar">
+                <div className="objective-progress-fill" style={{ width: `${progressPct}%` }} />
+              </div>
+              <div className="objective-progress-labels">
+                <span>{m(fmt(patrimoineNet))}</span>
+                <span className="text-muted">{m(fmt(objective))}</span>
+              </div>
+            </div>
+            <div className="objective-stats">
+              <div className="objective-stat">
+                <span className="objective-stat-label">Progression</span>
+                <span className="objective-stat-value text-accent">{progressPct.toFixed(1)}%</span>
+              </div>
+              <div className="objective-stat">
+                <span className="objective-stat-label">Écart restant</span>
+                <span className="objective-stat-value">{m(fmt(Math.max(objective - patrimoineNet, 0)))}</span>
+              </div>
+              <div className="objective-stat">
+                <span className="objective-stat-label">Horizon estimé</span>
+                <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} ans</span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="objective-empty">
+            <Target size={28} className="text-muted" />
+            <p>Définissez un objectif patrimonial pour suivre votre progression.</p>
+            <Link to="/strategy/objectifs" className="btn btn-primary btn-sm">
+              <Target size={14} /> Définir votre objectif
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* ═══ 5. SCENARIOS PREVIEW ═══ */}
       <div className="dashboard-scenarios">
-        <div className="dash-card-title" style={{ marginBottom: 12 }}>Aperçu des scénarios</div>
+        <div className="dash-card-title">Scénarios à 5 ans</div>
         <div className="scenarios-grid">
           {[
-            { name: 'Actuel', value: projectionData[5]?.projected || 0, icon: Activity, desc: 'Stratégie inchangée', color: 'var(--text-muted)' },
-            { name: 'Optimisé', value: Math.round((projectionData[5]?.projected || 0) * 1.15), icon: TrendingUp, desc: 'Allocation améliorée', color: 'var(--success)' },
-            { name: 'Ambitieux', value: Math.round((projectionData[5]?.projected || 0) * 1.35), icon: Zap, desc: 'Effort + allocation max', color: 'var(--accent)' },
+            { name: 'Actuel', value: projectionData[5]?.projected || 0, icon: Activity, desc: 'Stratégie inchangée', variant: 'muted' },
+            { name: 'Optimisé', value: Math.round((projectionData[5]?.projected || 0) * 1.15), icon: TrendingUp, desc: 'Allocation améliorée', variant: 'success' },
+            { name: 'Ambitieux', value: Math.round((projectionData[5]?.projected || 0) * 1.35), icon: Zap, desc: 'Effort + allocation max', variant: 'accent' },
           ].map(s => (
-            <div key={s.name} className="scenario-card">
+            <div key={s.name} className={`scenario-card scenario-card--${s.variant}`}>
               <div className="scenario-header">
-                <s.icon size={16} style={{ color: s.color }} />
+                <s.icon size={16} />
                 <span className="scenario-name">{s.name}</span>
               </div>
-              <div className="scenario-value" style={{ color: s.color }}>{m(fmt(s.value))}</div>
+              <div className="scenario-value">{m(fmt(s.value))}</div>
               <span className="scenario-desc">{s.desc}</span>
-              <span className="scenario-horizon">Horizon 5 ans</span>
             </div>
           ))}
         </div>
-        <div style={{ textAlign: 'center', marginTop: 12 }}>
-          <Link to="/strategy" className="btn btn-secondary btn-sm">
+        <div className="dashboard-scenarios-cta">
+          <Link to="/strategy/scenarios" className="btn btn-secondary btn-sm">
             <GitBranch size={14} /> Comparer les scénarios
           </Link>
         </div>
       </div>
 
-      {/* ═══ DCA + Insights (existing) ═══ */}
+      {/* ═══ 6. DCA SUMMARY (conditional) ═══ */}
       {dcaSummary && (
         <div className="dash-card dca-dashboard-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Calendar size={15} style={{ color: 'var(--accent)' }} />
+          <div className="dca-dashboard-header">
+            <div className="flex items-center gap-8">
+              <Calendar size={15} className="text-accent" />
               <span className="dash-card-title" style={{ margin: 0 }}>Plans DCA</span>
             </div>
-            <Link to="/portfolio/dca" style={{ fontSize: '0.75rem', color: 'var(--accent)' }}>Voir les plans →</Link>
+            <Link to="/portfolio/dca" className="insight-link" style={{ margin: 0, padding: 0 }}>Voir les plans <ArrowRight size={12} /></Link>
           </div>
           <div className="dca-dash-stats">
             <div className="dca-dash-stat">
@@ -609,7 +504,7 @@ export default function Dashboard() {
             </div>
             <div className="dca-dash-stat">
               <div className="dca-dash-stat-label">Dans les temps</div>
-              <div className="dca-dash-stat-value" style={{ color: dcaSummary.onTrack === dcaSummary.total ? 'var(--success)' : 'var(--warning)' }}>
+              <div className={`dca-dash-stat-value ${dcaSummary.onTrack === dcaSummary.total ? 'text-success' : 'text-warning'}`}>
                 {dcaSummary.onTrack}/{dcaSummary.total}
               </div>
             </div>
@@ -619,14 +514,14 @@ export default function Dashboard() {
             </div>
             <div className="dca-dash-stat">
               <div className="dca-dash-stat-label">Ce mois versé</div>
-              <div className="dca-dash-stat-value" style={{ color: dcaSummary.monthActual >= dcaSummary.monthPlanned ? 'var(--success)' : 'var(--warning)' }}>
+              <div className={`dca-dash-stat-value ${dcaSummary.monthActual >= dcaSummary.monthPlanned ? 'text-success' : 'text-warning'}`}>
                 {m(fmt(dcaSummary.monthActual))}
               </div>
             </div>
           </div>
           {dcaSummary.nextDates.length > 0 && (
-            <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Prochains :</span>
+            <div className="dca-upcoming">
+              <span className="dca-upcoming-label">Prochains :</span>
               {dcaSummary.nextDates.map((d, i) => (
                 <span key={i} className="dca-upcoming-chip">
                   {new Date(d.date + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
@@ -638,106 +533,22 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* AI Insights */}
-      <div className="dashboard-bottom">
-        <div className="dash-card dashboard-insight-card">
-          <div className="flex items-center gap-8 mb-8">
-            <Sparkles size={15} style={{ color: 'var(--accent)' }} />
-            <span className="insight-tag">Analyse stratégique IA</span>
-          </div>
-          {insightLoading ? (
-            <div className="skeleton" style={{ height: 14, width: '90%', marginBottom: 8 }} />
-          ) : insight ? (
-            <>
-              <p className="insight-text">{typeof insight === 'string' ? insight.slice(0, 300) : 'Analyse disponible'}...</p>
-              <Link to="/insights" className="insight-link">Voir l'analyse complète <span>→</span></Link>
-            </>
-          ) : (
-            <p className="text-muted text-sm">Configurez l'IA pour obtenir des insights stratégiques.</p>
-          )}
+      {/* ═══ 7. AI INSIGHTS SUMMARY ═══ */}
+      <div className="dash-card dashboard-insight-card">
+        <div className="flex items-center gap-8 mb-8">
+          <Sparkles size={15} className="text-accent" />
+          <span className="insight-tag">Analyse stratégique IA</span>
         </div>
-
-        <div className="dash-card performer-card performer-card--best">
-          <div className="flex items-center gap-8 mb-8">
-            <Award size={14} style={{ color: 'var(--success)' }} />
-            <span className="performer-tag" style={{ color: 'var(--success)' }}>Meilleur moteur</span>
-          </div>
-          {(() => {
-            const cryptoGains = portfolio.crypto.map(c => ({ name: c.symbol, gain: ((c.currentPrice || c.buyPrice) - c.buyPrice) / c.buyPrice * 100 }))
-            const best = cryptoGains.sort((a, b) => b.gain - a.gain)[0]
-            return best ? (<><div className="performer-name">{best.name}</div><div className="performer-gain text-success">{fmtPct(best.gain)}</div></>) : null
-          })()}
-        </div>
-
-        <div className="dash-card performer-card performer-card--worst">
-          <div className="flex items-center gap-8 mb-8">
-            <AlertTriangle size={14} style={{ color: 'var(--danger)' }} />
-            <span className="performer-tag" style={{ color: 'var(--danger)' }}>Point d'attention</span>
-          </div>
-          {(() => {
-            const cryptoGains = portfolio.crypto.map(c => ({ name: c.symbol, gain: ((c.currentPrice || c.buyPrice) - c.buyPrice) / c.buyPrice * 100 }))
-            const worst = [...cryptoGains].sort((a, b) => a.gain - b.gain)[0]
-            return worst ? (<><div className="performer-name">{worst.name}</div><div className="performer-gain text-danger">{fmtPct(worst.gain)}</div></>) : null
-          })()}
-        </div>
-      </div>
-
-      {/* AI Analysis Inline */}
-      {analysis && (
-        <div className="dashboard-analysis-row">
-          {analysis.synthesis && (
-            <div className="dashboard-analysis-item">
-              <div className="analysis-icon" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}><TrendingUp size={14} /></div>
-              <span className="analysis-text">{analysis.synthesis}</span>
-            </div>
-          )}
-          {analysis.diversification && (
-            <div className="dashboard-analysis-item">
-              <div className="analysis-icon" style={{ background: 'var(--success-light)', color: 'var(--success)' }}><BarChart3 size={14} /></div>
-              <span className="analysis-text">{analysis.diversification}</span>
-            </div>
-          )}
-          {analysis.overexposures && (
-            <div className="dashboard-analysis-item">
-              <div className="analysis-icon" style={{ background: 'var(--warning-light)', color: 'var(--warning)' }}><Shield size={14} /></div>
-              <span className="analysis-text">{analysis.overexposures}</span>
-            </div>
-          )}
-          {analysis.recommendations && (
-            <div className="dashboard-analysis-item">
-              <div className="analysis-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}><Lightbulb size={14} /></div>
-              <span className="analysis-text">{analysis.recommendations}</span>
-            </div>
-          )}
-          <div className="analysis-link"><Link to="/insights">Voir l'analyse complète →</Link></div>
-        </div>
-      )}
-
-      {/* ═══ H. Priority Actions ═══ */}
-      <div className="dashboard-actions">
-        <div className="dash-card-title" style={{ marginBottom: 12 }}>Actions prioritaires</div>
-        <div className="actions-grid">
-          <Link to="/strategy" className="action-card">
-            <FlaskConical size={16} style={{ color: 'var(--accent)' }} />
-            <span>Explorer le Strategy Lab</span>
-            <ArrowRight size={14} />
-          </Link>
-          <Link to="/portfolio/objectives" className="action-card">
-            <Target size={16} style={{ color: 'var(--warning)' }} />
-            <span>Définir un objectif financier</span>
-            <ArrowRight size={14} />
-          </Link>
-          <Link to="/portfolio" className="action-card">
-            <Wallet size={16} style={{ color: 'var(--success)' }} />
-            <span>Compléter vos positions</span>
-            <ArrowRight size={14} />
-          </Link>
-          <Link to="/insights" className="action-card">
-            <Sparkles size={16} style={{ color: '#8b5cf6' }} />
-            <span>Analyser votre stratégie</span>
-            <ArrowRight size={14} />
-          </Link>
-        </div>
+        {insightLoading ? (
+          <div className="skeleton" style={{ height: 14, width: '90%', marginBottom: 8 }} />
+        ) : insight ? (
+          <>
+            <p className="insight-text">{typeof insight === 'string' ? insight.slice(0, 300) : 'Analyse disponible'}...</p>
+            <Link to="/insights" className="insight-link">Voir l'analyse complète <span>→</span></Link>
+          </>
+        ) : (
+          <p className="text-muted text-sm">Configurez l'IA dans les paramètres pour obtenir des insights stratégiques.</p>
+        )}
       </div>
     </div>
   )

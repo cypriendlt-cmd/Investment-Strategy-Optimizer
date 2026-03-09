@@ -2,7 +2,7 @@
 /* Replaces: themes.css, global.css, Header.css, Sidebar.css, Dashboard.css, */
 /* Crypto.css, PEA.css, Banking.css, DCA.css, Insights.css, Login.css, Settings.css, beta.css */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
 
 /* ======================================================
    THEMES
@@ -286,6 +286,729 @@
 
 
 /* ======================================================
+   DESIGN TOKENS
+   Standardized spacing, typography, radius, and transitions
+   ====================================================== */
+
+:root {
+  /* ─── Spacing Scale (4px base) ─── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+
+  /* ─── Typography Scale ─── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  --font-display: 'Playfair Display', Georgia, serif;
+
+  --text-2xs: 0.65rem;    /* 10.4px — micro labels */
+  --text-xs: 0.75rem;     /* 12px — labels, badges */
+  --text-sm: 0.8125rem;   /* 13px — secondary text */
+  --text-base: 0.875rem;  /* 14px — body text */
+  --text-md: 1rem;        /* 16px — prominent text */
+  --text-lg: 1.125rem;    /* 18px — section titles */
+  --text-xl: 1.25rem;     /* 20px — page subtitles */
+  --text-2xl: 1.5rem;     /* 24px — page titles */
+  --text-3xl: 1.875rem;   /* 30px — hero values */
+  --text-4xl: 2.25rem;    /* 36px — large hero */
+  --text-5xl: 3rem;       /* 48px — dashboard total */
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  /* ─── Border Radius Scale ─── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* ─── Transitions ─── */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+
+  /* ─── Z-Index Scale ─── */
+  --z-base: 0;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-overlay: 500;
+  --z-modal: 1000;
+  --z-toast: 1100;
+
+  /* ─── Asset Colors (consistent across all pages) ─── */
+  --color-crypto: #3b82f6;
+  --color-crypto-light: rgba(59, 130, 246, 0.12);
+  --color-pea: #10b981;
+  --color-pea-light: rgba(16, 185, 129, 0.12);
+  --color-livrets: #f59e0b;
+  --color-livrets-light: rgba(245, 158, 11, 0.12);
+  --color-fundraising: #8b5cf6;
+  --color-fundraising-light: rgba(139, 92, 246, 0.12);
+  --color-dca: #ec4899;
+  --color-dca-light: rgba(236, 72, 153, 0.12);
+  --color-banking: #64748b;
+  --color-banking-light: rgba(100, 116, 139, 0.12);
+}
+
+/* ======================================================
+   SHARED ASSET COMPONENTS
+   Reusable card, table, and form patterns for Crypto/PEA/Livrets/etc.
+   ====================================================== */
+
+/* ─── Asset Card (shared base) ─── */
+.asset-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: all var(--duration-base) var(--ease-default);
+  box-shadow: var(--shadow-sm);
+  max-width: 100%;
+}
+
+.asset-card:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.asset-card--positive { border-left: 4px solid var(--success); }
+.asset-card--negative { border-left: 4px solid var(--danger); }
+.asset-card--neutral  { border-left: 4px solid var(--border-strong); }
+
+/* ─── Asset Card Header ─── */
+.asset-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  cursor: pointer;
+  user-select: none;
+  gap: var(--space-3);
+  transition: background var(--duration-fast) ease;
+}
+
+.asset-card-header:hover {
+  background: var(--bg-card-hover);
+}
+
+.asset-card-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.asset-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+  flex-shrink: 0;
+}
+
+.asset-card-name {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.asset-card-sub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.asset-card-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.asset-card-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.asset-card-chevron:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+
+/* ─── Asset Card Summary (always visible stats) ─── */
+.asset-card-summary {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-3);
+  padding: 0 var(--space-5) var(--space-4);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+
+.asset-card-summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.asset-card-summary-label {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.asset-card-summary-value {
+  font-size: var(--text-base);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ─── Asset Card Expandable Body ─── */
+.asset-card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--duration-slow) var(--ease-default), opacity var(--duration-base) ease;
+  opacity: 0;
+}
+
+.asset-card-body--open {
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.asset-card-body-inner {
+  padding: 0 var(--space-5) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+}
+
+/* ─── Asset Market Data Grid ─── */
+.asset-market-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+
+.asset-market-box {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-3);
+  text-align: center;
+  transition: background var(--duration-fast) ease;
+  min-width: 0;
+}
+
+.asset-market-box:hover {
+  background: var(--bg-card-hover);
+}
+
+.asset-market-box-label {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-1);
+  text-transform: uppercase;
+}
+
+.asset-market-box-value {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Asset Movements Table ─── */
+.asset-table-wrap {
+  overflow-x: auto;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: var(--space-2);
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.asset-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.asset-table th {
+  text-align: left;
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 2px solid var(--border);
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.asset-table td {
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.asset-table tbody tr {
+  transition: background var(--duration-fast) ease;
+}
+
+.asset-table tbody tr:hover {
+  background: var(--bg-card-hover);
+}
+
+/* ─── Asset Movement Form ─── */
+.asset-movement-form {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+
+.asset-type-toggle {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.asset-type-toggle button {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  transition: all var(--duration-fast) ease;
+}
+
+.asset-type-toggle .active-buy {
+  background: var(--success);
+  color: #fff;
+}
+
+.asset-type-toggle .active-sell {
+  background: var(--danger);
+  color: #fff;
+}
+
+.asset-movement-form .form-input {
+  padding: var(--space-2) var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.asset-form-date { width: 140px; }
+.asset-form-qty { width: 100px; }
+.asset-form-price { width: 100px; }
+.asset-form-fees { width: 80px; }
+
+/* ─── Asset Summary Item Change Variant ─── */
+.asset-summary-item--change {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+/* ─── Asset Chart Container ─── */
+.asset-chart-container {
+  min-height: 220px;
+}
+
+.asset-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+/* ─── Asset Card Actions ─── */
+.asset-card-actions {
+  padding: var(--space-2) var(--space-5) var(--space-3);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ─── Asset Header (page-level) ─── */
+.asset-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.asset-header-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ─── Asset Section Title (shared across Crypto/PEA) ─── */
+.asset-section-title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+}
+
+/* ─── Shared Asset Responsive ─── */
+@media (max-width: 1024px) {
+  .asset-market-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .asset-card-header {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .asset-card-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .asset-market-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .asset-movement-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .asset-movement-form .form-input,
+  .asset-form-date,
+  .asset-form-qty,
+  .asset-form-price,
+  .asset-form-fees {
+    width: 100% !important;
+  }
+
+  .asset-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .asset-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .asset-card-header {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .asset-card-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+    padding: 0 var(--space-3) var(--space-3);
+    padding-top: var(--space-3);
+  }
+
+  .asset-card-summary-value {
+    font-size: var(--text-sm);
+  }
+
+  .asset-card-summary-label {
+    font-size: 0.55rem;
+  }
+
+  .asset-card-body-inner {
+    padding: 0 var(--space-3) var(--space-3);
+    padding-top: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  .asset-market-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+
+  .asset-table {
+    font-size: var(--text-xs);
+  }
+
+  .asset-table th,
+  .asset-table td {
+    padding: var(--space-1) var(--space-1);
+  }
+
+  /* Hide Fees and Total columns on small screens */
+  .asset-table .col-fees,
+  .asset-table .col-total {
+    display: none;
+  }
+}
+
+
+/* ======================================================
+   LIVRETS
+   Page-specific styles for Livrets.jsx
+   ====================================================== */
+
+/* ─── Livret Movement Form ─── */
+.livret-movement-form {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin-top: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.livret-movement-form .form-input {
+  width: 150px;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+}
+
+.livret-movement-form .form-input-amount {
+  width: 120px;
+}
+
+/* ─── Livret Type Toggle (deposit/withdrawal) ─── */
+.livret-type-toggle {
+  display: flex;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.livret-type-toggle button {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.livret-type-toggle .active-deposit {
+  background: var(--success);
+  color: #fff;
+}
+
+.livret-type-toggle .active-withdrawal {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ─── Livret Stat Box ─── */
+.livret-stat-box {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+/* ─── Livret Card Icon ─── */
+.livret-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Livret Section Title ─── */
+.livret-section-title {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.livret-section-title-spaced {
+  font-size: 0.9rem;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+/* ─── Livret Quinzaine Table ─── */
+.livret-quinzaine-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.livret-quinzaine-table {
+  width: 100%;
+  font-size: 0.8rem;
+  border-collapse: collapse;
+}
+
+.livret-quinzaine-table thead tr {
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+}
+
+.livret-quinzaine-table th {
+  padding: 6px 8px;
+}
+
+.livret-quinzaine-table th.text-right {
+  text-align: right;
+}
+
+.livret-quinzaine-table tbody {
+  font-family: monospace;
+}
+
+.livret-quinzaine-table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.livret-quinzaine-table td {
+  padding: 4px 8px;
+}
+
+.livret-quinzaine-table td.text-right {
+  text-align: right;
+}
+
+/* ─── Livret Movement Item ─── */
+.livret-movement-item {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─── Livret Movement List ─── */
+.livret-movement-scroll {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.livret-movement-scroll-short {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+/* ─── Bank Livrets Section Header ─── */
+.livret-bank-header {
+  margin-top: 32px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.livret-bank-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.livret-bank-header .btn {
+  font-size: 0.8rem;
+}
+
+/* ─── Livret Info Box (non-configured warning) ─── */
+.livret-info-box {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ─── Livret Expand Button ─── */
+.livret-expand-btn {
+  width: 100%;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ─── Livret Hint Text ─── */
+.livret-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ─── Livret Movement Label Truncate ─── */
+.livret-movement-label {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Livret Responsive ─── */
+@media (max-width: 768px) {
+  .livret-movement-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .livret-movement-form .form-input {
+    width: 100%;
+  }
+}
+
+
+/* ======================================================
    GLOBAL
    ====================================================== */
 
@@ -302,7 +1025,7 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -1201,6 +1924,80 @@ tbody tr:hover {
   color: var(--accent);
 }
 
+/* ─── Sidebar link text + chevron ─── */
+.sidebar-link-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-chevron {
+  color: var(--text-muted);
+  transition: transform var(--duration-fast) var(--ease-default);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.sidebar-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* ─── Sidebar group ─── */
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-group .sidebar-link {
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+/* ─── Sidebar sub-navigation ─── */
+.sidebar-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 0 4px 20px;
+  margin-left: 14px;
+  border-left: 1px solid var(--border);
+}
+
+.sidebar-sub-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  transition: all var(--duration-fast) ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-sub-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+.sidebar-sub-link--active {
+  color: var(--accent);
+  background: var(--accent-light);
+  font-weight: var(--weight-semibold);
+}
+
+.sidebar-sub-link--active:hover {
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
 .sidebar-footer {
   padding: 16px;
   border-top: 1px solid var(--border);
@@ -1463,91 +2260,41 @@ tbody tr:hover {
   opacity: 0.85;
 }
 
-/* ─── Stat Cards ──────────────────────────────────────────────── */
-.dashboard-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.dash-stat {
+.dashboard-hero-right {
   position: relative;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px 22px;
-  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  overflow: hidden;
-}
-
-.dash-stat::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--stat-accent, var(--accent));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.dash-stat:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow);
-  border-color: var(--border-strong);
-}
-
-.dash-stat:hover::before {
-  opacity: 1;
-}
-
-.dash-stat-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.dash-stat-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 1;
   flex-shrink: 0;
 }
 
-.dash-stat-label {
-  font-size: 0.72rem;
-  font-weight: 700;
+.dashboard-hero-kpis {
+  display: flex;
+  gap: 24px;
+}
+
+.dashboard-hero-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+}
+
+.dashboard-hero-kpi-label {
+  font-size: 0.68rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
 }
 
-.dash-stat-value {
+.dashboard-hero-kpi-value {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 1;
-  margin-bottom: 6px;
 }
 
-.dash-stat-sub {
-  font-size: 0.78rem;
-  font-weight: 500;
-}
-
-/* ─── Charts Row ──────────────────────────────────────────────── */
-.dashboard-charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 24px;
+.dashboard-hero-kpi-value--accent {
+  color: var(--accent);
 }
 
 .dash-card {
@@ -1707,81 +2454,37 @@ tbody tr:hover {
   font-size: 0.65rem;
 }
 
-/* Activity */
-.activity-list {
+/* ─── Performers (best/worst inside sentiment card) ─── */
+.dashboard-performers {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.activity-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.activity-item:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.activity-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
+  gap: 16px;
   justify-content: center;
-  flex-shrink: 0;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
-.activity-icon--buy {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--success);
-}
-
-.activity-icon--sell {
-  background: rgba(244, 63, 94, 0.12);
-  color: var(--danger);
-}
-
-.activity-icon--deposit {
-  background: var(--accent-light);
-  color: var(--accent);
-}
-
-.activity-info {
-  flex: 1;
+.dashboard-performer {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
 }
 
-.activity-asset {
-  font-size: 0.84rem;
+.dashboard-performer-name {
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.activity-date {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-
-.activity-amount {
+.dashboard-performer-gain {
   font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  font-size: 0.82rem;
+  font-weight: 700;
+  font-size: 0.75rem;
 }
 
 /* ─── Insight + Performers Row ────────────────────────────────── */
-.dashboard-bottom {
-  display: grid;
-  grid-template-columns: 1.4fr 0.8fr 0.8fr;
-  gap: 20px;
-  margin-top: 24px;
-}
 
 .dashboard-insight-card {
   position: relative;
@@ -1884,105 +2587,7 @@ tbody tr:hover {
   font-weight: 700;
 }
 
-/* ─── Analysis Row ────────────────────────────────────────────── */
-.dashboard-analysis-row {
-  position: relative;
-  margin-top: 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px 24px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-}
-
-.dashboard-analysis-row::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--accent-light), transparent 30%, transparent 70%, var(--accent-light));
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.dashboard-analysis-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 16px;
-  border-right: 1px solid var(--border);
-  position: relative;
-  z-index: 1;
-}
-
-.dashboard-analysis-item:last-child {
-  border-right: none;
-}
-
-.analysis-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.analysis-text {
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
-
-.analysis-link {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-  margin-top: 4px;
-}
-
-.analysis-link a {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--accent);
-  text-decoration: none;
-  letter-spacing: 0.05em;
-  transition: letter-spacing 0.2s ease;
-}
-
-.analysis-link a:hover {
-  letter-spacing: 0.1em;
-}
-
 /* ─── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 1024px) {
-  .dashboard-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .dashboard-bottom {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-analysis-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .dashboard-analysis-item:nth-child(2) {
-    border-right: none;
-  }
-
-  .dashboard-analysis-item:nth-child(3),
-  .dashboard-analysis-item:nth-child(4) {
-    border-top: 1px solid var(--border);
-    padding-top: 12px;
-  }
-}
 
 @media (max-width: 768px) {
   .dashboard-hero {
@@ -1990,6 +2595,18 @@ tbody tr:hover {
     align-items: flex-start;
     padding: 24px;
     gap: 20px;
+  }
+
+  .dashboard-hero-right {
+    width: 100%;
+  }
+
+  .dashboard-hero-kpis {
+    justify-content: space-between;
+  }
+
+  .dashboard-hero-kpi {
+    text-align: left;
   }
 
   .dashboard-total {
@@ -2001,12 +2618,17 @@ tbody tr:hover {
     max-width: 100%;
   }
 
-  .dashboard-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  .dashboard-performers {
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .dashboard-charts,
+  .dca-dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
   .dashboard-middle {
     grid-template-columns: 1fr;
   }
@@ -2026,32 +2648,11 @@ tbody tr:hover {
     gap: 10px;
   }
 
-  .dashboard-analysis-row {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-analysis-item {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding: 10px 0;
-  }
-
-  .dashboard-analysis-item:last-child {
-    border-bottom: none;
-  }
 }
 
 @media (max-width: 480px) {
   .dashboard-total {
     font-size: 1.8rem;
-  }
-
-  .dashboard-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .dash-stat-value {
-    font-size: 1.25rem;
   }
 
   .dashboard-gauges {
@@ -2077,51 +2678,7 @@ tbody tr:hover {
   gap: 16px;
 }
 
-/* Accordion card */
-.crypto-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-sm);
-  max-width: 100%;
-}
-
-.crypto-card:hover {
-  box-shadow: var(--shadow);
-  border-color: var(--border-strong);
-  transform: translateY(-1px);
-}
-
-.crypto-card--positive { border-left: 4px solid var(--success); }
-.crypto-card--negative { border-left: 4px solid var(--danger); }
-.crypto-card--neutral { border-left: 4px solid var(--border-strong); }
-
-/* Header */
-.crypto-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  cursor: pointer;
-  user-select: none;
-  gap: 12px;
-  transition: background 0.2s ease;
-}
-
-.crypto-card-header:hover {
-  background: var(--bg-card-hover);
-}
-
-.crypto-card-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  flex-shrink: 1;
-}
-
+/* Crypto-specific classes */
 .crypto-card-img {
   width: 32px;
   height: 32px;
@@ -2143,523 +2700,141 @@ tbody tr:hover {
   flex-shrink: 0;
 }
 
-.crypto-card-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .crypto-card-symbol {
   font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
 }
 
-.crypto-card-middle {
-  font-size: 0.9rem;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  flex-shrink: 0;
+/* ===== Animate spin utility ===== */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.crypto-card-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
-.crypto-card-chevron {
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  transition: color 0.2s ease;
+/* ===== Search suggestions dropdown ===== */
+.crypto-search-spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
-.crypto-card-chevron:hover {
-  color: var(--text-primary);
-}
-
-/* Summary stats — always visible */
-.crypto-card-summary {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  padding: 0 20px 16px;
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
-}
-
-.crypto-summary-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-}
-
-.crypto-summary-label {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-.crypto-summary-value {
-  font-size: 0.95rem;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-/* Expanded body */
-.crypto-card-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-  opacity: 0;
-}
-
-.crypto-card-body--open {
-  max-height: 2000px;
-  opacity: 1;
-}
-
-.crypto-card-body-inner {
-  padding: 0 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-}
-
-/* Section titles */
-.crypto-section-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: var(--text-secondary);
-}
-
-/* Market data grid */
-.crypto-market-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.crypto-market-box {
+.crypto-suggestions {
+  position: absolute;
+  z-index: 100;
+  top: 100%;
+  left: 0;
+  right: 0;
   background: var(--bg-secondary);
-  border-radius: 10px;
-  padding: 10px 12px;
-  text-align: center;
-  transition: background 0.2s ease;
-  min-width: 0;
-}
-
-.crypto-market-box:hover {
-  background: var(--bg-card-hover);
-}
-
-.crypto-market-box-label {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-}
-
-.crypto-market-box-value {
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Movements table */
-.crypto-movements-table-wrap {
-  overflow-x: auto;
-  max-height: 260px;
-  overflow-y: auto;
-  margin-bottom: 8px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.crypto-movements-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-}
-
-.crypto-movements-table th {
-  text-align: left;
-  padding: 6px 8px;
-  border-bottom: 2px solid var(--border);
-  font-weight: 600;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.crypto-movements-table td {
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.crypto-movements-table tbody tr {
-  transition: background 0.15s ease;
-}
-
-.crypto-movements-table tbody tr:hover {
-  background: var(--bg-card-hover);
-}
-
-/* Movement form */
-.crypto-movement-form {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.crypto-movement-form .form-input {
-  padding: 6px 8px;
-  font-size: 0.85rem;
-}
-
-.crypto-form-date { width: 140px; }
-.crypto-form-qty { width: 100px; }
-.crypto-form-price { width: 100px; }
-.crypto-form-fees { width: 80px; }
-
-.crypto-type-toggle {
-  display: flex;
-  border-radius: 8px;
-  overflow: hidden;
   border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-.crypto-type-toggle button {
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  background: transparent;
-  color: var(--text-secondary);
+.crypto-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.crypto-suggestion-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.crypto-suggestion-img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+/* ===== Selected crypto chip ===== */
+.crypto-selected-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+}
+
+.crypto-selected-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.crypto-selected-clear {
+  margin-left: auto;
+  background: none;
   border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
-}
-
-.crypto-type-toggle .active-buy {
-  background: var(--success);
-  color: #fff;
-}
-
-.crypto-type-toggle .active-sell {
-  background: var(--danger);
-  color: #fff;
-}
-
-/* Chart */
-.crypto-chart-container {
-  min-height: 220px;
-}
-
-.crypto-chart-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
   color: var(--text-muted);
+}
+
+/* ===== Sync result banner ===== */
+.crypto-sync-result {
+  padding: 12px 16px;
   font-size: 0.85rem;
-  background: var(--bg-secondary);
-  border-radius: 10px;
 }
 
-/* Card actions */
-.crypto-card-actions {
-  padding: 8px 20px 12px;
-  display: flex;
-  justify-content: flex-end;
+.crypto-sync-result--success {
+  background: var(--success-light, rgba(34, 197, 94, 0.08));
+  color: var(--success);
 }
 
-/* ===== Page header card responsive ===== */
-.crypto-header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  min-width: 0;
-  max-width: 100%;
+.crypto-sync-result--error {
+  background: var(--danger-light, rgba(239, 68, 68, 0.08));
+  color: var(--danger);
 }
 
-.crypto-header-top > div {
-  min-width: 0;
-  max-width: 100%;
+/* ===== Empty state for crypto ===== */
+.crypto-empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 48px 24px;
 }
 
-.crypto-header-top .stat-value {
-  word-break: break-all;
-  overflow-wrap: break-word;
+.crypto-empty-state p {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
 }
 
-.crypto-header-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
+/* ===== Goal selector positioning ===== */
+.asset-goal-selector {
+  position: absolute;
+  top: 12px;
+  right: 40px;
 }
 
-/* ===== RESPONSIVE ===== */
-
-@media (max-width: 1024px) {
-  .crypto-market-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* ===== Delete button danger color ===== */
+.asset-card-actions .btn-text-danger {
+  color: var(--danger);
 }
 
+/* ===== Crypto-specific responsive ===== */
 @media (max-width: 768px) {
-  .crypto-card-header {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
   .crypto-card-middle {
     display: none;
-  }
-
-  .crypto-card-right {
-    flex-shrink: 1;
-  }
-
-  .crypto-card-right .badge {
-    font-size: 0.7rem;
-    padding: 3px 6px;
-    white-space: nowrap;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .crypto-card-summary {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .crypto-market-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .crypto-movement-form {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .crypto-movement-form .form-input,
-  .crypto-form-date,
-  .crypto-form-qty,
-  .crypto-form-price,
-  .crypto-form-fees {
-    width: 100% !important;
-  }
-
-  .crypto-header-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .crypto-header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .crypto-header-top .stat-value {
-    font-size: 1.8rem !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .crypto-card-header {
-    padding: 10px 12px;
-  }
-
-  .crypto-card-left {
-    max-width: 50%;
-  }
-
-  .crypto-card-name {
-    font-size: 0.85rem;
-    max-width: 100px;
-  }
-
-  .crypto-card-right .badge {
-    font-size: 0.65rem;
-    padding: 2px 5px;
-    max-width: 140px;
-  }
-
-  .crypto-card-summary {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    padding: 0 12px 12px;
-    padding-top: 10px;
-  }
-
-  .crypto-summary-value {
-    font-size: 0.8rem;
-  }
-
-  .crypto-summary-label {
-    font-size: 0.6rem;
-  }
-
-  .crypto-card-body-inner {
-    padding: 0 12px 12px;
-    padding-top: 12px;
-    gap: 14px;
-  }
-
-  .crypto-market-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .crypto-market-box-value {
-    font-size: 0.75rem;
-  }
-
-  /* Hide Fees and Total columns on small screens */
-  .crypto-movements-table .col-fees,
-  .crypto-movements-table .col-total {
-    display: none;
-  }
-
-  .crypto-movements-table {
-    font-size: 0.72rem;
-  }
-
-  .crypto-movements-table th,
-  .crypto-movements-table td {
-    padding: 5px 5px;
-  }
-
-  .crypto-card-actions {
-    padding: 8px 12px 10px;
-  }
-
-  .crypto-chart-container {
-    min-height: 180px;
-  }
-
-  .crypto-header-actions {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .crypto-header-actions .btn {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-
-  .crypto-header-top .stat-value {
-    font-size: 1.5rem !important;
   }
 }
 
 @media (max-width: 360px) {
-  .crypto-card {
-    border-radius: 10px;
-  }
-
-  .crypto-card-header {
-    padding: 8px 10px;
-    gap: 6px;
-  }
-
   .crypto-card-img,
   .crypto-icon {
     width: 26px;
     height: 26px;
     font-size: 0.7rem;
-  }
-
-  .crypto-card-name {
-    font-size: 0.8rem;
-    max-width: 80px;
-  }
-
-  .crypto-card-right .badge {
-    font-size: 0.6rem;
-    max-width: 110px;
-    padding: 2px 4px;
-  }
-
-  .crypto-card-summary {
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    padding: 0 10px 10px;
-    padding-top: 8px;
-  }
-
-  .crypto-summary-label {
-    font-size: 0.55rem;
-  }
-
-  .crypto-summary-value {
-    font-size: 0.75rem;
-  }
-
-  .crypto-card-body-inner {
-    padding: 0 10px 10px;
-    padding-top: 10px;
-    gap: 12px;
-  }
-
-  .crypto-market-grid {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .crypto-market-box {
-    padding: 8px 10px;
-    border-radius: 8px;
-  }
-
-  .crypto-market-box-value {
-    font-size: 0.7rem;
-  }
-
-  .crypto-movements-table {
-    font-size: 0.65rem;
-  }
-
-  .crypto-movements-table th,
-  .crypto-movements-table td {
-    padding: 4px 4px;
-  }
-
-  .crypto-movement-form .form-input {
-    font-size: 0.75rem;
-    padding: 5px 6px;
-  }
-
-  .crypto-card-actions {
-    padding: 6px 10px 8px;
   }
 }
 
@@ -2668,39 +2843,7 @@ tbody tr:hover {
    PEA
    ====================================================== */
 
-/* ===== PEA PAGE ===== */
-
-/* Accordion card */
-.pea-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-sm);
-  max-width: 100%;
-}
-
-.pea-card:hover {
-  box-shadow: var(--shadow);
-  border-color: var(--border-strong);
-  transform: translateY(-1px);
-}
-
-.pea-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  cursor: pointer;
-  user-select: none;
-  gap: 12px;
-  transition: background 0.2s ease;
-}
-
-.pea-card-header:hover {
-  background: var(--bg-card-hover);
-}
+/* ===== PEA PAGE — PEA-specific classes ===== */
 
 .pea-card-left {
   display: flex;
@@ -2708,15 +2851,6 @@ tbody tr:hover {
   gap: 2px;
   min-width: 0;
   flex: 1;
-}
-
-.pea-card-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .pea-card-isin {
@@ -2741,402 +2875,19 @@ tbody tr:hover {
   color: var(--text-primary);
 }
 
-.pea-card-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
 
-.pea-card-chevron {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: var(--bg-secondary);
-  color: var(--text-muted);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.pea-card-chevron:hover {
-  background: var(--border);
-  color: var(--text-primary);
-}
-
-/* Left border performance indicator */
-.pea-card--positive {
-  border-left: 4px solid var(--success);
-}
-
-.pea-card--negative {
-  border-left: 4px solid var(--danger);
-}
-
-.pea-card--neutral {
-  border-left: 4px solid var(--border-strong);
-}
-
-/* Summary stats — always visible */
-.pea-card-summary {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  padding: 0 20px 16px;
-  border-top: 1px solid var(--border);
-  margin-top: 0;
-  padding-top: 12px;
-}
-
-.pea-summary-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-}
-
-.pea-summary-label {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
-.pea-summary-value {
-  font-size: 0.95rem;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-/* Expanded body */
-.pea-card-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-  opacity: 0;
-}
-
-.pea-card-body--open {
-  max-height: 2000px;
-  opacity: 1;
-}
-
-.pea-card-body-inner {
-  padding: 0 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-}
-
-/* Market data grid */
-.pea-market-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.pea-market-box {
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  padding: 10px 14px;
-  text-align: center;
-  transition: background 0.2s ease;
-  min-width: 0;
-}
-
-.pea-market-box:hover {
-  background: var(--bg-card-hover);
-}
-
-.pea-market-box-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.pea-market-box-value {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Movements section */
-.pea-movements-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: var(--text-primary);
-}
-
-.pea-movements-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-}
-
-.pea-movements-table thead {
-  background: var(--bg-secondary);
-}
-
-.pea-movements-table th {
-  padding: 8px 10px;
-  text-align: left;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.pea-movements-table td {
-  padding: 8px 10px;
-  border-top: 1px solid var(--border);
-  font-size: 0.8rem;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-.pea-movements-table tbody tr {
-  transition: background 0.15s ease;
-}
-
-.pea-movements-table tbody tr:hover {
-  background: var(--bg-card-hover);
-}
-
-.pea-movements-scroll {
-  max-height: 220px;
-  overflow-y: auto;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-/* Movement form inline */
-.pea-movement-form {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.pea-movement-form .form-input {
-  padding: 6px 8px;
-  font-size: 0.8rem;
-  width: auto;
-}
-
-.pea-form-date { width: 140px; }
-.pea-form-qty { width: 80px; }
-.pea-form-price { width: 100px; }
-.pea-form-fees { width: 80px; }
-
-.pea-type-toggle {
-  display: flex;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-
-.pea-type-toggle button {
-  padding: 6px 12px;
-  font-size: 0.75rem;
-  background: transparent;
-  color: var(--text-secondary);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
-}
-
-.pea-type-toggle button.active-buy {
-  background: var(--success);
-  color: #fff;
-}
-
-.pea-type-toggle button.active-sell {
-  background: var(--danger);
-  color: #fff;
-}
-
-/* Chart section */
-.pea-chart-container {
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 16px;
-  transition: background 0.2s ease;
-}
-
-.pea-chart-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: var(--text-primary);
-}
-
-.pea-chart-empty {
-  text-align: center;
-  padding: 24px;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-
-/* Badge type buy/sell */
-.pea-badge-buy {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 8px;
-  border-radius: 100px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: var(--success-light);
-  color: var(--success);
-}
-
-.pea-badge-sell {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 8px;
-  border-radius: 100px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: var(--danger-light);
-  color: var(--danger);
-}
-
-/* ===== Page header card responsive ===== */
-.pea-header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.pea-header-top > div {
-  min-width: 0;
-  max-width: 100%;
-}
-
-.pea-header-top .stat-value {
-  word-break: break-all;
-  overflow-wrap: break-word;
-}
-
-.pea-header-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-/* ===== RESPONSIVE ===== */
-
-@media (max-width: 1024px) {
-  .pea-market-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
+/* ===== PEA-specific responsive ===== */
 @media (max-width: 768px) {
-  .pea-card-header {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 12px 14px;
-  }
-
   .pea-card-middle {
     order: 3;
     width: 100%;
     justify-content: space-between;
   }
-
-  .pea-card-right {
-    flex-shrink: 1;
-  }
-
-  .pea-card-right .badge {
-    font-size: 0.7rem;
-    padding: 3px 6px;
-    white-space: nowrap;
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .pea-card-summary {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .pea-market-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .pea-movement-form {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .pea-movement-form .form-input,
-  .pea-form-date,
-  .pea-form-qty,
-  .pea-form-price,
-  .pea-form-fees {
-    width: 100% !important;
-  }
-
-  .pea-header-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .pea-header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .pea-header-top .stat-value {
-    font-size: 1.8rem !important;
-  }
 }
 
 @media (max-width: 480px) {
-  .pea-card-header {
-    padding: 10px 12px;
-  }
-
   .pea-card-left {
     max-width: 50%;
-  }
-
-  .pea-card-name {
-    font-size: 0.85rem;
-    max-width: 120px;
   }
 
   .pea-card-middle {
@@ -3147,157 +2898,11 @@ tbody tr:hover {
     font-size: 0.95rem;
   }
 
-  .pea-card-right .badge {
-    font-size: 0.65rem;
-    padding: 2px 5px;
-    max-width: 140px;
-  }
-
-  .pea-card-summary {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    padding: 0 12px 12px;
-    padding-top: 10px;
-  }
-
-  .pea-summary-value {
-    font-size: 0.8rem;
-  }
-
-  .pea-summary-label {
-    font-size: 0.6rem;
-  }
-
-  .pea-card-body-inner {
-    padding: 0 12px 12px;
-    padding-top: 12px;
-    gap: 14px;
-  }
-
-  .pea-market-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .pea-market-box-value {
-    font-size: 0.75rem;
-  }
-
-  /* Hide Fees and Total columns on small screens */
-  .pea-movements-table .pea-col-fees,
-  .pea-movements-table .pea-col-total {
-    display: none;
-  }
-
-  .pea-movements-table {
-    font-size: 0.72rem;
-  }
-
-  .pea-movements-table th,
-  .pea-movements-table td {
-    padding: 5px 5px;
-  }
-
-  .pea-chart-container {
-    padding: 10px;
-  }
-
-  .pea-header-actions {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .pea-header-actions .btn {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-
-  .pea-header-top .stat-value {
-    font-size: 1.5rem !important;
-  }
 }
 
 @media (max-width: 360px) {
-  .pea-card {
-    border-radius: 10px;
-  }
-
-  .pea-card-header {
-    padding: 8px 10px;
-    gap: 6px;
-  }
-
-  .pea-card-name {
-    font-size: 0.8rem;
-    max-width: 80px;
-  }
-
   .pea-card-middle .pea-total-value {
     font-size: 0.85rem;
-  }
-
-  .pea-card-right .badge {
-    font-size: 0.6rem;
-    max-width: 110px;
-    padding: 2px 4px;
-  }
-
-  .pea-card-summary {
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    padding: 0 10px 10px;
-    padding-top: 8px;
-  }
-
-  .pea-summary-label {
-    font-size: 0.55rem;
-  }
-
-  .pea-summary-value {
-    font-size: 0.75rem;
-  }
-
-  .pea-card-body-inner {
-    padding: 0 10px 10px;
-    padding-top: 10px;
-    gap: 12px;
-  }
-
-  .pea-market-grid {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .pea-market-box {
-    padding: 8px 10px;
-    border-radius: 8px;
-  }
-
-  .pea-market-box-value {
-    font-size: 0.7rem;
-  }
-
-  .pea-movements-scroll {
-    border-radius: 8px;
-  }
-
-  .pea-movements-table {
-    font-size: 0.65rem;
-  }
-
-  .pea-movements-table th,
-  .pea-movements-table td {
-    padding: 4px 4px;
-  }
-
-  .pea-chart-container {
-    padding: 10px;
-    border-radius: 8px;
-  }
-
-  .pea-movement-form .form-input {
-    font-size: 0.75rem;
-    padding: 5px 6px;
   }
 }
 
@@ -6250,6 +5855,22 @@ tbody tr:hover {
 
 /* ── Dashboard DCA synthèse ── */
 .dca-dashboard-card { margin-bottom: 16px; }
+
+.dca-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dca-upcoming-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-right: 6px;
+}
 .dca-dash-stats {
   display: flex; gap: 0; flex-wrap: wrap;
 }
@@ -6292,11 +5913,6 @@ tbody tr:hover {
 }
 .change-period-selector--compact { margin-top: 6px; }
 .change-period-selector--compact .change-period-btn { font-size: 0.6rem; padding: 1px 5px; }
-
-.crypto-summary-item--change,
-.pea-summary-item--change {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-}
 
 /* ======================================================
    MONTHLY ANALYSIS (Analyses du mois)
@@ -6751,24 +6367,6 @@ tbody tr:hover {
   color: var(--accent);
 }
 
-/* ======================================================
-   DASHBOARD — STRATEGY ENHANCEMENTS
-   ====================================================== */
-
-/* Wide card variant for trajectory chart */
-.dash-card--wide {
-  grid-column: 1 / -1;
-}
-
-@media (min-width: 769px) {
-  .dashboard-charts {
-    grid-template-columns: 1.5fr 1fr;
-  }
-  .dash-card--wide {
-    grid-column: auto;
-  }
-}
-
 /* Projection legend */
 .projection-legend {
   display: flex;
@@ -6864,61 +6462,20 @@ tbody tr:hover {
   font-weight: 700;
 }
 
-/* Levers */
-.dashboard-levers {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-}
-
-.levers-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.lever-card {
-  display: flex;
-  gap: 14px;
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  transition: all 0.25s ease;
-}
-
-.lever-card:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-1px);
-}
-
-.lever-icon {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lever-content {
+.objective-empty {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 16px;
+  text-align: center;
 }
 
-.lever-title {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.lever-desc {
-  font-size: 0.72rem;
+.objective-empty p {
+  font-size: 0.85rem;
   color: var(--text-muted);
-  line-height: 1.4;
+  margin: 0;
+  max-width: 320px;
 }
 
 /* Scenarios */
@@ -6979,58 +6536,25 @@ tbody tr:hover {
   margin-bottom: 4px;
 }
 
-.scenario-horizon {
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  opacity: 0.6;
-}
+.scenario-card--muted .scenario-header { color: var(--text-muted); }
+.scenario-card--muted .scenario-value { color: var(--text-secondary); }
 
-/* Priority actions */
-.dashboard-actions {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-}
+.scenario-card--success .scenario-header { color: var(--success); }
+.scenario-card--success .scenario-value { color: var(--success); }
+.scenario-card--success { border-color: rgba(16, 185, 129, 0.2); }
 
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
+.scenario-card--accent .scenario-header { color: var(--accent); }
+.scenario-card--accent .scenario-value { color: var(--accent); }
+.scenario-card--accent { border-color: var(--accent-light); }
 
-.action-card {
+.dashboard-scenarios-cta {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  text-decoration: none;
-  color: var(--text-primary);
-  font-size: 0.82rem;
-  font-weight: 500;
-  transition: all 0.25s ease;
-}
-
-.action-card:hover {
-  border-color: var(--border-strong);
-  transform: translateX(3px);
-  color: var(--accent);
-}
-
-.action-card span {
-  flex: 1;
+  justify-content: center;
+  margin-top: 14px;
 }
 
 @media (max-width: 768px) {
-  .levers-grid,
-  .scenarios-grid,
-  .actions-grid {
+  .scenarios-grid {
     grid-template-columns: 1fr;
   }
   .objective-stats {
@@ -7559,4 +7083,69 @@ tbody tr:hover {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+/* ======================================================
+   SHARED UTILITIES — Reusable across pages
+   ====================================================== */
+
+/* ─── Page hero card (gradient header) ─── */
+.page-hero {
+  background: var(--gradient-card);
+  border-color: var(--border-strong);
+}
+
+/* ─── Page hero stat value ─── */
+.page-hero-value {
+  font-size: 2.5rem;
+  margin-top: 4px;
+}
+
+/* ─── Search input spinner (shared) ─── */
+.search-spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+/* ─── Form error message ─── */
+.form-error {
+  color: var(--danger);
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+/* ─── Card table variant (no padding, hidden overflow) ─── */
+.card--table {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ─── Position relative wrapper ─── */
+.pos-relative {
+  position: relative;
+}
+
+/* ─── Flex wrap ─── */
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* ─── Margin left auto ─── */
+.ml-auto {
+  margin-left: auto;
+}
+
+/* ─── Fundraising project icon ─── */
+.fundraising-project-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--accent-light);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

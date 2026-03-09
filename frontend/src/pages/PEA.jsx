@@ -97,7 +97,7 @@ function AddPeaModal({ onClose, onAdd }) {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">ISIN</label>
-            <div style={{ position: 'relative' }}>
+            <div className="pos-relative">
               <input
                 className="form-input"
                 placeholder="FR0000120271"
@@ -107,12 +107,12 @@ function AddPeaModal({ onClose, onAdd }) {
                 onBlur={handleIsinBlur}
               />
               {searching && (
-                <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                  <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                <span className="search-spinner">
+                  <Loader2 size={14} className="animate-spin" />
                 </span>
               )}
             </div>
-            {searchError && <p style={{ color: 'var(--danger)', fontSize: '0.75rem', marginTop: 4 }}>{searchError}</p>}
+            {searchError && <p className="form-error">{searchError}</p>}
           </div>
           <div className="form-group">
             <label className="form-label">Nom</label>
@@ -166,9 +166,9 @@ function MovementForm({ peaId, onAdd }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="pea-movement-form">
-      <input type="date" className="form-input pea-form-date" value={date} onChange={e => setDate(e.target.value)} />
-      <div className="pea-type-toggle">
+    <form onSubmit={handleSubmit} className="asset-movement-form">
+      <input type="date" className="form-input asset-form-date" value={date} onChange={e => setDate(e.target.value)} />
+      <div className="asset-type-toggle">
         <button type="button" className={type === 'buy' ? 'active-buy' : ''} onClick={() => setType('buy')}>
           <ArrowDownLeft size={12} />Achat
         </button>
@@ -176,9 +176,9 @@ function MovementForm({ peaId, onAdd }) {
           <ArrowUpRight size={12} />Vente
         </button>
       </div>
-      <input type="number" className="form-input pea-form-qty" step="1" min="1" placeholder="Qte" required value={quantity} onChange={e => setQuantity(e.target.value)} />
-      <input type="number" className="form-input pea-form-price" step="0.01" min="0.01" placeholder="Prix" required value={price} onChange={e => setPrice(e.target.value)} />
-      <input type="number" className="form-input pea-form-fees" step="0.01" min="0" placeholder="Frais" value={fees} onChange={e => setFees(e.target.value)} />
+      <input type="number" className="form-input asset-form-qty" step="1" min="1" placeholder="Qte" required value={quantity} onChange={e => setQuantity(e.target.value)} />
+      <input type="number" className="form-input asset-form-price" step="0.01" min="0.01" placeholder="Prix" required value={price} onChange={e => setPrice(e.target.value)} />
+      <input type="number" className="form-input asset-form-fees" step="0.01" min="0" placeholder="Frais" value={fees} onChange={e => setFees(e.target.value)} />
       <button type="submit" className="btn btn-primary btn-sm"><Plus size={14} /> Ajouter</button>
     </form>
   )
@@ -189,7 +189,7 @@ function PerformanceChart({ asset }) {
   const data = useMemo(() => buildChartData(asset), [asset])
 
   if (data.length < 2) {
-    return <div className="pea-chart-empty">Pas assez de donnees pour afficher le graphique (min. 2 points)</div>
+    return <div className="asset-chart-empty">Pas assez de donnees pour afficher le graphique (min. 2 points)</div>
   }
 
   return (
@@ -248,14 +248,14 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
   const movements = [...rawMovements].sort((a, b) => a.date.localeCompare(b.date))
   const prusPerMovement = computeRunningPRU(movements)
   const currentPRU = prusPerMovement.length > 0 ? prusPerMovement[prusPerMovement.length - 1] : asset.buyPrice
-  const borderClass = gain > 0 ? 'pea-card--positive' : gain < 0 ? 'pea-card--negative' : 'pea-card--neutral'
+  const borderClass = gain > 0 ? 'asset-card--positive' : gain < 0 ? 'asset-card--negative' : 'asset-card--neutral'
 
   return (
-    <div className={`pea-card ${borderClass}`}>
+    <div className={`asset-card ${borderClass}`}>
       {/* Collapsed header */}
-      <div className="pea-card-header" onClick={onToggle}>
+      <div className="asset-card-header" onClick={onToggle}>
         <div className="pea-card-left">
-          <span className="pea-card-name">{asset.name || 'Sans nom'}</span>
+          <span className="asset-card-name">{asset.name || 'Sans nom'}</span>
           <span className="pea-card-isin">{asset.isin}</span>
         </div>
         <div className="pea-card-middle">
@@ -263,44 +263,44 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
           <span style={{ margin: '0 4px' }}>=</span>
           <span className="pea-total-value">{m(fmt(totalValue))}</span>
         </div>
-        <div className="pea-card-right">
+        <div className="asset-card-right">
           <span className={`badge ${gain >= 0 ? 'badge-success' : 'badge-danger'}`}>
             {gain >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
             {m(fmt(gain))} ({mp(fmtPct(gainPct))})
           </span>
-          <div className="pea-card-chevron">
+          <div className="asset-card-chevron">
             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </div>
         </div>
       </div>
 
       {/* Summary stats — always visible */}
-      <div className="pea-card-summary">
-        <div className="pea-summary-item">
-          <span className="pea-summary-label">Investi</span>
-          <span className="pea-summary-value">{m(fmt(totalInvested))}</span>
+      <div className="asset-card-summary">
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">Investi</span>
+          <span className="asset-card-summary-value">{m(fmt(totalInvested))}</span>
         </div>
-        <div className="pea-summary-item">
-          <span className="pea-summary-label">PRU</span>
-          <span className="pea-summary-value">{m(fmt(currentPRU))}</span>
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">PRU</span>
+          <span className="asset-card-summary-value">{m(fmt(currentPRU))}</span>
         </div>
-        <div className="pea-summary-item">
-          <span className="pea-summary-label">Valeur actuelle</span>
-          <span className="pea-summary-value font-semibold">{m(fmt(totalValue))}</span>
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">Valeur actuelle</span>
+          <span className="asset-card-summary-value font-semibold">{m(fmt(totalValue))}</span>
         </div>
-        <div className="pea-summary-item">
-          <span className="pea-summary-label">+/- value</span>
-          <span className={`pea-summary-value font-semibold ${gain >= 0 ? 'text-success' : 'text-danger'}`}>
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">+/- value</span>
+          <span className={`asset-card-summary-value font-semibold ${gain >= 0 ? 'text-success' : 'text-danger'}`}>
             {m(`${gain >= 0 ? '+' : ''}${fmt(gain)}`)}
           </span>
         </div>
-        <div className="pea-summary-item">
-          <span className="pea-summary-label">Performance</span>
-          <span className={`pea-summary-value font-semibold ${gainPct >= 0 ? 'text-success' : 'text-danger'}`}>
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">Performance</span>
+          <span className={`asset-card-summary-value font-semibold ${gainPct >= 0 ? 'text-success' : 'text-danger'}`}>
             {mp(fmtPct(gainPct))}
           </span>
         </div>
-        <div className="pea-summary-item pea-summary-item--change">
+        <div className="asset-card-summary-item asset-summary-item--change">
           <div className="change-period-selector">
             {PEA_PERIODS.map(p => (
               <button key={p.key} className={`change-period-btn${changePeriod === p.key ? ' active' : ''}`}
@@ -309,9 +309,9 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
           </div>
           {(() => {
             const { eur, pct } = getPeaChange(asset, changePeriod, gain, gainPct)
-            if (pct == null) return <span className="pea-summary-value">—</span>
+            if (pct == null) return <span className="asset-card-summary-value">—</span>
             return (
-              <span className={`pea-summary-value font-semibold ${pct >= 0 ? 'text-success' : 'text-danger'}`}>
+              <span className={`asset-card-summary-value font-semibold ${pct >= 0 ? 'text-success' : 'text-danger'}`}>
                 {m(`${eur >= 0 ? '+' : ''}${fmt(eur)}`)} ({mp(fmtPct(pct))})
               </span>
             )
@@ -320,27 +320,27 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
       </div>
 
       {/* Expanded body */}
-      <div className={`pea-card-body ${isExpanded ? 'pea-card-body--open' : ''}`}>
-        <div className="pea-card-body-inner">
+      <div className={`asset-card-body ${isExpanded ? 'asset-card-body--open' : ''}`}>
+        <div className="asset-card-body-inner">
           {/* Market Data */}
           <div>
-            <h4 className="pea-movements-title">Donnees de marche</h4>
-            <div className="pea-market-grid">
-              <div className="pea-market-box">
-                <div className="pea-market-box-label">Ouverture</div>
-                <div className="pea-market-box-value">{fmt(asset.openPrice)}</div>
+            <h4 className="asset-section-title">Donnees de marche</h4>
+            <div className="asset-market-grid">
+              <div className="asset-market-box">
+                <div className="asset-market-box-label">Ouverture</div>
+                <div className="asset-market-box-value">{fmt(asset.openPrice)}</div>
               </div>
-              <div className="pea-market-box">
-                <div className="pea-market-box-label">Clot. prec.</div>
-                <div className="pea-market-box-value">{fmt(asset.previousClose)}</div>
+              <div className="asset-market-box">
+                <div className="asset-market-box-label">Clot. prec.</div>
+                <div className="asset-market-box-value">{fmt(asset.previousClose)}</div>
               </div>
-              <div className="pea-market-box">
-                <div className="pea-market-box-label">Haut</div>
-                <div className="pea-market-box-value">{fmt(asset.dayHigh)}</div>
+              <div className="asset-market-box">
+                <div className="asset-market-box-label">Haut</div>
+                <div className="asset-market-box-value">{fmt(asset.dayHigh)}</div>
               </div>
-              <div className="pea-market-box">
-                <div className="pea-market-box-label">Bas</div>
-                <div className="pea-market-box-value">{fmt(asset.dayLow)}</div>
+              <div className="asset-market-box">
+                <div className="asset-market-box-label">Bas</div>
+                <div className="asset-market-box-value">{fmt(asset.dayLow)}</div>
               </div>
             </div>
           </div>
@@ -348,14 +348,14 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
           {/* Movements */}
           <div>
             <div className="flex items-center justify-between">
-              <h4 className="pea-movements-title">Mouvements</h4>
+              <h4 className="asset-section-title">Mouvements</h4>
               <button className="btn btn-danger btn-sm" onClick={() => onDelete(asset.id)}>
                 <Trash2 size={14} /> Supprimer la position
               </button>
             </div>
             {movements.length > 0 && (
-              <div className="pea-movements-scroll">
-                <table className="pea-movements-table">
+              <div className="asset-table-wrap">
+                <table className="asset-table">
                   <thead>
                     <tr>
                       <th>Date</th>
@@ -363,8 +363,8 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
                       <th>Qte</th>
                       <th>Prix</th>
                       <th>PRU</th>
-                      <th className="pea-col-fees">Frais</th>
-                      <th className="pea-col-total">Total</th>
+                      <th className="col-fees">Frais</th>
+                      <th className="col-total">Total</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -375,15 +375,16 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
                         <tr key={`${mv.date}-${mv.type}-${mv.quantity}-${mv.price}-${idx}`}>
                           <td>{fmtDate(mv.date)}</td>
                           <td>
-                            <span className={mv.type === 'buy' ? 'pea-badge-buy' : 'pea-badge-sell'}>
-                              {mv.type === 'buy' ? <><ArrowDownLeft size={10} />Achat</> : <><ArrowUpRight size={10} />Vente</>}
+                            <span className={`badge ${mv.type === 'buy' ? 'badge-success' : 'badge-danger'}`}>
+                              {mv.type === 'buy' ? <ArrowDownLeft size={10} /> : <ArrowUpRight size={10} />}
+                              {mv.type === 'buy' ? 'Achat' : 'Vente'}
                             </span>
                           </td>
                           <td className="font-mono">{mv.quantity}</td>
                           <td className="font-mono">{fmt(mv.price)}</td>
                           <td className="font-mono text-muted">{prusPerMovement[idx] > 0 ? fmt(prusPerMovement[idx]) : '—'}</td>
-                          <td className="font-mono pea-col-fees">{fmt(mv.fees || 0)}</td>
-                          <td className="font-mono font-semibold pea-col-total">{m(fmt(total))}</td>
+                          <td className="font-mono col-fees">{fmt(mv.fees || 0)}</td>
+                          <td className="font-mono font-semibold col-total">{m(fmt(total))}</td>
                           <td>
                             <button className="btn btn-ghost btn-icon btn-sm" onClick={() => onDeleteMovement(asset.id, rawMovements.indexOf(mv))}>
                               <Trash2 size={12} />
@@ -403,8 +404,8 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
           </div>
 
           {/* Chart */}
-          <div className="pea-chart-container">
-            <h4 className="pea-chart-title">Performance</h4>
+          <div className="asset-chart-container">
+            <h4 className="asset-section-title">Performance</h4>
             <PerformanceChart asset={asset} />
           </div>
         </div>
@@ -438,12 +439,12 @@ export default function PEA() {
   return (
     <div className="animate-fade-in">
       {/* Header card */}
-      <div className="card mb-24" style={{ background: 'var(--gradient-card)', borderColor: 'var(--border-strong)' }}>
-        <div className="pea-header-top">
+      <div className="card mb-24 page-hero">
+        <div className="asset-header-top">
           <div>
             <p className="stat-label">Valeur totale PEA</p>
-            <p className="stat-value" style={{ fontSize: '2.5rem', marginTop: 4 }}>{m(fmt(totals.pea))}</p>
-            <div className="flex items-center gap-12 mt-8" style={{ flexWrap: 'wrap' }}>
+            <p className="stat-value page-hero-value">{m(fmt(totals.pea))}</p>
+            <div className="flex items-center gap-12 mt-8 flex-wrap">
               {(() => {
                 let aggEur, aggPct
                 if (headerPeriod === 'max') {
@@ -476,7 +477,7 @@ export default function PEA() {
               <span className="text-sm text-muted">Investi: {m(fmt(totalInvested))}</span>
             </div>
           </div>
-          <div className="pea-header-actions">
+          <div className="asset-header-actions">
             {pricesLastUpdated && (
               <span className="text-xs text-muted">
                 Mis a jour {fmtTime(pricesLastUpdated)}
@@ -487,7 +488,7 @@ export default function PEA() {
               onClick={refreshNow}
               disabled={isRefreshing}
             >
-              {isRefreshing ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <RefreshCw size={16} />}
+              {isRefreshing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
               Rafraichir
             </button>
             <button className="btn btn-primary" onClick={() => setShowModal(true)}>
@@ -500,7 +501,7 @@ export default function PEA() {
       {/* Asset list */}
       <div className="flex flex-col gap-16">
         {portfolio.pea.map(p => (
-          <div key={p.id} style={{ position: 'relative' }}>
+          <div key={p.id} className="pos-relative">
             <PeaCard
               asset={p}
               isExpanded={expandedId === p.id}
@@ -510,7 +511,7 @@ export default function PEA() {
               onDeleteMovement={deletePeaMovement}
             />
             {(portfolio.goals || []).length > 0 && (
-              <div style={{ position: 'absolute', top: 12, right: 40 }}>
+              <div className="asset-goal-selector">
                 <GoalSelector assetId={p.id} assetType="pea" goals={portfolio.goals} onAssign={handleGoalAssign} />
               </div>
             )}

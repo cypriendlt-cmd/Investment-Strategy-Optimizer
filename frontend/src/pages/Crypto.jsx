@@ -121,9 +121,9 @@ function AddCryptoModal({ onClose, onAdd, editAsset }) {
           <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
-          <div className="form-group" style={{ position: 'relative' }}>
+          <div className="form-group pos-relative">
             <label className="form-label">Rechercher une crypto (CoinGecko)</label>
-            <div style={{ position: 'relative' }}>
+            <div className="pos-relative">
               <input
                 className="form-input"
                 placeholder="Bitcoin, BTC..."
@@ -132,32 +132,23 @@ function AddCryptoModal({ onClose, onAdd, editAsset }) {
                 autoComplete="off"
               />
               {searching && (
-                <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }}>
-                  <Loader2 size={14} style={{ animation: 'spin 1s linear infinite', color: 'var(--text-muted)' }} />
+                <span className="crypto-search-spinner">
+                  <Loader2 size={14} className="animate-spin text-muted" />
                 </span>
               )}
             </div>
             {suggestions.length > 0 && (
-              <div style={{
-                position: 'absolute', zIndex: 100, top: '100%', left: 0, right: 0,
-                background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                borderRadius: 8, maxHeight: 240, overflowY: 'auto', boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
-              }}>
+              <div className="crypto-suggestions">
                 {suggestions.map(c => (
                   <div
                     key={c.id}
                     onClick={() => handleSelect(c)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-                      cursor: 'pointer', transition: 'background 0.15s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-tertiary)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    className="crypto-suggestion-item"
                   >
-                    {c.thumb && <img src={c.thumb} alt={c.name} style={{ width: 20, height: 20, borderRadius: '50%' }} />}
+                    {c.thumb && <img src={c.thumb} alt={c.name} className="crypto-suggestion-img" />}
                     <span className="font-semibold">{c.name}</span>
                     <span className="text-xs text-muted">{c.symbol}</span>
-                    {c.marketCapRank && <span className="text-xs text-muted" style={{ marginLeft: 'auto' }}>#{c.marketCapRank}</span>}
+                    {c.marketCapRank && <span className="text-xs text-muted ml-auto">#{c.marketCapRank}</span>}
                   </div>
                 ))}
               </div>
@@ -165,11 +156,11 @@ function AddCryptoModal({ onClose, onAdd, editAsset }) {
           </div>
 
           {selected && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 12px', background: 'var(--bg-tertiary)', borderRadius: 8 }}>
-              {selected.thumb && <img src={selected.thumb} alt={selected.name} style={{ width: 24, height: 24, borderRadius: '50%' }} />}
+            <div className="crypto-selected-chip">
+              {selected.thumb && <img src={selected.thumb} alt={selected.name} className="crypto-selected-img" />}
               <span className="font-semibold">{selected.name}</span>
               <span className="text-xs text-muted">{selected.symbol}</span>
-              <button type="button" style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => { setSelected(null); setQuery('') }}>
+              <button type="button" className="crypto-selected-clear" onClick={() => { setSelected(null); setQuery('') }}>
                 <X size={14} />
               </button>
             </div>
@@ -222,9 +213,9 @@ function MovementForm({ assetId, onAdd }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="crypto-movement-form">
-      <input type="date" className="form-input crypto-form-date" value={date} onChange={e => setDate(e.target.value)} />
-      <div className="crypto-type-toggle">
+    <form onSubmit={handleSubmit} className="asset-movement-form">
+      <input type="date" className="form-input asset-form-date" value={date} onChange={e => setDate(e.target.value)} />
+      <div className="asset-type-toggle">
         <button type="button" className={type === 'buy' ? 'active-buy' : ''} onClick={() => setType('buy')}>
           <ArrowDownLeft size={12} />Achat
         </button>
@@ -232,9 +223,9 @@ function MovementForm({ assetId, onAdd }) {
           <ArrowUpRight size={12} />Vente
         </button>
       </div>
-      <input type="number" className="form-input crypto-form-qty" step="any" min="0.000001" placeholder="Qte" required value={quantity} onChange={e => setQuantity(e.target.value)} />
-      <input type="number" className="form-input crypto-form-price" step="0.01" min="0.01" placeholder="Prix" required value={price} onChange={e => setPrice(e.target.value)} />
-      <input type="number" className="form-input crypto-form-fees" step="0.01" min="0" placeholder="Frais" value={fees} onChange={e => setFees(e.target.value)} />
+      <input type="number" className="form-input asset-form-qty" step="any" min="0.000001" placeholder="Qte" required value={quantity} onChange={e => setQuantity(e.target.value)} />
+      <input type="number" className="form-input asset-form-price" step="0.01" min="0.01" placeholder="Prix" required value={price} onChange={e => setPrice(e.target.value)} />
+      <input type="number" className="form-input asset-form-fees" step="0.01" min="0" placeholder="Frais" value={fees} onChange={e => setFees(e.target.value)} />
       <button type="submit" className="btn btn-primary btn-sm"><Plus size={14} /> Ajouter</button>
     </form>
   )
@@ -245,7 +236,7 @@ function PerformanceChart({ asset }) {
   const data = useMemo(() => buildChartData(asset), [asset])
 
   if (data.length < 2) {
-    return <div className="crypto-chart-empty">Pas assez de donnees pour afficher le graphique (min. 2 points)</div>
+    return <div className="asset-chart-empty">Pas assez de donnees pour afficher le graphique (min. 2 points)</div>
   }
 
   return (
@@ -309,63 +300,63 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
   const movements = [...rawMovements].sort((a, b) => a.date.localeCompare(b.date))
   const prusPerMovement = computeRunningPRU(movements)
   const currentPRU = prusPerMovement.length > 0 ? prusPerMovement[prusPerMovement.length - 1] : asset.buyPrice
-  const borderClass = gain > 0 ? 'crypto-card--positive' : gain < 0 ? 'crypto-card--negative' : 'crypto-card--neutral'
+  const borderClass = gain > 0 ? 'asset-card--positive' : gain < 0 ? 'asset-card--negative' : 'asset-card--neutral'
 
   return (
-    <div className={`crypto-card ${borderClass}`}>
+    <div className={`asset-card ${borderClass}`}>
       {/* Collapsed header */}
-      <div className="crypto-card-header" onClick={onToggle}>
-        <div className="crypto-card-left">
+      <div className="asset-card-header" onClick={onToggle}>
+        <div className="asset-card-left">
           {asset.coinImage
             ? <img src={asset.coinImage} alt={asset.symbol} className="crypto-card-img" />
             : <div className="crypto-icon">{(asset.symbol || '?')[0]}</div>
           }
           <div>
-            <span className="crypto-card-name">{asset.name || 'Sans nom'}</span>
+            <span className="asset-card-name">{asset.name || 'Sans nom'}</span>
             <span className="crypto-card-symbol">{asset.symbol}</span>
           </div>
         </div>
         <div className="crypto-card-middle">
           <span>{fmtQty(asset.quantity)} x {fmt(current)}</span>
         </div>
-        <div className="crypto-card-right">
+        <div className="asset-card-right">
           <span className={`badge ${gain >= 0 ? 'badge-success' : 'badge-danger'}`}>
             {gain >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
             {m(fmt(gain))} ({mp(fmtPct(gainPct))})
           </span>
-          <div className="crypto-card-chevron">
+          <div className="asset-card-chevron">
             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </div>
         </div>
       </div>
 
       {/* Summary stats — always visible */}
-      <div className="crypto-card-summary">
-        <div className="crypto-summary-item">
-          <span className="crypto-summary-label">Investi</span>
-          <span className="crypto-summary-value">{m(fmt(totalInvested))}</span>
+      <div className="asset-card-summary">
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">Investi</span>
+          <span className="asset-card-summary-value">{m(fmt(totalInvested))}</span>
         </div>
-        <div className="crypto-summary-item">
-          <span className="crypto-summary-label">PRU</span>
-          <span className="crypto-summary-value">{m(fmt(currentPRU))}</span>
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">PRU</span>
+          <span className="asset-card-summary-value">{m(fmt(currentPRU))}</span>
         </div>
-        <div className="crypto-summary-item">
-          <span className="crypto-summary-label">Valeur actuelle</span>
-          <span className="crypto-summary-value font-semibold">{m(fmt(totalValue))}</span>
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">Valeur actuelle</span>
+          <span className="asset-card-summary-value font-semibold">{m(fmt(totalValue))}</span>
         </div>
-        <div className="crypto-summary-item">
-          <span className="crypto-summary-label">+/- value</span>
-          <span className={`crypto-summary-value font-semibold ${gain >= 0 ? 'text-success' : 'text-danger'}`}>
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">+/- value</span>
+          <span className={`asset-card-summary-value font-semibold ${gain >= 0 ? 'text-success' : 'text-danger'}`}>
             {m(`${gain >= 0 ? '+' : ''}${fmt(gain)}`)}
           </span>
         </div>
-        <div className="crypto-summary-item">
-          <span className="crypto-summary-label">Performance</span>
-          <span className={`crypto-summary-value font-semibold ${gainPct >= 0 ? 'text-success' : 'text-danger'}`}>
+        <div className="asset-card-summary-item">
+          <span className="asset-card-summary-label">Performance</span>
+          <span className={`asset-card-summary-value font-semibold ${gainPct >= 0 ? 'text-success' : 'text-danger'}`}>
             {mp(fmtPct(gainPct))}
           </span>
         </div>
-        <div className="crypto-summary-item crypto-summary-item--change">
+        <div className="asset-card-summary-item asset-summary-item--change">
           <div className="change-period-selector">
             {CRYPTO_PERIODS.map(p => (
               <button key={p.key} className={`change-period-btn${changePeriod === p.key ? ' active' : ''}`}
@@ -376,7 +367,7 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
             const pct = getChangePct(asset, changePeriod, gainPct)
             const eur = getChangeEur(asset, changePeriod, gain)
             return (
-              <span className={`crypto-summary-value font-semibold ${pct != null ? (pct >= 0 ? 'text-success' : 'text-danger') : ''}`}>
+              <span className={`asset-card-summary-value font-semibold ${pct != null ? (pct >= 0 ? 'text-success' : 'text-danger') : ''}`}>
                 {pct != null ? m(`${eur >= 0 ? '+' : ''}${fmt(eur)}`) + ` (${mp(fmtPct(pct))})` : '—'}
               </span>
             )
@@ -385,42 +376,42 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
       </div>
 
       {/* Expanded body */}
-      <div className={`crypto-card-body ${isExpanded ? 'crypto-card-body--open' : ''}`}>
-        <div className="crypto-card-body-inner">
+      <div className={`asset-card-body ${isExpanded ? 'asset-card-body--open' : ''}`}>
+        <div className="asset-card-body-inner">
           {/* Market Data */}
           <div>
-            <h4 className="crypto-section-title">Donnees de marche</h4>
-            <div className="crypto-market-grid">
-              <div className="crypto-market-box">
-                <div className="crypto-market-box-label">Var. 24h</div>
-                <div className={`crypto-market-box-value ${asset.change24h >= 0 ? 'text-success' : 'text-danger'}`}>
+            <h4 className="asset-section-title">Donnees de marche</h4>
+            <div className="asset-market-grid">
+              <div className="asset-market-box">
+                <div className="asset-market-box-label">Var. 24h</div>
+                <div className={`asset-market-box-value ${asset.change24h >= 0 ? 'text-success' : 'text-danger'}`}>
                   {fmtPct(asset.change24h)}
                 </div>
               </div>
-              <div className="crypto-market-box">
-                <div className="crypto-market-box-label">Haut 24h</div>
-                <div className="crypto-market-box-value">{fmt(asset.high24h)}</div>
+              <div className="asset-market-box">
+                <div className="asset-market-box-label">Haut 24h</div>
+                <div className="asset-market-box-value">{fmt(asset.high24h)}</div>
               </div>
-              <div className="crypto-market-box">
-                <div className="crypto-market-box-label">Bas 24h</div>
-                <div className="crypto-market-box-value">{fmt(asset.low24h)}</div>
+              <div className="asset-market-box">
+                <div className="asset-market-box-label">Bas 24h</div>
+                <div className="asset-market-box-value">{fmt(asset.low24h)}</div>
               </div>
-              <div className="crypto-market-box">
-                <div className="crypto-market-box-label">Volume</div>
-                <div className="crypto-market-box-value">{asset.volume ? fmt(asset.volume) : '—'}</div>
+              <div className="asset-market-box">
+                <div className="asset-market-box-label">Volume</div>
+                <div className="asset-market-box-value">{asset.volume ? fmt(asset.volume) : '—'}</div>
               </div>
             </div>
           </div>
 
           {/* Movements */}
           <div>
-            <h4 className="crypto-section-title">Historique des mouvements</h4>
+            <h4 className="asset-section-title">Historique des mouvements</h4>
             {movements.length === 0 && (
-              <p className="text-sm text-muted" style={{ marginBottom: 8 }}>Aucun mouvement enregistre.</p>
+              <p className="text-sm text-muted mb-8">Aucun mouvement enregistre.</p>
             )}
             {movements.length > 0 && (
-              <div className="crypto-movements-table-wrap">
-                <table className="crypto-movements-table">
+              <div className="asset-table-wrap">
+                <table className="asset-table">
                   <thead>
                     <tr>
                       <th>Date</th>
@@ -464,8 +455,8 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
 
           {/* Chart */}
           <div>
-            <h4 className="crypto-section-title">Evolution investissement vs valeur</h4>
-            <div className="crypto-chart-container">
+            <h4 className="asset-section-title">Evolution investissement vs valeur</h4>
+            <div className="asset-chart-container">
               <PerformanceChart asset={asset} />
             </div>
           </div>
@@ -473,7 +464,7 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
       </div>
 
       {/* Card actions: Edit + Delete */}
-      <div className="crypto-card-actions">
+      <div className="asset-card-actions">
         <button
           className="btn btn-ghost btn-sm"
           onClick={(e) => { e.stopPropagation(); onEdit(asset) }}
@@ -481,8 +472,7 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
           <Pencil size={14} /> Modifier
         </button>
         <button
-          className="btn btn-ghost btn-sm"
-          style={{ color: 'var(--danger)' }}
+          className="btn btn-ghost btn-sm btn-text-danger"
           onClick={() => onDelete(asset.id)}
         >
           <Trash2 size={14} /> Supprimer
@@ -596,12 +586,12 @@ export default function Crypto() {
   return (
     <div className="animate-fade-in">
       {/* Header card */}
-      <div className="card mb-24" style={{ background: 'var(--gradient-card)', borderColor: 'var(--border-strong)' }}>
-        <div className="crypto-header-top">
+      <div className="card mb-24 page-hero">
+        <div className="asset-header-top">
           <div>
             <p className="stat-label">Valeur totale Crypto</p>
-            <p className="stat-value" style={{ fontSize: '2.5rem', marginTop: 4 }}>{m(fmt(totals.crypto))}</p>
-            <div className="flex items-center gap-12 mt-8" style={{ flexWrap: 'wrap' }}>
+            <p className="stat-value page-hero-value">{m(fmt(totals.crypto))}</p>
+            <div className="flex items-center gap-12 mt-8 flex-wrap">
               {(() => {
                 // Aggregate change for header based on selected period
                 let aggEur = null, aggPct = null
@@ -636,7 +626,7 @@ export default function Crypto() {
               <span className="text-sm text-muted">Investi: {m(fmt(totalInvested))}</span>
             </div>
           </div>
-          <div className="crypto-header-actions">
+          <div className="asset-header-actions">
             {pricesLastUpdated && (
               <span className="text-xs text-muted">
                 Mis a jour {fmtTime(pricesLastUpdated)}
@@ -649,7 +639,7 @@ export default function Crypto() {
                 disabled={syncing}
                 title="Synchroniser depuis Binance"
               >
-                {syncing ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <RefreshCw size={16} />}
+                {syncing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
                 Binance
               </button>
             )}
@@ -670,7 +660,7 @@ export default function Crypto() {
       </div>
 
       {syncResult && (
-        <div className="card mb-16" style={{ padding: '12px 16px', fontSize: '0.85rem', background: syncResult.success ? 'var(--success-light, rgba(34,197,94,0.08))' : 'var(--danger-light, rgba(239,68,68,0.08))', color: syncResult.success ? 'var(--success)' : 'var(--danger)' }}>
+        <div className={`card mb-16 crypto-sync-result ${syncResult.success ? 'crypto-sync-result--success' : 'crypto-sync-result--error'}`}>
           {syncResult.success
             ? `Binance sync : ${syncResult.total} actifs trouves, ${syncResult.added} ajoutes, ${syncResult.updated} mis a jour`
             : `Erreur Binance : ${syncResult.error}`
@@ -681,15 +671,15 @@ export default function Crypto() {
       {/* Accordion cards */}
       <div className="crypto-cards-list">
         {portfolio.crypto.length === 0 && (
-          <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '48px 24px' }}>
-            <p style={{ fontSize: '1.1rem', marginBottom: 12 }}>Aucune crypto en portefeuille</p>
+          <div className="card crypto-empty-state">
+            <p>Aucune crypto en portefeuille</p>
             <button className="btn btn-primary" onClick={() => { setEditAsset(null); setShowModal(true) }}>
               <Plus size={16} /> Ajouter une crypto
             </button>
           </div>
         )}
         {portfolio.crypto.map(c => (
-          <div key={c.id} style={{ position: 'relative' }}>
+          <div key={c.id} className="relative">
             <CryptoCard
               asset={c}
               isExpanded={expandedId === c.id}
@@ -700,7 +690,7 @@ export default function Crypto() {
               onDeleteMovement={deleteCryptoMovement}
             />
             {(portfolio.goals || []).length > 0 && (
-              <div style={{ position: 'absolute', top: 12, right: 40 }}>
+              <div className="asset-goal-selector">
                 <GoalSelector assetId={c.id} assetType="crypto" goals={portfolio.goals} onAssign={handleGoalAssign} />
               </div>
             )}
