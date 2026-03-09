@@ -5,28 +5,23 @@
  * Portfolio Core → DataProvider → InputBuilder → ProjectionEngine → Insights → ViewModel
  */
 
-export { buildPortfolioSnapshot, getDcaMonthlyContribution } from './portfolioDataProvider.js'
-export { buildStrategyInputs, buildObjectiveInputs, DEFAULT_RETURNS, DEFAULT_INFLATION } from './strategyInputBuilder.js'
-export { projectTrajectory, projectPortfolio, computeMilestones, toAnnualSeries, computeRequiredContribution, computeTimeToTarget } from './projectionEngine.js'
-export { analyzeGrowthDrivers, generateInsights } from './strategyInsightsEngine.js'
-export { buildProjectionViewModel, buildObjectiveViewModel } from './strategyViewModelBuilder.js'
-
 import { buildPortfolioSnapshot, getDcaMonthlyContribution } from './portfolioDataProvider.js'
-import { buildStrategyInputs, buildObjectiveInputs } from './strategyInputBuilder.js'
-import { projectPortfolio, projectTrajectory, computeRequiredContribution, computeTimeToTarget } from './projectionEngine.js'
-import { generateInsights } from './strategyInsightsEngine.js'
+import { buildStrategyInputs, buildObjectiveInputs, DEFAULT_RETURNS, DEFAULT_INFLATION } from './strategyInputBuilder.js'
+import { projectPortfolio, projectTrajectory, computeRequiredContribution, computeTimeToTarget, computeMilestones, toAnnualSeries } from './projectionEngine.js'
+import { analyzeGrowthDrivers, generateInsights } from './strategyInsightsEngine.js'
 import { buildProjectionViewModel, buildObjectiveViewModel } from './strategyViewModelBuilder.js'
+
+// Re-export everything consumers might need
+export {
+  buildPortfolioSnapshot, getDcaMonthlyContribution,
+  buildStrategyInputs, buildObjectiveInputs, DEFAULT_RETURNS, DEFAULT_INFLATION,
+  projectPortfolio, projectTrajectory, computeRequiredContribution, computeTimeToTarget, computeMilestones, toAnnualSeries,
+  analyzeGrowthDrivers, generateInsights,
+  buildProjectionViewModel, buildObjectiveViewModel,
+}
 
 /**
  * Run the full projection pipeline.
- *
- * @param {object} portfolio - from PortfolioContext
- * @param {object} totals - from PortfolioContext
- * @param {Array} accountBalances - from BankContext
- * @param {Array} aggregates - from BankContext
- * @param {object} dcaPlans - from PortfolioContext
- * @param {object} overrides - user hypotheses overrides
- * @returns {object} { viewModel, insights, inputs, projectionResult }
  */
 export function runProjection(portfolio, totals, accountBalances, aggregates, dcaPlans, overrides = {}) {
   const snapshot = buildPortfolioSnapshot(portfolio, totals, accountBalances, aggregates)
@@ -39,7 +34,6 @@ export function runProjection(portfolio, totals, accountBalances, aggregates, dc
     returnOverrides: overrides.returnOverrides,
   })
 
-  // Add shared params to each envelope
   const enrichedInputs = {
     ...inputs,
     envelopes: inputs.envelopes.map(env => ({
@@ -58,14 +52,6 @@ export function runProjection(portfolio, totals, accountBalances, aggregates, dc
 
 /**
  * Run the objective analysis pipeline.
- *
- * @param {object} portfolio - from PortfolioContext
- * @param {object} totals - from PortfolioContext
- * @param {Array} accountBalances - from BankContext
- * @param {Array} aggregates - from BankContext
- * @param {object} dcaPlans - from PortfolioContext
- * @param {object} objectiveParams - { targetAmount, horizonYears, monthlyContribution, strategyProfile, inflation }
- * @returns {object} { viewModel, objectiveResult }
  */
 export function runObjectiveAnalysis(portfolio, totals, accountBalances, aggregates, dcaPlans, objectiveParams) {
   const snapshot = buildPortfolioSnapshot(portfolio, totals, accountBalances, aggregates)

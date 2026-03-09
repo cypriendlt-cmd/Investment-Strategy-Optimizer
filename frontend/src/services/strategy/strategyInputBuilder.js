@@ -5,7 +5,7 @@
  * Applies default return hypotheses per asset class.
  */
 
-const DEFAULT_RETURNS = {
+export const DEFAULT_RETURNS = {
   etf: 0.07,
   cash: 0.02,
   crypto: 0.10,
@@ -13,7 +13,7 @@ const DEFAULT_RETURNS = {
   other: 0.03,
 }
 
-const DEFAULT_INFLATION = 0.025
+export const DEFAULT_INFLATION = 0.025
 
 /**
  * Build projection inputs from a portfolio snapshot.
@@ -72,6 +72,7 @@ export function buildObjectiveInputs(snapshot, objectiveParams) {
     targetAmount = 500000,
     horizonYears = 15,
     monthlyContribution = 500,
+    annualReturn,
     strategyProfile = 'moderate',
     inflation = DEFAULT_INFLATION,
   } = objectiveParams
@@ -82,7 +83,7 @@ export function buildObjectiveInputs(snapshot, objectiveParams) {
     aggressive: 0.09,
   }
 
-  const blendedReturn = profileReturns[strategyProfile] ?? profileReturns.moderate
+  const blendedReturn = annualReturn ?? profileReturns[strategyProfile] ?? profileReturns.moderate
 
   return {
     currentValue: snapshot.totalValue,
@@ -97,4 +98,3 @@ export function buildObjectiveInputs(snapshot, objectiveParams) {
   }
 }
 
-export { DEFAULT_RETURNS, DEFAULT_INFLATION }
