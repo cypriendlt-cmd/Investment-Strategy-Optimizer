@@ -97,13 +97,17 @@ export function buildPortfolioSnapshot(portfolio, totals, accountBalances = [], 
  * Extract monthly contribution from DCA plans.
  */
 export function getDcaMonthlyContribution(dcaPlans) {
-  const plans = dcaPlans?.plans || []
-  return plans
+  if (!dcaPlans?.plans) return 0
+  return dcaPlans.plans
     .filter(p => p.enabled)
     .reduce((total, plan) => {
-      if (plan.cadence === 'monthly') return total + plan.amount_per_period
-      if (plan.cadence === 'weekly') return total + plan.amount_per_period * 4.33
-      if (plan.cadence === 'daily') return total + plan.amount_per_period * 30
-      return total
+      switch (plan.cadence) {
+        case 'monthly': return total + plan.amount_per_period
+        case 'weekly': return total + plan.amount_per_period * 4.33
+        case 'daily': return total + plan.amount_per_period * 30
+        default:
+          console.warn('[DCA] Cadence inconnue:', plan.cadence, plan)
+          return total
+      }
     }, 0)
 }

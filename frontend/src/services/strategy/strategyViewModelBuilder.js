@@ -7,8 +7,7 @@
 
 import { toAnnualSeries, computeMilestones } from './projectionEngine.js'
 import { analyzeGrowthDrivers } from './strategyInsightsEngine.js'
-
-const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+import { fmt } from '../../utils/format.js'
 
 /**
  * Build the full view model for the Projection Globale page.
@@ -22,12 +21,12 @@ export function buildProjectionViewModel(projectionResult, inputs) {
   const startPoint = totalTrajectory[0]
   const growthDrivers = analyzeGrowthDrivers(envelopeProjections, inputs.horizonYears)
 
-  // Chart data: combined nominal + real + contributions
+  // Chart data: combined nominal + real + invested (capital initial + versements cumulés)
   const chartData = annualData.map(p => ({
     label: p.label,
     nominal: p.nominal,
     real: p.real,
-    contributions: startPoint.nominal + p.contributions,
+    invested: inputs.totalValue + p.contributions,
   }))
 
   // KPI cards

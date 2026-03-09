@@ -9,8 +9,7 @@ import { usePortfolio } from '../../context/PortfolioContext'
 import { useBank } from '../../context/BankContext'
 import { usePrivacyMask } from '../../hooks/usePrivacyMask'
 import { runObjectiveAnalysis, DEFAULT_RETURNS, DEFAULT_INFLATION } from '../../services/strategy'
-
-const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+import { fmt } from '../../utils/format'
 
 const STRATEGY_PROFILES = [
   { value: 'conservative', label: 'Prudent', returnRate: 0.04 },

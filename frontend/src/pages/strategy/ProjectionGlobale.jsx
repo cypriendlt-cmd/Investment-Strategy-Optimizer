@@ -9,8 +9,7 @@ import { usePortfolio } from '../../context/PortfolioContext'
 import { useBank } from '../../context/BankContext'
 import { usePrivacyMask } from '../../hooks/usePrivacyMask'
 import { runProjection, DEFAULT_RETURNS, DEFAULT_INFLATION } from '../../services/strategy'
-
-const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
+import { fmt } from '../../utils/format'
 
 const HORIZON_OPTIONS = [
   { value: 5, label: '5 ans' },
@@ -115,18 +114,18 @@ export default function ProjectionGlobale() {
             <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
             <Tooltip
-              formatter={(v, name) => [m(fmt(v)), name === 'nominal' ? 'Nominal' : name === 'real' ? 'Réel' : 'Versements']}
+              formatter={(v, name) => [m(fmt(v)), name === 'nominal' ? 'Nominal' : name === 'real' ? 'Réel' : 'Capital + versements']}
               contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }}
             />
             <Area type="monotone" dataKey="nominal" stroke="var(--accent)" strokeWidth={2.5} fill="url(#nominalGrad)" name="nominal" />
             <Area type="monotone" dataKey="real" stroke="var(--success)" strokeWidth={1.5} strokeDasharray="4 4" fill="url(#realGrad)" name="real" />
-            <Area type="monotone" dataKey="contributions" stroke="var(--text-muted)" strokeWidth={1} strokeDasharray="3 3" fill="none" name="contributions" />
+            <Area type="monotone" dataKey="invested" stroke="var(--text-muted)" strokeWidth={1} strokeDasharray="3 3" fill="none" name="invested" />
           </AreaChart>
         </ResponsiveContainer>
         <div className="projection-chart-legend">
           <span><span className="projection-dot" style={{ background: 'var(--accent)' }} /> Nominal</span>
           <span><span className="projection-dot" style={{ background: 'var(--success)' }} /> Réel (après inflation)</span>
-          <span><span className="projection-dot projection-dot--dashed" /> Versements cumulés</span>
+          <span><span className="projection-dot projection-dot--dashed" /> Capital + versements</span>
         </div>
       </div>
 

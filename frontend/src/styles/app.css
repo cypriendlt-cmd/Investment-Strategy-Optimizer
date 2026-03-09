@@ -7364,6 +7364,12 @@ tbody tr:hover {
 .objective-result--success .objective-result-icon { color: var(--success); }
 .objective-result--warning .objective-result-icon { color: var(--warning); }
 
+.objective-result-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .objective-result-title {
   font-size: 1.05rem;
   font-weight: 700;

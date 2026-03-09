@@ -17,9 +17,7 @@ import { getFearGreed } from '../services/market'
 import { getMonthlyDcaSummary, getLinkedAsset, computeDcaProgress } from '../services/dcaEngine'
 import { Link } from 'react-router-dom'
 import { runProjection } from '../services/strategy'
-
-const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
-const fmtPct = (n) => `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`
+import { fmt, fmtPct } from '../utils/format'
 
 const MONTH_NAMES = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
 const DAY_NAMES = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
@@ -265,7 +263,7 @@ export default function Dashboard() {
       return strategyResult.viewModel.chartData.map(p => ({
         year: p.label,
         projected: p.nominal,
-        nominal: p.contributions + (strategyResult.viewModel.chartData[0]?.nominal || 0),
+        nominal: p.invested,
       }))
     }
     return buildProjectionData(patrimoineNet)

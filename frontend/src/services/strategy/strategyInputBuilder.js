@@ -73,17 +73,18 @@ export function buildObjectiveInputs(snapshot, objectiveParams) {
     horizonYears = 15,
     monthlyContribution = 500,
     annualReturn,
-    strategyProfile = 'moderate',
+    strategyProfile = 'balanced',
     inflation = DEFAULT_INFLATION,
   } = objectiveParams
 
   const profileReturns = {
     conservative: 0.04,
-    moderate: 0.06,
-    aggressive: 0.09,
+    balanced: 0.06,
+    growth: 0.08,
+    aggressive: 0.10,
   }
 
-  const blendedReturn = annualReturn ?? profileReturns[strategyProfile] ?? profileReturns.moderate
+  const blendedReturn = annualReturn ?? profileReturns[strategyProfile] ?? profileReturns.balanced
 
   return {
     currentValue: snapshot.totalValue,
