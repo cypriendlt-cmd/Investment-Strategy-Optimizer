@@ -13,6 +13,7 @@ const EMPTY_PORTFOLIO = {
   livrets: [],
   fundraising: [],
   objectives: [],
+  goals: [],
 }
 
 export function PortfolioProvider({ children }) {
@@ -52,6 +53,7 @@ export function PortfolioProvider({ children }) {
           livrets: data.livrets || [],
           fundraising: data.fundraising || [],
           objectives: data.objectives || [],
+          goals: data.goals || [],
         })
       }
       setDriveConnected(true)
@@ -530,6 +532,7 @@ export function PortfolioProvider({ children }) {
       addLivret, updateLivret, deleteLivret, addLivretMovement, deleteLivretMovement,
       addFundraising, deleteFundraising,
       addObjective, updateObjective, deleteObjective,
+      updateAndSave,
       fetchPortfolio,
       insightsData, saveInsights,
       dcaConfig, saveDcaConfig,

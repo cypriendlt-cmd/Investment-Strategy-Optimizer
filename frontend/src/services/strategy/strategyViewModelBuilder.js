@@ -33,28 +33,28 @@ export function buildProjectionViewModel(projectionResult, inputs) {
   const kpis = [
     {
       id: 'projected',
-      label: 'Patrimoine projeté',
+      label: 'Valeur estimée',
       value: fmt(finalPoint.nominal),
-      sublabel: `Horizon ${inputs.horizonYears} ans`,
+      sublabel: `Sur ${inputs.horizonYears} ans`,
       color: 'var(--accent)',
     },
     {
       id: 'real',
-      label: 'En euros constants',
+      label: 'Valeur après inflation',
       value: fmt(finalPoint.real),
       sublabel: `Inflation ${(inputs.inflation * 100).toFixed(1)}% / an`,
       color: 'var(--success)',
     },
     {
       id: 'contributions',
-      label: 'Versements cumulés',
+      label: 'Épargne cumulée',
       value: fmt(finalPoint.contributions),
       sublabel: `${fmt(inputs.monthlyContribution)} / mois`,
       color: 'var(--warning)',
     },
     {
       id: 'gains',
-      label: 'Gains projetés',
+      label: 'Gains estimés',
       value: fmt(finalPoint.gains),
       sublabel: `×${(finalPoint.nominal / Math.max(startPoint.nominal, 1)).toFixed(1)} multiplier`,
       color: '#8b5cf6',

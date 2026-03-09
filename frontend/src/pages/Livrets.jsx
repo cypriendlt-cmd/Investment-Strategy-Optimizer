@@ -6,6 +6,8 @@ import { usePrivacyMask } from '../hooks/usePrivacyMask'
 import { calculateInterestYTD, calculateInterestAnnualEstimate } from '../services/interestEngine'
 import { getCurrentRate } from '../services/rateProvider'
 import { Link } from 'react-router-dom'
+import GoalSelector from '../components/GoalSelector'
+import { assignAssetToGoal, unassignAsset } from '../services/goalsEngine'
 
 const LIVRET_TYPES = {
   'livret-a': { label: 'Livret A', max: 22950, color: '#3b82f6' },
@@ -393,9 +395,18 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
 }
 
 export default function Livrets() {
-  const { portfolio, totals, addLivret, deleteLivret, addLivretMovement, deleteLivretMovement } = usePortfolio()
+  const { portfolio, totals, addLivret, deleteLivret, addLivretMovement, deleteLivretMovement, updateAndSave } = usePortfolio()
   const bankCtx = useBank()
   const { m } = usePrivacyMask()
+
+  const handleGoalAssign = (assetId, assetType, goalId) => {
+    updateAndSave(p => ({
+      ...p,
+      goals: goalId
+        ? assignAssetToGoal(p.goals || [], assetId, assetType, goalId)
+        : unassignAsset(p.goals || [], assetId, assetType),
+    }))
+  }
   const [showModal, setShowModal] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
 
@@ -476,6 +487,9 @@ export default function Livrets() {
                 </div>
                 <div className="flex items-center gap-8">
                   <span className="badge badge-accent">{fmtPct(rate)}</span>
+                  {(portfolio.goals || []).length > 0 && (
+                    <GoalSelector assetId={l.id} assetType="livrets" goals={portfolio.goals} onAssign={handleGoalAssign} />
+                  )}
                   <button className="btn btn-ghost btn-icon btn-sm" onClick={() => deleteLivret(l.id)}>
                     <Trash2 size={14} />
                   </button>

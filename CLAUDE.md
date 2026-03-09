@@ -30,6 +30,13 @@ L'application repose sur trois couches :
 - `strategyInsightsEngine` — génère des recommandations et leviers d'optimisation
 - `strategyViewModelBuilder` — formate les données pour les composants UI
 
+### Goals Engine
+- `goalsEngine.js` — CRUD, asset assignment (1 asset = 1 goal), progress computation
+- Pure functions, no side effects, no external imports
+- `Objectifs.jsx` — Strategy Lab page for creating/managing goals
+- `GoalSelector.jsx` — inline selector on asset rows (Crypto, PEA, Livrets, Fundraising)
+- Persistence via `portfolio.goals[]` in Google Drive
+
 ### Strategy UI
 - Dashboard stratégique (cockpit de trajectoire)
 - Strategy Lab (projection, scénarios, objectifs)
@@ -61,9 +68,10 @@ Le Strategy Lab est le cœur différenciant du produit. Il est composé de 4 mod
 | Module | Description |
 |--------|-------------|
 | **Projection globale** | Projection du patrimoine total sur 10-30 ans |
-| **Projection par enveloppe** | Projection détaillée par classe d'actifs |
-| **Comparateur de scénarios** | Comparer actuel vs optimisé vs ambitieux |
 | **Objectif financier** | Définir un objectif, calculer l'écart et le chemin |
+| **Vos objectifs** | CRUD d'objectifs, assignation d'actifs, suivi de progression |
+| **Projection par enveloppe** | Projection détaillée par classe d'actifs (à venir) |
+| **Comparateur de scénarios** | Comparer actuel vs optimisé vs ambitieux (à venir) |
 
 Tous les modules utilisent un moteur de projection commun (`projectionEngine`).
 
@@ -111,8 +119,8 @@ backend/
 | Phase | Objectif |
 |-------|----------|
 | **Phase 1** ✅ | Repositionnement produit + nouveau dashboard stratégique |
-| **Phase 2** | Moteur de projection globale (`projectionEngine`) |
-| **Phase 3** | Objectif financier (cible, écart, chemin) |
+| **Phase 2** ✅ | Moteur de projection globale (`projectionEngine`) |
+| **Phase 3** ✅ | Goals Engine + Objectifs + Lexique pédagogique |
 | **Phase 4** | Comparateur de scénarios (actuel / optimisé / ambitieux) |
 | **Phase 5** | Allocation optimizer |
 | **Phase 6** | Time optimizer (gagner du temps vers l'objectif) |

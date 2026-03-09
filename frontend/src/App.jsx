@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import StrategyLab from './pages/StrategyLab'
 import ProjectionGlobale from './pages/strategy/ProjectionGlobale'
 import ObjectifFinancier from './pages/strategy/ObjectifFinancier'
+import Objectifs from './pages/strategy/Objectifs'
 import Portfolio from './pages/Portfolio'
 import Crypto from './pages/Crypto'
 import PEA from './pages/PEA'
@@ -63,6 +64,7 @@ export default function App() {
               <Route path="/strategy" element={<StrategyLab />} />
               <Route path="/strategy/projection" element={<ProjectionGlobale />} />
               <Route path="/strategy/objective" element={<ObjectifFinancier />} />
+              <Route path="/strategy/objectifs" element={<Objectifs />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/crypto" element={<Crypto />} />
               <Route path="/portfolio/pea" element={<PEA />} />

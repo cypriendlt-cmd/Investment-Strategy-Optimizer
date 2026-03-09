@@ -53,7 +53,7 @@ export default function ObjectifFinancier() {
         <div>
           <h1 className="projection-title">Objectif financier</h1>
           <p className="projection-subtitle">
-            Définissez un objectif patrimonial et découvrez le chemin pour l'atteindre
+            Définissez une cible (par exemple 100 000 €) et découvrez si votre stratégie actuelle vous permet de l'atteindre, et en combien de temps.
           </p>
         </div>
       </div>
@@ -75,14 +75,14 @@ export default function ObjectifFinancier() {
           </div>
         </div>
         <div className="projection-control">
-          <label>Versement mensuel</label>
+          <label>Épargne mensuelle</label>
           <div className="projection-input-group">
             <input type="number" value={contribution} onChange={e => setContribution(Math.max(0, Number(e.target.value)))} min="0" step="50" />
             <span>€/mois</span>
           </div>
         </div>
         <div className="projection-control">
-          <label>Profil stratégie</label>
+          <label>Profil de risque</label>
           <select value={strategyProfile} onChange={e => setStrategyProfile(e.target.value)}>
             {STRATEGY_PROFILES.map(p => <option key={p.value} value={p.value}>{p.label} ({(p.returnRate * 100)}%/an)</option>)}
           </select>
@@ -191,7 +191,7 @@ export default function ObjectifFinancier() {
       <div className="projection-hypotheses">
         <Info size={14} style={{ color: 'var(--text-muted)', minWidth: 14 }} />
         <p>
-          Rendement annuel utilisé : {(selectedProfile.returnRate * 100)}% ({selectedProfile.label}).
+          Croissance estimée : {(selectedProfile.returnRate * 100)}% / an ({selectedProfile.label}).
           Inflation : {inflation}%/an.
           Ces projections sont indicatives et ne constituent pas un conseil financier.
         </p>

@@ -13,6 +13,8 @@ import { usePriceRefresh } from '../hooks/usePriceRefresh'
 import { usePrivacyMask } from '../hooks/usePrivacyMask'
 import { searchCoinGecko, fetchCryptoPrices } from '../services/priceService'
 import { syncBinanceToPortfolio } from '../services/binanceService'
+import GoalSelector from '../components/GoalSelector'
+import { assignAssetToGoal, unassignAsset } from '../services/goalsEngine'
 
 const fmt = (n) => n != null ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n) : '—'
 const fmtQty = (n) => n != null ? new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 6 }).format(n) : '—'
@@ -492,9 +494,18 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
 
 /* ===== Main Page ===== */
 export default function Crypto() {
-  const { portfolio, totals, addCrypto, updateCrypto, deleteCrypto, addCryptoMovement, deleteCryptoMovement, pricesLastUpdated } = usePortfolio()
+  const { portfolio, totals, addCrypto, updateCrypto, deleteCrypto, addCryptoMovement, deleteCryptoMovement, pricesLastUpdated, updateAndSave } = usePortfolio()
   const { isRefreshing, refreshNow } = usePriceRefresh()
   const { m, mp } = usePrivacyMask()
+
+  const handleGoalAssign = (assetId, assetType, goalId) => {
+    updateAndSave(p => ({
+      ...p,
+      goals: goalId
+        ? assignAssetToGoal(p.goals || [], assetId, assetType, goalId)
+        : unassignAsset(p.goals || [], assetId, assetType),
+    }))
+  }
   const [showModal, setShowModal] = useState(false)
   const [editAsset, setEditAsset] = useState(null) // asset being edited, or null
 
@@ -678,16 +689,22 @@ export default function Crypto() {
           </div>
         )}
         {portfolio.crypto.map(c => (
-          <CryptoCard
-            key={c.id}
-            asset={c}
-            isExpanded={expandedId === c.id}
-            onToggle={() => setExpandedId(expandedId === c.id ? null : c.id)}
-            onDelete={deleteCrypto}
-            onEdit={handleOpenEdit}
-            onAddMovement={addCryptoMovement}
-            onDeleteMovement={deleteCryptoMovement}
-          />
+          <div key={c.id} style={{ position: 'relative' }}>
+            <CryptoCard
+              asset={c}
+              isExpanded={expandedId === c.id}
+              onToggle={() => setExpandedId(expandedId === c.id ? null : c.id)}
+              onDelete={deleteCrypto}
+              onEdit={handleOpenEdit}
+              onAddMovement={addCryptoMovement}
+              onDeleteMovement={deleteCryptoMovement}
+            />
+            {(portfolio.goals || []).length > 0 && (
+              <div style={{ position: 'absolute', top: 12, right: 40 }}>
+                <GoalSelector assetId={c.id} assetType="crypto" goals={portfolio.goals} onAssign={handleGoalAssign} />
+              </div>
+            )}
+          </div>
         ))}
       </div>
 

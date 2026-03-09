@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Plus, X, Rocket, Trash2 } from 'lucide-react'
 import { usePortfolio } from '../context/PortfolioContext'
 import { usePrivacyMask } from '../hooks/usePrivacyMask'
+import GoalSelector from '../components/GoalSelector'
+import { assignAssetToGoal, unassignAsset } from '../services/goalsEngine'
 
 const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n)
 const fmtDate = (d) => new Date(d).toLocaleDateString('fr-FR')
@@ -61,8 +63,17 @@ function AddFundraisingModal({ onClose, onAdd }) {
 }
 
 export default function Fundraising() {
-  const { portfolio, totals, addFundraising, deleteFundraising } = usePortfolio()
+  const { portfolio, totals, addFundraising, deleteFundraising, updateAndSave } = usePortfolio()
   const { m } = usePrivacyMask()
+
+  const handleGoalAssign = (assetId, assetType, goalId) => {
+    updateAndSave(p => ({
+      ...p,
+      goals: goalId
+        ? assignAssetToGoal(p.goals || [], assetId, assetType, goalId)
+        : unassignAsset(p.goals || [], assetId, assetType),
+    }))
+  }
   const [showModal, setShowModal] = useState(false)
 
   return (
@@ -90,6 +101,7 @@ export default function Fundraising() {
                 <th>Prix unitaire</th>
                 <th>Nombre de parts</th>
                 <th>Date</th>
+                {(portfolio.goals || []).length > 0 && <th>Objectif</th>}
                 <th></th>
               </tr>
             </thead>
@@ -108,6 +120,9 @@ export default function Fundraising() {
                   <td className="font-mono">{m(fmt(f.unitPrice))}</td>
                   <td className="font-mono">{new Intl.NumberFormat('fr-FR').format(f.units)}</td>
                   <td>{f.date ? fmtDate(f.date) : '—'}</td>
+                  {(portfolio.goals || []).length > 0 && (
+                    <td><GoalSelector assetId={f.id} assetType="fundraising" goals={portfolio.goals} onAssign={handleGoalAssign} /></td>
+                  )}
                   <td>
                     <button className="btn btn-ghost btn-icon btn-sm" onClick={() => deleteFundraising(f.id)}>
                       <Trash2 size={14} />

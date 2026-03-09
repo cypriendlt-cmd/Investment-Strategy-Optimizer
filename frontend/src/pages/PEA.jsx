@@ -12,6 +12,8 @@ import { usePortfolio } from '../context/PortfolioContext'
 import { usePriceRefresh } from '../hooks/usePriceRefresh'
 import { usePrivacyMask } from '../hooks/usePrivacyMask'
 import { searchISIN } from '../services/priceService'
+import GoalSelector from '../components/GoalSelector'
+import { assignAssetToGoal, unassignAsset } from '../services/goalsEngine'
 
 const fmt = (n) => n != null ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n) : '\u2014'
 const fmtPct = (n) => n != null ? `${n >= 0 ? '+' : ''}${n.toFixed(2)}%` : '\u2014'
@@ -413,9 +415,18 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
 
 /* ===== Main Page ===== */
 export default function PEA() {
-  const { portfolio, totals, addPea, deletePea, addPeaMovement, deletePeaMovement, pricesLastUpdated } = usePortfolio()
+  const { portfolio, totals, addPea, deletePea, addPeaMovement, deletePeaMovement, pricesLastUpdated, updateAndSave } = usePortfolio()
   const { isRefreshing, refreshNow } = usePriceRefresh()
   const { m, mp } = usePrivacyMask()
+
+  const handleGoalAssign = (assetId, assetType, goalId) => {
+    updateAndSave(p => ({
+      ...p,
+      goals: goalId
+        ? assignAssetToGoal(p.goals || [], assetId, assetType, goalId)
+        : unassignAsset(p.goals || [], assetId, assetType),
+    }))
+  }
   const [showModal, setShowModal] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
   const [headerPeriod, setHeaderPeriod] = useState('max')
@@ -489,15 +500,21 @@ export default function PEA() {
       {/* Asset list */}
       <div className="flex flex-col gap-16">
         {portfolio.pea.map(p => (
-          <PeaCard
-            key={p.id}
-            asset={p}
-            isExpanded={expandedId === p.id}
-            onToggle={() => setExpandedId(expandedId === p.id ? null : p.id)}
-            onDelete={deletePea}
-            onAddMovement={addPeaMovement}
-            onDeleteMovement={deletePeaMovement}
-          />
+          <div key={p.id} style={{ position: 'relative' }}>
+            <PeaCard
+              asset={p}
+              isExpanded={expandedId === p.id}
+              onToggle={() => setExpandedId(expandedId === p.id ? null : p.id)}
+              onDelete={deletePea}
+              onAddMovement={addPeaMovement}
+              onDeleteMovement={deletePeaMovement}
+            />
+            {(portfolio.goals || []).length > 0 && (
+              <div style={{ position: 'absolute', top: 12, right: 40 }}>
+                <GoalSelector assetId={p.id} assetType="pea" goals={portfolio.goals} onAssign={handleGoalAssign} />
+              </div>
+            )}
+          </div>
         ))}
 
         {portfolio.pea.length === 0 && (

@@ -354,7 +354,7 @@ export default function Dashboard() {
             <span className="dash-stat-label">Trajectoire 10 ans</span>
           </div>
           <div className="dash-stat-value">{m(fmt(projectedTarget))}</div>
-          <div className="dash-stat-sub text-muted">Hypothèse 7% / an</div>
+          <div className="dash-stat-sub text-muted">Croissance estimée 7% / an</div>
         </div>
 
         <div className="dash-stat" style={{ '--stat-accent': 'var(--warning)' }}>
@@ -369,7 +369,7 @@ export default function Dashboard() {
         <div className="dash-stat" style={{ '--stat-accent': '#8b5cf6' }}>
           <div className="dash-stat-header">
             <div className="dash-stat-icon" style={{ background: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6' }}><Zap size={17} /></div>
-            <span className="dash-stat-label">Effort d'épargne</span>
+            <span className="dash-stat-label">Épargne mensuelle</span>
           </div>
           <div className="dash-stat-value">{m(fmt(monthSavings > 0 ? monthSavings : 500))}</div>
           <div className="dash-stat-sub text-muted">/ mois</div>
@@ -472,15 +472,15 @@ export default function Dashboard() {
           <div className="lever-card">
             <div className="lever-icon" style={{ background: 'var(--success-light)', color: 'var(--success)' }}><TrendingUp size={16} /></div>
             <div className="lever-content">
-              <span className="lever-title">Augmenter l'effort d'épargne</span>
+              <span className="lever-title">Augmenter l'épargne mensuelle</span>
               <span className="lever-desc">+100€/mois pourrait vous rapprocher de 2 ans de votre objectif</span>
             </div>
           </div>
           <div className="lever-card">
             <div className="lever-icon" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}><Layers size={16} /></div>
             <div className="lever-content">
-              <span className="lever-title">Optimiser l'allocation</span>
-              <span className="lever-desc">Rééquilibrer vers des actifs à meilleur rendement long terme</span>
+              <span className="lever-title">Mieux répartir votre argent</span>
+              <span className="lever-desc">Rééquilibrer vers des placements à meilleure croissance long terme</span>
             </div>
           </div>
           <div className="lever-card">
@@ -503,7 +503,7 @@ export default function Dashboard() {
       {/* ═══ F. Growth Engines + Allocation ═══ */}
       <div className="dashboard-middle">
         <div className="dash-card">
-          <div className="dash-card-title">Moteurs de croissance</div>
+          <div className="dash-card-title">Répartition de votre argent</div>
           <div className="dashboard-pie-row">
             <ResponsiveContainer width={200} height={200}>
               <PieChart>
