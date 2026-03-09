@@ -258,6 +258,8 @@ export default function Dashboard() {
   ].reduce((a, b) => a + b, 0)
   const totalGain = totals.total + bankLivrets - totalLivrets - totals.fundraising - totalInvested
 
+  const strategyResult = useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans)
+
   const projectionData = useMemo(() => {
     if (strategyResult?.viewModel?.chartData) {
       return strategyResult.viewModel.chartData.map(p => ({
@@ -301,8 +303,6 @@ export default function Dashboard() {
     const monthly = getMonthlyDcaSummary(enabled, portfolio, currentMonth)
     return { totalInvested: totalInvestedDca, onTrack, total: enabled.length, nextDates: nextDates.slice(0, 3), monthPlanned: monthly.planned_total, monthActual: monthly.actual_total }
   }, [dcaPlans, portfolio])
-
-  const strategyResult = useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans)
 
   const lastAgg = aggregates?.[aggregates.length - 1]
   const monthIncome = lastAgg?.income || 0
