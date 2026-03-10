@@ -9,9 +9,9 @@ import { fmtMonths } from '../../services/goalProjectionEngine'
 import { fmt } from '../../utils/format'
 
 const GOAL_TYPES = {
-  short_term: { label: 'Court terme', color: 'var(--accent)', colorLight: 'var(--accent-light)' },
-  security: { label: 'Sécurité', color: 'var(--success)', colorLight: 'var(--success-light)' },
-  long_term: { label: 'Long terme', color: '#8b5cf6', colorLight: 'rgba(139, 92, 246, 0.12)' },
+  short_term: { label: 'Short Term', color: 'var(--accent)', colorLight: 'var(--accent-light)' },
+  security: { label: 'Security', color: 'var(--success)', colorLight: 'var(--success-light)' },
+  long_term: { label: 'Long Term', color: '#8b5cf6', colorLight: 'rgba(139, 92, 246, 0.12)' },
 }
 
 const ICON_MAP = { home: Home, shield: Shield, 'trending-up': TrendingUp, star: Star, plane: Plane, default: Target }
@@ -110,13 +110,13 @@ export default function Objectifs() {
           <ArrowLeft size={16} /> Strategy Lab
         </Link>
         <div>
-          <h1 className="projection-title">Vos objectifs financiers</h1>
+          <h1 className="projection-title">Your Financial Goals</h1>
           <p className="projection-subtitle">
-            Chaque euro que vous épargnez peut servir un but précis. Associez vos comptes à vos projets pour mieux piloter votre avenir.
+            Every euro you save can serve a specific purpose. Link your accounts to your projects to better steer your future.
           </p>
         </div>
         <button className="btn btn-primary" onClick={openCreate} style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
-          <Plus size={16} /> Nouvel objectif
+          <Plus size={16} /> New Goal
         </button>
       </div>
 
@@ -125,12 +125,12 @@ export default function Objectifs() {
         <div className="goals-grid">
           <div className="goals-card" style={{ textAlign: 'center', padding: '3rem 2rem', gridColumn: '1 / -1' }}>
             <Target size={40} style={{ color: 'var(--text-muted)', marginBottom: '1rem' }} />
-            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--text)' }}>Aucun objectif défini</h3>
+            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--text)' }}>No goals defined</h3>
             <p style={{ color: 'var(--text-muted)', margin: '0 0 1.5rem', maxWidth: 420, marginInline: 'auto' }}>
-              Créez votre premier objectif financier pour donner un cap à votre épargne et suivre votre progression.
+              Create your first financial goal to give direction to your savings and track your progress.
             </p>
             <button className="btn btn-primary" onClick={openCreate}>
-              <Plus size={16} /> Créer un objectif
+              <Plus size={16} /> Create a Goal
             </button>
           </div>
         </div>
@@ -153,10 +153,10 @@ export default function Objectifs() {
                     </span>
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    <button className="btn btn-ghost btn-icon" onClick={() => openEdit(goal)} title="Modifier">
+                    <button className="btn btn-ghost btn-icon" onClick={() => openEdit(goal)} title="Edit">
                       <Pencil size={14} />
                     </button>
-                    <button className="btn btn-ghost btn-icon" onClick={() => handleDelete(goal.id)} style={{ color: 'var(--danger)' }} title="Supprimer">
+                    <button className="btn btn-ghost btn-icon" onClick={() => handleDelete(goal.id)} style={{ color: 'var(--danger)' }} title="Delete">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -175,7 +175,7 @@ export default function Objectifs() {
 
                 {/* Estimated date */}
                 <div className="goals-card-meta">
-                  Date estimée : {estimatedDate ? new Date(estimatedDate + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : '—'}
+                  Estimated date: {estimatedDate ? new Date(estimatedDate + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—'}
                   {goal.progress.monthsToReach != null && goal.progress.monthsToReach > 0 && (
                     <span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>({fmtMonths(goal.progress.monthsToReach)})</span>
                   )}
@@ -184,7 +184,7 @@ export default function Objectifs() {
                 {/* Linked assets */}
                 {linkedAssetsDetail.length > 0 && (
                   <div className="goals-card-meta">
-                    Actifs liés : {linkedAssetsDetail.map(a => a.label).join(', ')}
+                    Linked assets: {linkedAssetsDetail.map(a => a.label).join(', ')}
                   </div>
                 )}
 
@@ -194,7 +194,7 @@ export default function Objectifs() {
                     to={`/strategy/objective?target=${goal.targetAmount}`}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.82rem', color: 'var(--accent)', marginTop: 8, textDecoration: 'none', fontWeight: 600 }}
                   >
-                    <TrendingUp size={14} /> Voir la projection
+                    <TrendingUp size={14} /> View projection
                   </Link>
                 )}
               </div>
@@ -206,16 +206,16 @@ export default function Objectifs() {
       {/* Summary Table */}
       {goalsWithProgress.length > 0 && (
         <div className="projection-milestones">
-          <div className="projection-section-title">Synthèse des objectifs</div>
+          <div className="projection-section-title">Goals Summary</div>
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Objectif</th>
-                  <th>Montant actuel</th>
-                  <th>Cible</th>
-                  <th>Progression</th>
-                  <th>Date estimée</th>
+                  <th>Goal</th>
+                  <th>Current Amount</th>
+                  <th>Target</th>
+                  <th>Progress</th>
+                  <th>Estimated Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,7 +231,7 @@ export default function Objectifs() {
                       </td>
                       <td>
                         {goal.progress.estimatedDate
-                          ? new Date(goal.progress.estimatedDate + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                          ? new Date(goal.progress.estimatedDate + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
                           : '—'}
                         {goal.progress.monthsToReach != null && goal.progress.monthsToReach > 0 && (
                           <span style={{ color: 'var(--text-muted)', marginLeft: 6, fontSize: '0.82rem' }}>({fmtMonths(goal.progress.monthsToReach)})</span>
@@ -250,7 +250,7 @@ export default function Objectifs() {
       <div className="projection-hypotheses">
         <Info size={14} style={{ color: 'var(--text-muted)', minWidth: 14 }} />
         <p>
-          Pourquoi distinguer vos objectifs ? Savoir à quoi sert chaque euro épargné vous aide à faire les bons choix : sécuriser une réserve d'urgence, préparer un achat important ou construire votre liberté financière à long terme.
+          Why separate your goals? Knowing the purpose of every euro saved helps you make better choices: securing an emergency fund, preparing for a major purchase, or building long-term financial freedom.
         </p>
       </div>
 
@@ -259,18 +259,18 @@ export default function Objectifs() {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">{editingId ? 'Modifier l\'objectif' : 'Nouvel objectif'}</h2>
+              <h2 className="modal-title">{editingId ? 'Edit Goal' : 'New Goal'}</h2>
               <button className="btn btn-ghost" onClick={closeModal} style={{ padding: 6 }}>
                 <X size={18} />
               </button>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Nom de l'objectif</label>
+              <label className="form-label">Goal Name</label>
               <input
                 className="form-input"
                 type="text"
-                placeholder="Ex : Réserve d'urgence, Apport maison..."
+                placeholder="E.g.: Emergency fund, House deposit..."
                 value={form.label}
                 onChange={e => setForm(f => ({ ...f, label: e.target.value }))}
                 required
@@ -278,26 +278,26 @@ export default function Objectifs() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Type d'objectif</label>
+              <label className="form-label">Goal Type</label>
               <select
                 className="form-select"
                 value={form.type}
                 onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
               >
-                <option value="short_term">Projet à court terme</option>
-                <option value="security">Réserve de sécurité</option>
-                <option value="long_term">Liberté financière</option>
+                <option value="short_term">Short-term project</option>
+                <option value="security">Safety reserve</option>
+                <option value="long_term">Financial freedom</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Montant cible (€)</label>
+              <label className="form-label">Target Amount (EUR)</label>
               <input
                 className="form-input"
                 type="number"
                 min="0"
                 step="500"
-                placeholder="10 000"
+                placeholder="10,000"
                 value={form.targetAmount}
                 onChange={e => setForm(f => ({ ...f, targetAmount: e.target.value }))}
                 required
@@ -305,23 +305,23 @@ export default function Objectifs() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Épargne mensuelle dédiée (optionnel)</label>
+              <label className="form-label">Dedicated Monthly Savings (optional)</label>
               <input
                 className="form-input"
                 type="number"
                 min="0"
                 step="50"
-                placeholder="Ex : 200"
+                placeholder="E.g.: 200"
                 value={form.monthlyContribution}
                 onChange={e => setForm(f => ({ ...f, monthlyContribution: e.target.value }))}
               />
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
-                Permet de calculer la date estimée d'atteinte de l'objectif
+                Used to calculate the estimated date to reach the goal
               </span>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Date cible (optionnel)</label>
+              <label className="form-label">Target Date (optional)</label>
               <input
                 className="form-input"
                 type="date"
@@ -331,7 +331,7 @@ export default function Objectifs() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Icône</label>
+              <label className="form-label">Icon</label>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 {ICON_OPTIONS.map(key => {
                   const isSelected = form.icon === key
@@ -357,9 +357,9 @@ export default function Objectifs() {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
-              <button className="btn btn-ghost" onClick={closeModal}>Annuler</button>
+              <button className="btn btn-ghost" onClick={closeModal}>Cancel</button>
               <button className="btn btn-primary" onClick={handleSave}>
-                {editingId ? 'Enregistrer' : 'Créer l\'objectif'}
+                {editingId ? 'Save' : 'Create Goal'}
               </button>
             </div>
           </div>

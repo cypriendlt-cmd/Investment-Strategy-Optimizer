@@ -1,37 +1,56 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Menu, Sun, Moon, Bell, Search, Check, Eye, EyeOff } from 'lucide-react'
+import { Menu, Sun, Moon, Bell, Search, Check, Eye, EyeOff, RefreshCw } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { usePrivacy } from '../context/PrivacyContext'
+import { usePortfolio } from '../context/PortfolioContext'
 import { getDueNotifications, markNotificationDone } from '../services/notifications'
 
 const PAGE_TITLES = {
-  '/': 'Tableau de bord',
+  '/': 'Strategy Dashboard',
   '/strategy': 'Strategy Lab',
   '/strategy/projection': 'Projection globale',
   '/strategy/objective': 'Objectif financier',
-  '/portfolio': 'Patrimoine',
+  '/strategy/objectifs': 'Vos objectifs',
+  '/strategy/fire': 'Liberte financiere',
+  '/strategy/scenarios': 'Scenarios',
+  '/portfolio': 'Portfolio Analysis',
   '/portfolio/crypto': 'Crypto',
-  '/portfolio/pea': 'PEA',
+  '/portfolio/pea': 'PEA / Actions',
   '/portfolio/livrets': 'Livrets',
-  '/portfolio/fundraising': 'Levées de fonds',
-  '/portfolio/objectives': 'Objectifs',
-  '/portfolio/banking': 'Banque & Cashflow',
-  '/portfolio/dca': 'DCA',
-  '/insights': 'Insights',
-  '/settings': 'Paramètres',
+  '/portfolio/fundraising': 'Crowdfunding',
+  '/portfolio/objectives': 'Financial Goals',
+  '/portfolio/banking': 'Cash & Banking',
+  '/portfolio/dca': 'DCA Plans',
+  '/insights': 'AI Strategy Insights',
+  '/settings': 'Settings',
+}
+
+const PAGE_DESCRIPTIONS = {
+  '/': 'Your strategic command center',
+  '/strategy': 'Projections, scenarios & optimization',
+  '/portfolio': 'Asset overview & positions',
+  '/portfolio/crypto': 'Cryptocurrency positions',
+  '/portfolio/pea': 'Equity portfolio',
+  '/portfolio/livrets': 'Savings accounts',
+  '/portfolio/objectives': 'Track your financial goals',
+  '/portfolio/banking': 'Bank accounts & cash flow',
+  '/portfolio/dca': 'Dollar cost averaging plans',
+  '/insights': 'AI-powered analysis & recommendations',
+  '/settings': 'Preferences & integrations',
 }
 
 export default function Header({ onMenuClick }) {
   const { darkMode, toggleDarkMode } = useTheme()
   const { hideValues, toggleHideValues } = usePrivacy()
+  const { pricesLastUpdated, isRefreshingPrices, manualRefreshRef } = usePortfolio()
   const location = useLocation()
-  const [searchFocused, setSearchFocused] = useState(false)
   const [dueNotifs, setDueNotifs] = useState([])
   const [notifOpen, setNotifOpen] = useState(false)
   const notifRef = useRef(null)
 
   const title = PAGE_TITLES[location.pathname] || 'Strategy Optimizer'
+  const description = PAGE_DESCRIPTIONS[location.pathname] || null
 
   useEffect(() => {
     const check = () => setDueNotifs(getDueNotifications())
@@ -55,33 +74,54 @@ export default function Header({ onMenuClick }) {
     setDueNotifs(getDueNotifications())
   }
 
+  const handleRefreshPrices = () => {
+    if (manualRefreshRef?.current) manualRefreshRef.current()
+  }
+
+  const formatLastUpdate = () => {
+    if (!pricesLastUpdated) return null
+    const diff = Math.round((Date.now() - pricesLastUpdated.getTime()) / 60000)
+    if (diff < 1) return 'Just now'
+    if (diff < 60) return `${diff}m ago`
+    return pricesLastUpdated.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  }
+
   return (
     <header className="header">
       <div className="header-left">
         <button className="header-menu-btn" onClick={onMenuClick}>
           <Menu size={20} />
         </button>
-        <h1 className="header-title">{title}</h1>
+        <div className="header-title-group">
+          <h1 className="header-title">{title}</h1>
+          {description && <span className="header-description">{description}</span>}
+        </div>
       </div>
 
       <div className="header-right">
-        <div className={`header-search ${searchFocused ? 'header-search--focused' : ''}`}>
-          <Search size={16} />
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-          />
+        {/* Live data indicator */}
+        <div className="header-live-indicator" title={formatLastUpdate() || 'Prices not loaded'}>
+          <button
+            className={`header-icon-btn header-refresh-btn ${isRefreshingPrices ? 'spinning' : ''}`}
+            onClick={handleRefreshPrices}
+            disabled={isRefreshingPrices}
+            title="Refresh prices"
+          >
+            <RefreshCw size={16} />
+          </button>
+          {pricesLastUpdated && (
+            <span className="header-live-dot" />
+          )}
         </div>
 
+        {/* Notifications */}
         <div className="header-notif-wrapper" ref={notifRef}>
           <button
             className="header-icon-btn"
             title="Notifications"
             onClick={() => setNotifOpen(!notifOpen)}
           >
-            <Bell size={18} />
+            <Bell size={17} />
             {dueNotifs.length > 0 && (
               <span className="header-notif-badge">{dueNotifs.length}</span>
             )}
@@ -89,20 +129,19 @@ export default function Header({ onMenuClick }) {
 
           {notifOpen && (
             <div className="header-notif-dropdown">
-              <div className="header-notif-dropdown-title">Rappels DCA</div>
+              <div className="header-notif-dropdown-title">DCA Reminders</div>
               <div className="header-notif-dropdown-list">
                 {dueNotifs.length === 0 ? (
-                  <div className="header-notif-empty">Aucun rappel en attente</div>
+                  <div className="header-notif-empty">No pending reminders</div>
                 ) : (
                   dueNotifs.map(n => (
                     <div key={n.id} className="header-notif-dropdown-item">
                       <div className="header-notif-dropdown-text">
-                        Investir {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n.monthlyAmount)} dans {n.assetName}
-                        <span>Rappel DCA du {n.nextReminder}</span>
+                        Invest {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n.monthlyAmount)} in {n.assetName}
+                        <span>DCA reminder {n.nextReminder}</span>
                       </div>
                       <button className="header-notif-done-btn" onClick={() => handleMarkDone(n.id)}>
-                        <Check size={12} style={{ marginRight: 2, verticalAlign: 'middle' }} />
-                        Fait
+                        <Check size={12} /> Done
                       </button>
                     </div>
                   ))
@@ -112,12 +151,14 @@ export default function Header({ onMenuClick }) {
           )}
         </div>
 
-        <button className="header-icon-btn" onClick={toggleHideValues} title={hideValues ? 'Afficher les valeurs' : 'Masquer les valeurs'}>
-          {hideValues ? <EyeOff size={18} /> : <Eye size={18} />}
+        {/* Privacy toggle */}
+        <button className="header-icon-btn" onClick={toggleHideValues} title={hideValues ? 'Show values' : 'Hide values'}>
+          {hideValues ? <EyeOff size={17} /> : <Eye size={17} />}
         </button>
 
-        <button className="header-icon-btn" onClick={toggleDarkMode} title={darkMode ? 'Mode clair' : 'Mode sombre'}>
-          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+        {/* Theme toggle */}
+        <button className="header-icon-btn" onClick={toggleDarkMode} title={darkMode ? 'Light mode' : 'Dark mode'}>
+          {darkMode ? <Sun size={17} /> : <Moon size={17} />}
         </button>
       </div>
     </header>

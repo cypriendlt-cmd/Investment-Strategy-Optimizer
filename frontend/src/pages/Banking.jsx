@@ -27,21 +27,21 @@ const fmtN = (v) => v.toLocaleString('fr-FR', { maximumFractionDigits: 0 })
 const catMap = Object.fromEntries(CATEGORIES.map(c => [c.id, c]))
 
 const TABS = [
-  { key: 'synthese', label: 'Synthese', icon: Landmark },
-  { key: 'courant', label: 'Compte Courant', icon: CreditCard },
-  { key: 'livrets', label: 'Livrets', icon: PiggyBank },
-  { key: 'securite', label: 'Matelas', icon: Shield },
-  { key: 'liberte', label: 'Liberte', icon: Sunrise },
+  { key: 'synthese', label: 'Overview', icon: Landmark },
+  { key: 'courant', label: 'Checking Account', icon: CreditCard },
+  { key: 'livrets', label: 'Savings', icon: PiggyBank },
+  { key: 'securite', label: 'Emergency Fund', icon: Shield },
+  { key: 'liberte', label: 'Freedom', icon: Sunrise },
   { key: 'investissements', label: 'Allocation', icon: PieChartIcon },
   { key: 'coach', label: 'Coach', icon: Lightbulb },
-  { key: 'regles', label: 'Regles', icon: Settings2 },
+  { key: 'regles', label: 'Rules', icon: Settings2 },
 ]
 
 /* ─── Confidence dot ─── */
 function ConfidenceDot({ confidence }) {
   const c = typeof confidence === 'number' ? confidence : 0
   const color = c >= 0.8 ? '#22c55e' : c >= 0.5 ? '#f59e0b' : '#ef4444'
-  return <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: color, marginRight: 4, flexShrink: 0 }} title={`Confiance: ${(c * 100).toFixed(0)}%`} />
+  return <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: color, marginRight: 4, flexShrink: 0 }} title={`Confidence: ${(c * 100).toFixed(0)}%`} />
 }
 
 /* ─── Clickable category badge ─── */
@@ -69,7 +69,7 @@ function CategoryBadge({ tx, onCorrect }) {
       className="tx-category"
       style={{ background: color + '18', color, cursor: 'pointer' }}
       onClick={() => setEditing(true)}
-      title={tx.reason || 'Cliquer pour changer'}
+      title={tx.reason || 'Click to change'}
     >
       <ConfidenceDot confidence={tx.confidence} />
       {tx.isTransfer && <Repeat size={10} style={{ marginRight: 3 }} />}
@@ -129,20 +129,20 @@ function AICategorizePanel({ proposals, onClose, onApply }) {
         <div className="ai-panel-header">
           <div className="ai-panel-title">
             <Sparkles size={18} style={{ color: 'var(--accent)' }} />
-            <h3>Propositions IA — Compte Courant</h3>
+            <h3>AI Suggestions — Checking Account</h3>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span className="ai-panel-badge">{selected.size}/{proposals.length} sélectionnées</span>
+            <span className="ai-panel-badge">{selected.size}/{proposals.length} selected</span>
             <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
           </div>
         </div>
 
         <div className="ai-panel-toolbar">
           <button className="btn btn-ghost" style={{ fontSize: '0.78rem', padding: '4px 12px' }} onClick={toggleAll}>
-            {allSelected ? 'Tout désélectionner' : 'Tout sélectionner'}
+            {allSelected ? 'Deselect all' : 'Select all'}
           </button>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            {proposals.length} transaction{proposals.length > 1 ? 's' : ''} analysée{proposals.length > 1 ? 's' : ''} — cliquez pour sélectionner
+            {proposals.length} transaction{proposals.length > 1 ? 's' : ''} analyzed — click to select
           </span>
         </div>
 
@@ -171,7 +171,7 @@ function AICategorizePanel({ proposals, onClose, onApply }) {
                       {fmtD(p.amount)}
                     </span>
                     {p.merchantName && (
-                      <span className="ai-merchant-tag" title="Nom marchand extrait — sera appris automatiquement">
+                      <span className="ai-merchant-tag" title="Extracted merchant name — will be auto-learned">
                         {p.merchantName}
                       </span>
                     )}
@@ -185,7 +185,7 @@ function AICategorizePanel({ proposals, onClose, onApply }) {
                   <span
                     className="tx-category ai-proposed"
                     style={{ background: proposedCat.color + '22', color: proposedCat.color, border: `1px solid ${proposedCat.color}44` }}
-                    title={p.ruleHit ? `Règle: ${p.ruleHit} · Confiance: ${Math.round(p.confidence * 100)}%` : `Confiance: ${Math.round(p.confidence * 100)}%`}
+                    title={p.ruleHit ? `Rule: ${p.ruleHit} · Confidence: ${Math.round(p.confidence * 100)}%` : `Confidence: ${Math.round(p.confidence * 100)}%`}
                   >
                     <ConfidenceDot confidence={p.confidence} />
                     {proposedCat.label}
@@ -199,17 +199,17 @@ function AICategorizePanel({ proposals, onClose, onApply }) {
         <div className="ai-panel-footer">
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', flex: 1 }}>
             {selected.size === 0
-              ? 'Sélectionnez les lignes à corriger'
-              : <><Brain size={12} style={{ marginRight: 4, color: 'var(--accent)' }} />{selected.size} correction{selected.size > 1 ? 's' : ''} — les marchands seront mémorisés pour vos prochaines transactions</>}
+              ? 'Select the lines to correct'
+              : <><Brain size={12} style={{ marginRight: 4, color: 'var(--accent)' }} />{selected.size} correction{selected.size > 1 ? 's' : ''} — merchants will be remembered for your future transactions</>}
           </span>
-          <button className="btn btn-ghost" onClick={onClose}>Annuler</button>
+          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
           <button
             className="btn btn-primary"
             disabled={selected.size === 0}
             onClick={handleApply}
           >
             <CheckCircle size={14} />
-            Appliquer {selected.size > 0 ? `(${selected.size})` : ''}
+            Apply {selected.size > 0 ? `(${selected.size})` : ''}
           </button>
         </div>
       </div>
@@ -235,7 +235,7 @@ export default function Banking() {
   const [importOpen, setImportOpen] = useState(false)
 
   if (loading) {
-    return <div className="banking" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Chargement...</div>
+    return <div className="banking" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
   }
 
   const hasProfile = financeProfile && (financeProfile.monthlyIncome > 0 || aggregates.length > 0)
@@ -243,11 +243,11 @@ export default function Banking() {
   return (
     <div className="banking">
       <div className="banking-header">
-        <h1><Landmark size={22} style={{ marginRight: 8 }} />Banque & Cashflow</h1>
+        <h1><Landmark size={22} style={{ marginRight: 8 }} />Banking & Cashflow</h1>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {processing && <Loader2 size={16} className="spin" style={{ color: 'var(--accent)' }} />}
           <button className="btn btn-primary" onClick={() => setImportOpen(true)}>
-            <Upload size={14} /> Importer un releve
+            <Upload size={14} /> Import Statement
           </button>
         </div>
       </div>
@@ -309,45 +309,45 @@ function ProfileSetup({ profile, updateProfile, hasAggregates }) {
   return (
     <div className="card" style={{ maxWidth: 520, margin: '24px auto', padding: 24 }}>
       <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <User size={18} /> Configurez votre profil financier
+        <User size={18} /> Set up your financial profile
       </h3>
 
       {hasAggregates && (
         <div className="alert-banner info" style={{ marginBottom: 16 }}>
           <CheckCircle size={16} />
-          Revenus, depenses et epargne sont calcules automatiquement depuis vos releves bancaires importes.
+          Income, expenses, and savings are automatically calculated from your imported bank statements.
         </div>
       )}
 
       {!hasAggregates && (
         <>
           <div className="form-group">
-            <label className="form-label">Revenus mensuels nets</label>
+            <label className="form-label">Net monthly income</label>
             <input className="form-input" type="number" placeholder="ex: 2500" value={form.monthlyIncome} onChange={e => set('monthlyIncome', e.target.value)} min="0" />
           </div>
           <div className="form-group">
-            <label className="form-label">Depenses mensuelles</label>
+            <label className="form-label">Monthly expenses</label>
             <input className="form-input" type="number" placeholder="ex: 1800" value={form.monthlyExpenses} onChange={e => set('monthlyExpenses', e.target.value)} min="0" />
           </div>
           <div className="form-group">
-            <label className="form-label">Epargne de precaution disponible (cash)</label>
+            <label className="form-label">Available emergency savings (cash)</label>
             <input className="form-input" type="number" placeholder="ex: 5000" value={form.currentCash} onChange={e => set('currentCash', e.target.value)} min="0" />
           </div>
         </>
       )}
 
       <div className="form-group">
-        <label className="form-label">Horizon d'investissement</label>
+        <label className="form-label">Investment horizon</label>
         <div className="segmented-control">
-          {[['court', 'Court terme'], ['moyen', 'Moyen terme'], ['long', 'Long terme']].map(([v, l]) => (
+          {[['court', 'Short term'], ['moyen', 'Medium term'], ['long', 'Long term']].map(([v, l]) => (
             <button key={v} type="button" className={form.investmentHorizon === v ? 'active' : ''} onClick={() => set('investmentHorizon', v)}>{l}</button>
           ))}
         </div>
       </div>
       <div className="form-group">
-        <label className="form-label">Tolerance au risque</label>
+        <label className="form-label">Risk tolerance</label>
         <div className="segmented-control">
-          {[['prudent', 'Prudent'], ['modere', 'Modere'], ['dynamique', 'Dynamique']].map(([v, l]) => (
+          {[['prudent', 'Conservative'], ['modere', 'Moderate'], ['dynamique', 'Aggressive']].map(([v, l]) => (
             <button key={v} type="button" className={form.riskTolerance === v ? 'active' : ''} onClick={() => set('riskTolerance', v)}>{l}</button>
           ))}
         </div>
@@ -355,7 +355,7 @@ function ProfileSetup({ profile, updateProfile, hasAggregates }) {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
         <button className="btn btn-primary" disabled={!canSubmit} onClick={handleSubmit}>
-          <CheckCircle size={14} /> Valider
+          <CheckCircle size={14} /> Submit
         </button>
       </div>
     </div>
@@ -383,27 +383,27 @@ function SecurityTab({ profile, hasProfile, m }) {
     <>
       <div className="card" style={{ padding: 24, marginBottom: 20 }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: '1rem', fontWeight: 700 }}>
-          <Shield size={18} style={{ color: 'var(--accent)' }} /> Etat actuel
+          <Shield size={18} style={{ color: 'var(--accent)' }} /> Current Status
         </h3>
         <div className="stats-row">
           <div className="stat-mini">
-            <span className="stat-mini-label">Epargne disponible</span>
+            <span className="stat-mini-label">Available savings</span>
             <span className="stat-mini-value">{m(fmt(currentCash))}</span>
           </div>
           <div className="stat-mini">
-            <span className="stat-mini-label">Mois couverts</span>
-            <span className="stat-mini-value" style={{ color: barColor }}>{cushionMonths.toFixed(1)} mois</span>
+            <span className="stat-mini-label">Months covered</span>
+            <span className="stat-mini-value" style={{ color: barColor }}>{cushionMonths.toFixed(1)} months</span>
           </div>
           <div className="stat-mini">
-            <span className="stat-mini-label">Objectif</span>
-            <span className="stat-mini-value">{targetMonths} mois</span>
-            <span className="stat-mini-note">Profil {riskTolerance}</span>
+            <span className="stat-mini-label">Target</span>
+            <span className="stat-mini-value">{targetMonths} months</span>
+            <span className="stat-mini-note">Profile {riskTolerance}</span>
           </div>
         </div>
 
         <div style={{ marginTop: 20, marginBottom: 8, display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
           <span>0 EUR</span>
-          <span>Objectif : {m(fmt(targetAmount))}</span>
+          <span>Target: {m(fmt(targetAmount))}</span>
         </div>
         <div className="progress-bar" style={{ height: 14 }}>
           <div className="progress-fill" style={{ width: `${progress}%`, background: barColor }} />
@@ -416,17 +416,17 @@ function SecurityTab({ profile, hasProfile, m }) {
       {!isReached && (
         <div className="card" style={{ padding: 24, marginBottom: 20 }}>
           <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: '1rem', fontWeight: 700 }}>
-            <Target size={18} style={{ color: 'var(--accent)' }} /> Pour atteindre votre objectif
+            <Target size={18} style={{ color: 'var(--accent)' }} /> To reach your target
           </h3>
           <div className="stats-row">
             <div className="stat-mini">
-              <span className="stat-mini-label">Montant manquant</span>
+              <span className="stat-mini-label">Missing amount</span>
               <span className="stat-mini-value" style={{ color: 'var(--danger)' }}>{m(fmt(gap))}</span>
             </div>
             <div className="stat-mini">
-              <span className="stat-mini-label">Delai estime</span>
-              <span className="stat-mini-value">{monthlySavings > 0 ? `${monthsToTarget} mois` : '--'}</span>
-              {monthlySavings > 0 && <span className="stat-mini-note">A {m(fmt(monthlySavings))}/mois d'epargne</span>}
+              <span className="stat-mini-label">Estimated timeline</span>
+              <span className="stat-mini-value">{monthlySavings > 0 ? `${monthsToTarget} months` : '--'}</span>
+              {monthlySavings > 0 && <span className="stat-mini-note">At {m(fmt(monthlySavings))}/month savings</span>}
             </div>
           </div>
         </div>
@@ -434,11 +434,11 @@ function SecurityTab({ profile, hasProfile, m }) {
 
       <div style={{ marginBottom: 20 }}>
         {isReached ? (
-          <div className="alert-banner success"><CheckCircle size={16} /> Objectif atteint ! Votre matelas de securite est solide. Orientez votre epargne vers des investissements.</div>
+          <div className="alert-banner success"><CheckCircle size={16} /> Target reached! Your emergency fund is solid. Direct your savings towards investments.</div>
         ) : cushionMonths < 1 ? (
-          <div className="alert-banner danger"><AlertTriangle size={16} /> Situation critique : moins d'un mois de depenses couvert. Priorite absolue : constituer votre epargne de precaution.</div>
+          <div className="alert-banner danger"><AlertTriangle size={16} /> Critical: less than one month of expenses covered. Top priority: build your emergency savings.</div>
         ) : (
-          <div className="alert-banner warning"><TrendingUp size={16} /> Continuez a alimenter votre epargne. Il manque {m(fmt(gap))} pour atteindre {targetMonths} mois.</div>
+          <div className="alert-banner warning"><TrendingUp size={16} /> Keep building your savings. {m(fmt(gap))} still needed to reach {targetMonths} months.</div>
         )}
       </div>
     </>
@@ -495,23 +495,23 @@ function FreedomTab({ profile, hasProfile, m }) {
     <>
       <div className="card" style={{ padding: 24, marginBottom: 20 }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: '1rem', fontWeight: 700 }}>
-          <Target size={18} style={{ color: 'var(--accent)' }} /> Objectif de liberte
+          <Target size={18} style={{ color: 'var(--accent)' }} /> Freedom Target
         </h3>
         <div className="stats-row">
           <div className="stat-mini">
-            <span className="stat-mini-label">Freedom number</span>
+            <span className="stat-mini-label">Freedom Number</span>
             <span className="stat-mini-value">{m(fmt(freedomNumber))}</span>
-            <span className="stat-mini-note">Regle des 4 %</span>
+            <span className="stat-mini-note">4% Rule</span>
           </div>
           <div className="stat-mini">
-            <span className="stat-mini-label">Patrimoine actuel</span>
+            <span className="stat-mini-label">Current wealth</span>
             <span className="stat-mini-value">{m(fmt(currentWealth))}</span>
-            <span className="stat-mini-note">Portefeuille + cash</span>
+            <span className="stat-mini-note">Portfolio + cash</span>
           </div>
           <div className="stat-mini">
-            <span className="stat-mini-label">Delai estime</span>
-            <span className="stat-mini-value">{yearsToFreedom === 0 ? 'Atteint' : yearsToFreedom != null ? `${yearsToFreedom} ans` : '--'}</span>
-            <span className="stat-mini-note">Rendement {(annualReturn * 100).toFixed(0)} % / an</span>
+            <span className="stat-mini-label">Estimated timeline</span>
+            <span className="stat-mini-value">{yearsToFreedom === 0 ? 'Reached' : yearsToFreedom != null ? `${yearsToFreedom} years` : '--'}</span>
+            <span className="stat-mini-note">Return {(annualReturn * 100).toFixed(0)}% / year</span>
           </div>
         </div>
 
@@ -523,7 +523,7 @@ function FreedomTab({ profile, hasProfile, m }) {
           <div className="progress-fill" style={{ width: `${progress}%`, background: progress >= 100 ? 'var(--success)' : 'var(--accent)' }} />
         </div>
         <p style={{ textAlign: 'center', marginTop: 6, fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-          {progress.toFixed(1)} % atteint
+          {progress.toFixed(1)}% reached
         </p>
       </div>
 
@@ -532,7 +532,7 @@ function FreedomTab({ profile, hasProfile, m }) {
           <TrendingUp size={18} style={{ color: 'var(--accent)' }} /> Projection
         </h3>
         <p style={{ fontSize: '0.83rem', color: 'var(--text-muted)', marginBottom: 16 }}>
-          Epargne mensuelle : {m(fmt(monthlySavings))} &middot; Rendement : {(annualReturn * 100).toFixed(0)} % / an
+          Monthly savings: {m(fmt(monthlySavings))} &middot; Return: {(annualReturn * 100).toFixed(0)}% / year
         </p>
 
         {projections.length > 1 ? (
@@ -547,17 +547,17 @@ function FreedomTab({ profile, hasProfile, m }) {
             ))}
           </div>
         ) : (
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Epargne mensuelle insuffisante pour projeter une croissance.</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Monthly savings insufficient to project growth.</p>
         )}
       </div>
 
       <div style={{ marginBottom: 20 }}>
         {yearsToFreedom === 0 ? (
-          <div className="alert-banner success"><CheckCircle size={16} /> Liberte financiere atteinte ! Votre patrimoine couvre vos depenses grace a la regle des 4 %.</div>
+          <div className="alert-banner success"><CheckCircle size={16} /> Financial freedom reached! Your wealth covers your expenses through the 4% rule.</div>
         ) : monthlySavings <= 0 ? (
-          <div className="alert-banner danger"><Sunrise size={16} /> Sans capacite d'epargne, la liberte financiere ne peut etre atteinte. Equilibrez votre budget.</div>
+          <div className="alert-banner danger"><Sunrise size={16} /> Without savings capacity, financial freedom cannot be reached. Balance your budget.</div>
         ) : (
-          <div className="alert-banner info"><Sunrise size={16} /> En epargnant {m(fmt(monthlySavings))}/mois avec {(annualReturn * 100).toFixed(0)} % de rendement, liberte financiere dans ~{yearsToFreedom} ans.</div>
+          <div className="alert-banner info"><Sunrise size={16} /> By saving {m(fmt(monthlySavings))}/month with {(annualReturn * 100).toFixed(0)}% return, financial freedom in ~{yearsToFreedom} years.</div>
         )}
       </div>
     </>
@@ -594,10 +594,10 @@ function InvestmentsTab({ profile, hasProfile, m }) {
     <>
       <div className="card" style={{ padding: 24, marginBottom: 20 }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: '1rem', fontWeight: 700 }}>
-          <PieChartIcon size={18} style={{ color: 'var(--accent)' }} /> Allocation actuelle
+          <PieChartIcon size={18} style={{ color: 'var(--accent)' }} /> Current Allocation
         </h3>
         {total === 0 ? (
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Aucun actif en portefeuille.</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>No assets in portfolio.</p>
         ) : (
           ALLOC_KEYS.map((k, i) => (
             <div key={k} className="alloc-row">
@@ -614,10 +614,10 @@ function InvestmentsTab({ profile, hasProfile, m }) {
 
       <div className="card" style={{ padding: 24, marginBottom: 20 }}>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: '1rem', fontWeight: 700 }}>
-          <PieChartIcon size={18} style={{ color: 'var(--accent)' }} /> Allocation suggeree
+          <PieChartIcon size={18} style={{ color: 'var(--accent)' }} /> Suggested Allocation
         </h3>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 16 }}>
-          Profil : {profile.riskTolerance} / horizon {profile.investmentHorizon} terme
+          Profile: {profile.riskTolerance} / {profile.investmentHorizon} term horizon
         </p>
         {ALLOC_KEYS.map((k, i) => (
           <div key={k} className="alloc-row">
@@ -631,9 +631,9 @@ function InvestmentsTab({ profile, hasProfile, m }) {
       </div>
 
       <div className="card" style={{ padding: 24, marginBottom: 20 }}>
-        <h3 style={{ marginBottom: 12, fontSize: '1rem', fontWeight: 700 }}>Comparaison</h3>
+        <h3 style={{ marginBottom: 12, fontSize: '1rem', fontWeight: 700 }}>Comparison</h3>
         <table className="compare-table">
-          <thead><tr><th>Classe</th><th>Actuel</th><th>Suggere</th><th>Ecart</th></tr></thead>
+          <thead><tr><th>Class</th><th>Current</th><th>Suggested</th><th>Gap</th></tr></thead>
           <tbody>
             {ALLOC_KEYS.map((k, i) => {
               const diff = current[i] - suggested[i]
@@ -660,8 +660,8 @@ function InvestmentsTab({ profile, hasProfile, m }) {
           <div key={k} className={`alert-banner ${over ? 'warning' : 'info'}`} style={{ marginBottom: 10 }}>
             {over ? <AlertTriangle size={16} /> : <CheckCircle size={16} />}
             {over
-              ? `Surexposition en ${ALLOC_LABELS[k]} (+${diff.toFixed(0)} %). Envisagez de reequilibrer.`
-              : `Sous-exposition en ${ALLOC_LABELS[k]} (${diff.toFixed(0)} %). Opportunite de renforcement.`
+              ? `Overexposure in ${ALLOC_LABELS[k]} (+${diff.toFixed(0)}%). Consider rebalancing.`
+              : `Underexposure in ${ALLOC_LABELS[k]} (${diff.toFixed(0)}%). Opportunity to strengthen.`
             }
           </div>
         )
@@ -691,19 +691,19 @@ function SyntheseTab({ accountBalances, aggregates, healthScore, coachInsights, 
     <>
       <div className="bank-accounts-grid">
         <div className="bank-account-card">
-          <div className="account-type">Total Comptes Courants</div>
+          <div className="account-type">Total Checking Accounts</div>
           <div className="account-balance" style={{ color: totalCourant >= 0 ? 'var(--success)' : 'var(--danger)' }}>{m(fmt(totalCourant))}</div>
         </div>
         <div className="bank-account-card">
-          <div className="account-type">Total Livrets</div>
+          <div className="account-type">Total Savings</div>
           <div className="account-balance" style={{ color: 'var(--accent)' }}>{m(fmt(totalLivrets))}</div>
         </div>
         <div className="bank-account-card">
-          <div className="account-type">Taux d'epargne</div>
+          <div className="account-type">Savings Rate</div>
           <div className="account-balance">{savingsRate.toFixed(1)}%</div>
         </div>
         <div className="bank-account-card">
-          <div className="account-type">Score sante</div>
+          <div className="account-type">Health Score</div>
           <div className="account-balance" style={{ color: healthScore >= 60 ? 'var(--success)' : healthScore >= 40 ? 'var(--warning)' : 'var(--danger)' }}>
             {healthScore}/100
           </div>
@@ -713,9 +713,9 @@ function SyntheseTab({ accountBalances, aggregates, healthScore, coachInsights, 
       {lastMonths.length > 0 && (
         <div className="cashflow-chart-container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h3 style={{ fontSize: '0.9rem', fontWeight: 600 }}>Cashflow mensuel</h3>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: 600 }}>Monthly Cashflow</h3>
             <div className="segmented-control" style={{ fontSize: '0.75rem' }}>
-              <button className={!netMode ? 'active' : ''} onClick={() => setNetMode(false)}>Brut</button>
+              <button className={!netMode ? 'active' : ''} onClick={() => setNetMode(false)}>Gross</button>
               <button className={netMode ? 'active' : ''} onClick={() => setNetMode(true)}>Net</button>
             </div>
           </div>
@@ -727,11 +727,11 @@ function SyntheseTab({ accountBalances, aggregates, healthScore, coachInsights, 
               <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
               <Tooltip formatter={(v) => fmt(v)} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
               {netMode ? (
-                <Bar dataKey="net" name="Cashflow net" fill="#3b82f6" radius={[4,4,0,0]} />
+                <Bar dataKey="net" name="Net Cashflow" fill="#3b82f6" radius={[4,4,0,0]} />
               ) : (
                 <>
-                  <Bar dataKey="income" name="Revenus" fill="#22c55e" radius={[4,4,0,0]} />
-                  <Bar dataKey="expenses" name="Depenses" fill="#ef4444" radius={[4,4,0,0]} />
+                  <Bar dataKey="income" name="Income" fill="#22c55e" radius={[4,4,0,0]} />
+                  <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4,4,0,0]} />
                 </>
               )}
             </BarChart>
@@ -741,7 +741,7 @@ function SyntheseTab({ accountBalances, aggregates, healthScore, coachInsights, 
 
       {coachInsights?.topExpenses && (
         <div className="bank-account-card" style={{ marginBottom: 20 }}>
-          <h4 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: 10 }}>Top depenses par categorie</h4>
+          <h4 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: 10 }}>Top expenses by category</h4>
           {coachInsights.topExpenses.map((e, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '0.82rem' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -765,31 +765,31 @@ function ConfirmDeleteModal({ account, txCount, onConfirm, onCancel }) {
         <div className="modal-header">
           <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <AlertTriangle size={18} style={{ color: 'var(--danger)' }} />
-            Supprimer le compte
+            Delete account
           </h3>
           <button className="btn btn-ghost btn-icon" onClick={onCancel}><X size={18} /></button>
         </div>
         <div style={{ padding: '8px 0 16px' }}>
           <p style={{ marginBottom: 8 }}>
-            Voulez-vous vraiment supprimer <strong>{account.alias}</strong> ?
+            Are you sure you want to delete <strong>{account.alias}</strong>?
           </p>
           {txCount > 0 && (
             <p style={{ fontSize: '0.85rem', color: 'var(--danger)', background: 'rgba(239,68,68,0.08)', borderRadius: 8, padding: '8px 12px' }}>
-              Cette action supprimera également <strong>{txCount} transaction{txCount > 1 ? 's' : ''}</strong> associée{txCount > 1 ? 's' : ''}.
+              This will also delete <strong>{txCount} transaction{txCount > 1 ? 's' : ''}</strong>.
             </p>
           )}
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 8 }}>
-            Cette action est irréversible.
+            This action is irreversible.
           </p>
         </div>
         <div className="modal-footer">
-          <button className="btn btn-ghost" onClick={onCancel}>Annuler</button>
+          <button className="btn btn-ghost" onClick={onCancel}>Cancel</button>
           <button
             className="btn btn-primary"
             style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
             onClick={onConfirm}
           >
-            <Trash2 size={14} /> Supprimer
+            <Trash2 size={14} /> Delete
           </button>
         </div>
       </div>
@@ -830,7 +830,7 @@ function CourantTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
         .map(t => ({ hash: t.hash, label: t.label, amount: t.amount, date: t.date }))
 
       if (toAnalyze.length === 0) {
-        setAiError('Toutes les transactions ont déjà une catégorie fiable.')
+        setAiError('All transactions already have a reliable category.')
         setAiLoading(false)
         return
       }
@@ -859,13 +859,13 @@ function CourantTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
         .filter(Boolean)
 
       if (proposals.length === 0) {
-        setAiError("L'IA n'a pas de nouvelles propositions à faire.")
+        setAiError("AI has no new suggestions to make.")
       } else {
         setAiProposals(proposals)
         setAiPanelOpen(true)
       }
     } catch {
-      setAiError("Erreur lors de l'analyse IA. Vérifiez que le backend est démarré.")
+      setAiError("Error during AI analysis. Check that the backend is running.")
     } finally {
       setAiLoading(false)
     }
@@ -901,19 +901,19 @@ function CourantTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
           <div key={a.id} className="bank-account-card" style={{ position: 'relative' }}>
             <button
               onClick={() => setConfirmDelete(a)}
-              title="Supprimer ce compte"
+              title="Delete this account"
               style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 2, lineHeight: 1 }}
               onMouseOver={e => e.currentTarget.style.color = 'var(--danger)'}
               onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
             >
               <X size={14} />
             </button>
-            <div className="account-type">Courant</div>
+            <div className="account-type">Checking</div>
             <div className="account-alias">{a.alias}</div>
             <div className="account-balance" style={{ color: a.balance >= 0 ? 'var(--success)' : 'var(--danger)' }}>{m(fmt(a.balance))}</div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>{a.txCount} transactions</div>
             <div className="balance-input-row">
-              <input placeholder="Solde initial" value={balanceInput} onChange={e => setBalanceInput(e.target.value)} />
+              <input placeholder="Initial balance" value={balanceInput} onChange={e => setBalanceInput(e.target.value)} />
               <button className="btn btn-ghost" style={{ fontSize: '0.72rem', padding: '4px 8px' }}
                 onClick={() => { setInitialBalance(a.id, parseFloat(balanceInput) || 0, new Date().toISOString().slice(0, 10)); setBalanceInput('') }}>
                 OK
@@ -926,26 +926,26 @@ function CourantTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
       <div className="tx-filters">
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }}>
           <Search size={14} style={{ position: 'absolute', left: 10, color: 'var(--text-muted)' }} />
-          <input placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft: 30 }} />
+          <input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft: 30 }} />
         </div>
         <select value={monthFilter} onChange={e => setMonthFilter(e.target.value)}>
-          <option value="">Tous les mois</option>
+          <option value="">All months</option>
           {months.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
         <select value={catFilter} onChange={e => setCatFilter(e.target.value)}>
-          <option value="">Toutes categories</option>
+          <option value="">All categories</option>
           {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
         </select>
         <button
           className="btn btn-primary ai-analyze-btn"
           onClick={handleAIAnalyze}
           disabled={aiLoading || bankHistory.transactions.filter(t => courantIds.has(t.accountId)).length === 0}
-          title="Analyser les transactions non catégorisées avec l'IA Groq"
+          title="Analyze uncategorized transactions with Groq AI"
         >
           {aiLoading
             ? <Loader2 size={14} className="spin" />
             : <Sparkles size={14} />}
-          {aiLoading ? 'Analyse...' : 'IA Groq'}
+          {aiLoading ? 'Analyzing...' : 'Groq AI'}
         </button>
       </div>
 
@@ -967,7 +967,7 @@ function CourantTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
             <div style={{ overflowX: 'auto' }}>
               <table className="tx-table">
                 <thead>
-                  <tr><th>Date</th><th>Libelle</th><th>Categorie</th><th style={{ textAlign: 'right' }}>Montant</th></tr>
+                  <tr><th>Date</th><th>Label</th><th>Category</th><th style={{ textAlign: 'right' }}>Amount</th></tr>
                 </thead>
                 <tbody>
                   {pageTxs.map(tx => (
@@ -982,16 +982,16 @@ function CourantTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
                   ))}
                 </tbody>
               </table>
-              {txs.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 20 }}>Aucune transaction. Importez un releve bancaire.</p>}
+              {txs.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 20 }}>No transactions. Import a bank statement.</p>}
             </div>
             {totalPages > 1 && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '10px 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                 <button className="btn btn-ghost" style={{ padding: '4px 10px', fontSize: '0.78rem' }} disabled={safePage === 0} onClick={() => setPage(safePage - 1)}>
-                  <ArrowLeft size={13} /> Prec
+                  <ArrowLeft size={13} /> Prev
                 </button>
                 <span>Page <strong style={{ color: 'var(--text-primary)' }}>{safePage + 1}</strong> / {totalPages} &nbsp;·&nbsp; {txs.length} transactions</span>
                 <button className="btn btn-ghost" style={{ padding: '4px 10px', fontSize: '0.78rem' }} disabled={safePage >= totalPages - 1} onClick={() => setPage(safePage + 1)}>
-                  Suiv <ArrowRight size={13} />
+                  Next <ArrowRight size={13} />
                 </button>
               </div>
             )}
@@ -1045,7 +1045,7 @@ function LivretsTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
           <div key={a.id} className="bank-account-card" style={{ position: 'relative' }}>
             <button
               onClick={() => setConfirmDelete(a)}
-              title="Supprimer ce livret"
+              title="Delete this savings account"
               style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 2, lineHeight: 1 }}
               onMouseOver={e => e.currentTarget.style.color = 'var(--danger)'}
               onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
@@ -1055,9 +1055,9 @@ function LivretsTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
             <div className="account-type">{a.type}</div>
             <div className="account-alias">{a.alias}</div>
             <div className="account-balance" style={{ color: 'var(--accent)' }}>{m(fmt(a.balance))}</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>{a.txCount} mouvements</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>{a.txCount} transactions</div>
             <div className="balance-input-row">
-              <input placeholder="Solde initial" value={balanceInput} onChange={e => setBalanceInput(e.target.value)} />
+              <input placeholder="Initial balance" value={balanceInput} onChange={e => setBalanceInput(e.target.value)} />
               <button className="btn btn-ghost" style={{ fontSize: '0.72rem', padding: '4px 8px' }}
                 onClick={() => { setInitialBalance(a.id, parseFloat(balanceInput) || 0, new Date().toISOString().slice(0, 10)); setBalanceInput('') }}>
                 OK
@@ -1066,21 +1066,21 @@ function LivretsTab({ bankHistory, accountBalances, setInitialBalance, deleteAcc
           </div>
         ))}
         {livretAccounts.length === 0 && (
-          <p style={{ color: 'var(--text-muted)', padding: 20 }}>Aucun livret importe. Nommez vos feuilles Excel ACC__LIVRET__NomDuLivret.</p>
+          <p style={{ color: 'var(--text-muted)', padding: 20 }}>No savings accounts imported. Name your Excel sheets ACC__LIVRET__AccountName.</p>
         )}
       </div>
 
       {monthlyData.length > 0 && (
         <div className="cashflow-chart-container">
-          <h3 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: 12 }}>Evolution mensuelle des livrets</h3>
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: 12 }}>Monthly savings account activity</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip formatter={v => fmt(v)} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
-              <Bar dataKey="versements" name="Versements" fill="#22c55e" radius={[4,4,0,0]} />
-              <Bar dataKey="retraits" name="Retraits" fill="#ef4444" radius={[4,4,0,0]} />
+              <Bar dataKey="versements" name="Deposits" fill="#22c55e" radius={[4,4,0,0]} />
+              <Bar dataKey="retraits" name="Withdrawals" fill="#ef4444" radius={[4,4,0,0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1132,18 +1132,18 @@ function AllocationBar({ buckets, model, income }) {
           <div key={id} className="coach-alloc-row">
             <div className="coach-alloc-label">
               <span style={{ color: bucket.color, fontWeight: 600, fontSize: '0.78rem' }}>{bucket.label}</span>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 4 }}>{fmt(buckets[id]?.amount || 0)}/mois</span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 4 }}>{fmt(buckets[id]?.amount || 0)}/month</span>
             </div>
             <div className="coach-alloc-bars">
               <div className="coach-bar-row">
-                <span className="coach-bar-tag">Actuel</span>
+                <span className="coach-bar-tag">Current</span>
                 <div className="coach-bar-track">
                   <div className="coach-bar-fill" style={{ width: `${Math.min(cur, 60)}%`, background: bucket.color }} />
                 </div>
                 <span className="coach-bar-pct">{cur.toFixed(1)}%</span>
               </div>
               <div className="coach-bar-row">
-                <span className="coach-bar-tag coach-bar-tag-rec">Cible</span>
+                <span className="coach-bar-tag coach-bar-tag-rec">Target</span>
                 <div className="coach-bar-track">
                   <div className="coach-bar-fill coach-bar-fill-rec" style={{ width: `${Math.min(rec, 60)}%`, background: bucket.color + '55' }} />
                 </div>
@@ -1177,15 +1177,15 @@ function GoalCard({ goal, onUpdate, onDelete, m }) {
       </div>
       {editing ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
-          <input value={form.label} onChange={e => setForm(f => ({ ...f, label: e.target.value }))} placeholder="Nom" className="coach-input" />
+          <input value={form.label} onChange={e => setForm(f => ({ ...f, label: e.target.value }))} placeholder="Name" className="coach-input" />
           <div style={{ display: 'flex', gap: 6 }}>
-            <input type="number" value={form.targetAmount} onChange={e => setForm(f => ({ ...f, targetAmount: +e.target.value }))} placeholder="Objectif €" className="coach-input" style={{ flex: 1 }} />
-            <input type="number" value={form.currentAmount} onChange={e => setForm(f => ({ ...f, currentAmount: +e.target.value }))} placeholder="Actuel €" className="coach-input" style={{ flex: 1 }} />
+            <input type="number" value={form.targetAmount} onChange={e => setForm(f => ({ ...f, targetAmount: +e.target.value }))} placeholder="Target €" className="coach-input" style={{ flex: 1 }} />
+            <input type="number" value={form.currentAmount} onChange={e => setForm(f => ({ ...f, currentAmount: +e.target.value }))} placeholder="Current €" className="coach-input" style={{ flex: 1 }} />
           </div>
-          <input type="number" value={form.monthlyContribution} onChange={e => setForm(f => ({ ...f, monthlyContribution: +e.target.value }))} placeholder="Versement mensuel €" className="coach-input" />
+          <input type="number" value={form.monthlyContribution} onChange={e => setForm(f => ({ ...f, monthlyContribution: +e.target.value }))} placeholder="Monthly contribution €" className="coach-input" />
           <div style={{ display: 'flex', gap: 6 }}>
-            <button className="btn btn-primary" style={{ flex: 1, fontSize: '0.78rem', padding: '5px 10px' }} onClick={handleSave}>Sauvegarder</button>
-            <button className="btn btn-ghost" style={{ flex: 1, fontSize: '0.78rem', padding: '5px 10px' }} onClick={() => setEditing(false)}>Annuler</button>
+            <button className="btn btn-primary" style={{ flex: 1, fontSize: '0.78rem', padding: '5px 10px' }} onClick={handleSave}>Save</button>
+            <button className="btn btn-ghost" style={{ flex: 1, fontSize: '0.78rem', padding: '5px 10px' }} onClick={() => setEditing(false)}>Cancel</button>
           </div>
         </div>
       ) : (
@@ -1199,8 +1199,8 @@ function GoalCard({ goal, onUpdate, onDelete, m }) {
           </div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4 }}>
             {goal.monthlyContribution > 0
-              ? <>Atteint dans <strong style={{ color: gtype.color }}>{fmtMonths(proj.monthsToReach)}</strong> · {proj.projectedDate}</>
-              : 'Renseigner un versement mensuel pour la projection'}
+              ? <>Reached in <strong style={{ color: gtype.color }}>{fmtMonths(proj.monthsToReach)}</strong> · {proj.projectedDate}</>
+              : 'Enter a monthly contribution for the projection'}
           </div>
         </>
       )}
@@ -1215,9 +1215,9 @@ function RecCard({ rec, onApply, onIgnore }) {
     <div className="coach-rec-card">
       <div className="coach-rec-header">
         <span className="coach-rec-priority" style={{ color: priorityColor, borderColor: priorityColor + '44' }}>
-          {rec.priority === 'high' ? '● Priorité haute' : rec.priority === 'medium' ? '◉ Priorité moyenne' : '○ Suggestion'}
+          {rec.priority === 'high' ? '● High priority' : rec.priority === 'medium' ? '◉ Medium priority' : '○ Suggestion'}
         </span>
-        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{Math.round((rec.confidence || 0.7) * 100)}% confiance</span>
+        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{Math.round((rec.confidence || 0.7) * 100)}% confidence</span>
       </div>
       <p className="coach-rec-action">{rec.action}</p>
       <div className="coach-rec-impact">
@@ -1226,10 +1226,10 @@ function RecCard({ rec, onApply, onIgnore }) {
       </div>
       <div className="coach-rec-actions">
         <button className="btn btn-primary coach-rec-btn" onClick={() => onApply(rec)} style={{ background: rec.color + 'cc', borderColor: rec.color }}>
-          <CheckCircle size={13} /> Appliquer
+          <CheckCircle size={13} /> Apply
         </button>
         <button className="btn btn-ghost coach-rec-btn" onClick={() => onIgnore(rec)}>
-          <X size={13} /> Ignorer
+          <X size={13} /> Ignore
         </button>
       </div>
     </div>
@@ -1310,7 +1310,7 @@ function CoachTab({ bankHistory, aggregates, accountBalances, financeProfile, up
       const data = await res.json()
       setAiRecs(data.recommendations || [])
     } catch (e) {
-      setAiError('Coach IA indisponible — vérifiez que le backend est démarré.')
+      setAiError('AI Coach unavailable — check that the backend is running.')
     }
     setAiLoading(false)
   }
@@ -1326,7 +1326,7 @@ function CoachTab({ bankHistory, aggregates, accountBalances, financeProfile, up
     return (
       <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
         <Brain size={40} style={{ margin: '0 auto 16px', display: 'block', opacity: 0.4 }} />
-        <p style={{ fontSize: '0.9rem' }}>Importez des relevés bancaires pour activer le Coach Budgétaire.</p>
+        <p style={{ fontSize: '0.9rem' }}>Import bank statements to activate the Budget Coach.</p>
       </div>
     )
   }
@@ -1337,7 +1337,7 @@ function CoachTab({ bankHistory, aggregates, accountBalances, financeProfile, up
       {/* ── Score + Profil ── */}
       <div className="coach-top-row">
         <div className="bank-account-card coach-score-card">
-          <h4 style={{ fontSize: '0.82rem', fontWeight: 600, marginBottom: 12, color: 'var(--text-secondary)' }}>Santé Financière</h4>
+          <h4 style={{ fontSize: '0.82rem', fontWeight: 600, marginBottom: 12, color: 'var(--text-secondary)' }}>Financial Health</h4>
           <ScoreGauge score={healthData.score} color={healthData.color} label={healthData.label} grade={healthData.grade} />
           <div className="coach-breakdown">
             {Object.entries(healthData.subscores).map(([k, d]) => (
@@ -1353,7 +1353,7 @@ function CoachTab({ bankHistory, aggregates, accountBalances, financeProfile, up
         </div>
 
         <div className="bank-account-card coach-profile-card">
-          <h4 style={{ fontSize: '0.82rem', fontWeight: 600, marginBottom: 12, color: 'var(--text-secondary)' }}>Profil budgétaire</h4>
+          <h4 style={{ fontSize: '0.82rem', fontWeight: 600, marginBottom: 12, color: 'var(--text-secondary)' }}>Budget Profile</h4>
           <div className="coach-profile-btns">
             {Object.entries(ALLOCATION_MODELS).map(([key, mod]) => (
               <button key={key}
@@ -1366,9 +1366,9 @@ function CoachTab({ bankHistory, aggregates, accountBalances, financeProfile, up
             ))}
           </div>
           <div style={{ marginTop: 12, fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-            <div>Revenus moy. : <strong style={{ color: 'var(--text-primary)' }}>{m(fmt(avgIncome))}/mois</strong></div>
-            <div>Dépenses moy. : <strong style={{ color: 'var(--text-primary)' }}>{m(fmt(avgExpenses))}/mois</strong></div>
-            <div>Trésorerie : <strong style={{ color: 'var(--text-primary)' }}>{m(fmt(totalCash))}</strong></div>
+            <div>Avg. income: <strong style={{ color: 'var(--text-primary)' }}>{m(fmt(avgIncome))}/month</strong></div>
+            <div>Avg. expenses: <strong style={{ color: 'var(--text-primary)' }}>{m(fmt(avgExpenses))}/month</strong></div>
+            <div>Cash: <strong style={{ color: 'var(--text-primary)' }}>{m(fmt(totalCash))}</strong></div>
           </div>
         </div>
       </div>
@@ -1385,19 +1385,19 @@ function CoachTab({ bankHistory, aggregates, accountBalances, financeProfile, up
       )}
 
       {/* ── Répartition ── */}
-      <CollapsibleCard title="Répartition budgétaire — Actuel vs Cible" defaultOpen={true}>
+      <CollapsibleCard title="Budget Allocation — Current vs Target" defaultOpen={true}>
         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 12 }}>
-          Modèle <strong>{model.label}</strong> — en % des revenus mensuels ({m(fmt(avgIncome))})
+          Model <strong>{model.label}</strong> — as % of monthly income ({m(fmt(avgIncome))})
         </p>
         <AllocationBar buckets={buckets} model={model} income={avgIncome} />
       </CollapsibleCard>
 
       {/* ── Recommandations locales ── */}
-      <CollapsibleCard title={<><Lightbulb size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Recommandations</>} badge={`(${recommendations.length})`} defaultOpen={true}>
+      <CollapsibleCard title={<><Lightbulb size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Recommendations</>} badge={`(${recommendations.length})`} defaultOpen={true}>
         {recommendations.length === 0 ? (
           <p style={{ fontSize: '0.82rem', color: 'var(--success)' }}>
             <CheckCircle size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-            Votre répartition est proche des objectifs pour le profil {model.label}. Continuez ainsi !
+            Your allocation is close to targets for the {model.label} profile. Keep it up!
           </p>
         ) : (
           <div className="coach-recs-grid">
@@ -1412,7 +1412,7 @@ function CoachTab({ bankHistory, aggregates, accountBalances, financeProfile, up
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <button className="btn btn-primary" onClick={handleAICoach} disabled={aiLoading} style={{ padding: '7px 16px' }}>
               {aiLoading ? <Loader2 size={14} className="spin" /> : <Brain size={14} />}
-              {aiLoading ? ' Analyse IA...' : ' Analyse approfondie (Groq)'}
+              {aiLoading ? ' AI Analysis...' : ' Deep Analysis (Groq)'}
             </button>
             {aiError && <span style={{ fontSize: '0.78rem', color: 'var(--danger)' }}>{aiError}</span>}
           </div>
@@ -1426,22 +1426,22 @@ function CoachTab({ bankHistory, aggregates, accountBalances, financeProfile, up
           {aiRecs && aiRecs.length === 0 && (
             <p style={{ fontSize: '0.82rem', color: 'var(--success)', marginTop: 10 }}>
               <CheckCircle size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-              L'IA ne détecte pas d'amélioration majeure pour votre profil actuel.
+              AI detects no major improvement for your current profile.
             </p>
           )}
         </div>
       </CollapsibleCard>
 
       {/* ── Objectifs ── */}
-      <CollapsibleCard title={<><Target size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Objectifs financiers</>} badge={`(${goals.length})`} defaultOpen={goals.length > 0}
+      <CollapsibleCard title={<><Target size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Financial Goals</>} badge={`(${goals.length})`} defaultOpen={goals.length > 0}
         action={
-          <button className="btn btn-ghost" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => addGoal({ type: 'other', label: 'Nouvel objectif', targetAmount: 0, currentAmount: 0, monthlyContribution: 0 })}>
-            <Plus size={12} /> Ajouter
+          <button className="btn btn-ghost" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => addGoal({ type: 'other', label: 'New goal', targetAmount: 0, currentAmount: 0, monthlyContribution: 0 })}>
+            <Plus size={12} /> Add
           </button>
         }
       >
         {goals.length === 0 ? (
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Aucun objectif défini. Cliquez sur "Ajouter" pour commencer.</p>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>No goals defined. Click "Add" to get started.</p>
         ) : (
           <div className="coach-goals-grid">
             {goals.map(g => (
@@ -1479,9 +1479,9 @@ function ReglesTab({ bankHistory, addRule, deleteRule, refreshCategories, forceR
     if (!testLabel) return
     try {
       const re = new RegExp(pattern, 'i')
-      setTestResult(re.test(testLabel) ? `Match -> ${category}` : 'Pas de match')
+      setTestResult(re.test(testLabel) ? `Match -> ${category}` : 'No match')
     } catch {
-      setTestResult('Regex invalide')
+      setTestResult('Invalid regex')
     }
   }
 
@@ -1490,9 +1490,9 @@ function ReglesTab({ bankHistory, addRule, deleteRule, refreshCategories, forceR
     setAiResult(null)
     try {
       const result = await requestAICategorization()
-      setAiResult(result.count > 0 ? `${result.count} marchands categorises` : 'Aucun marchand a categoriser')
+      setAiResult(result.count > 0 ? `${result.count} merchants categorized` : 'No merchants to categorize')
     } catch {
-      setAiResult('Erreur IA')
+      setAiResult('AI Error')
     }
     setAiLoading(false)
   }
@@ -1500,17 +1500,17 @@ function ReglesTab({ bankHistory, addRule, deleteRule, refreshCategories, forceR
   const rulesAction = (
     <div style={{ display: 'flex', gap: 6 }}>
       <button className="btn btn-ghost" onClick={refreshCategories} style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
-        Appliquer
+        Apply
       </button>
       {!confirmForce ? (
         <button className="btn btn-ghost" onClick={() => setConfirmForce(true)} style={{ fontSize: '0.75rem', padding: '4px 10px', color: 'var(--warning)' }}>
-          <Zap size={12} /> Tout recategoriser
+          <Zap size={12} /> Recategorize all
         </button>
       ) : (
         <span style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: '0.75rem' }}>
-          <span style={{ color: 'var(--text-muted)' }}>Confirmer ?</span>
-          <button className="btn btn-primary" onClick={() => { forceRecategorize(); setConfirmForce(false) }} style={{ fontSize: '0.72rem', padding: '3px 8px', background: 'var(--warning)', borderColor: 'var(--warning)' }}>Oui</button>
-          <button className="btn btn-ghost" onClick={() => setConfirmForce(false)} style={{ fontSize: '0.72rem', padding: '3px 8px' }}>Non</button>
+          <span style={{ color: 'var(--text-muted)' }}>Confirm?</span>
+          <button className="btn btn-primary" onClick={() => { forceRecategorize(); setConfirmForce(false) }} style={{ fontSize: '0.72rem', padding: '3px 8px', background: 'var(--warning)', borderColor: 'var(--warning)' }}>Yes</button>
+          <button className="btn btn-ghost" onClick={() => setConfirmForce(false)} style={{ fontSize: '0.72rem', padding: '3px 8px' }}>No</button>
         </span>
       )}
     </div>
@@ -1518,7 +1518,7 @@ function ReglesTab({ bankHistory, addRule, deleteRule, refreshCategories, forceR
 
   return (
     <>
-      <CollapsibleCard title="Ajouter une regle" defaultOpen={true}>
+      <CollapsibleCard title="Add a rule" defaultOpen={true}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           <input placeholder="Pattern (regex)" value={pattern} onChange={e => setPattern(e.target.value)}
             style={{ flex: 1, minWidth: 180, padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: '0.82rem' }} />
@@ -1526,29 +1526,29 @@ function ReglesTab({ bankHistory, addRule, deleteRule, refreshCategories, forceR
             style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: '0.82rem' }}>
             {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
-          <input type="number" placeholder="Priorite" value={priority} onChange={e => setPriority(e.target.value)}
+          <input type="number" placeholder="Priority" value={priority} onChange={e => setPriority(e.target.value)}
             style={{ width: 70, padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: '0.82rem' }} />
-          <button className="btn btn-primary" onClick={handleAdd} style={{ padding: '6px 14px' }}><Plus size={14} /> Ajouter</button>
+          <button className="btn btn-primary" onClick={handleAdd} style={{ padding: '6px 14px' }}><Plus size={14} /> Add</button>
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 10, alignItems: 'center' }}>
-          <input placeholder="Tester un libelle..." value={testLabel} onChange={e => setTestLabel(e.target.value)}
+          <input placeholder="Test a label..." value={testLabel} onChange={e => setTestLabel(e.target.value)}
             style={{ flex: 1, padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: '0.82rem' }} />
-          <button className="btn btn-ghost" onClick={handleTest} style={{ padding: '6px 14px', fontSize: '0.82rem' }}>Tester</button>
+          <button className="btn btn-ghost" onClick={handleTest} style={{ padding: '6px 14px', fontSize: '0.82rem' }}>Test</button>
           {testResult && <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{testResult}</span>}
         </div>
       </CollapsibleCard>
 
       <CollapsibleCard
-        title="Regles personnalisees"
+        title="Custom rules"
         badge={bankHistory.rules.length > 0 ? `(${bankHistory.rules.length})` : undefined}
         defaultOpen={bankHistory.rules.length > 0}
         action={rulesAction}
       >
         {bankHistory.rules.length === 0 ? (
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Aucune regle personnalisee</p>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>No custom rules</p>
         ) : (
           <table className="rules-table">
-            <thead><tr><th>Pattern</th><th>Categorie</th><th>Priorite</th><th></th></tr></thead>
+            <thead><tr><th>Pattern</th><th>Category</th><th>Priority</th><th></th></tr></thead>
             <tbody>
               {bankHistory.rules.map(r => (
                 <tr key={r.id}>
@@ -1564,15 +1564,15 @@ function ReglesTab({ bankHistory, addRule, deleteRule, refreshCategories, forceR
       </CollapsibleCard>
 
       <CollapsibleCard
-        title={<><Brain size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Regles apprises</>}
+        title={<><Brain size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Learned rules</>}
         badge={`(${learnedEntries.length})`}
         defaultOpen={learnedEntries.length > 0}
       >
         {learnedEntries.length === 0 ? (
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Corrigez une categorie dans la table pour creer une regle apprise.</p>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Correct a category in the table to create a learned rule.</p>
         ) : (
           <table className="rules-table">
-            <thead><tr><th>Marchand</th><th>Categorie</th><th>Date</th><th></th></tr></thead>
+            <thead><tr><th>Merchant</th><th>Category</th><th>Date</th><th></th></tr></thead>
             <tbody>
               {learnedEntries.map(([key, rule]) => (
                 <tr key={key}>
@@ -1592,24 +1592,24 @@ function ReglesTab({ bankHistory, addRule, deleteRule, refreshCategories, forceR
       </CollapsibleCard>
 
       <CollapsibleCard
-        title={<><Zap size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Categorisation IA</>}
+        title={<><Zap size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />AI Categorization</>}
         defaultOpen={true}
       >
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <button className="btn btn-primary" onClick={handleAI} disabled={aiLoading || lowConfidenceCount === 0} style={{ padding: '6px 14px' }}>
             {aiLoading ? <Loader2 size={14} className="spin" /> : <Zap size={14} />}
-            {aiLoading ? ' Analyse...' : ` Categoriser (${lowConfidenceCount} marchands)`}
+            {aiLoading ? ' Analyzing...' : ` Categorize (${lowConfidenceCount} merchants)`}
           </button>
           {aiCacheCount > 0 && (
             <button className="btn btn-ghost" onClick={clearAICache} style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
-              Vider le cache ({aiCacheCount})
+              Clear cache ({aiCacheCount})
             </button>
           )}
           {aiResult && <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--accent)' }}>{aiResult}</span>}
         </div>
       </CollapsibleCard>
 
-      <CollapsibleCard title="Categories par defaut" defaultOpen={false}>
+      <CollapsibleCard title="Default categories" defaultOpen={false}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {CATEGORIES.map(c => (
             <span key={c.id} className="tx-category" style={{ background: c.color + '18', color: c.color }}>{c.label}</span>
@@ -1630,20 +1630,20 @@ function AuditHistorySection({ corrections, onUndo }) {
 
   const showAllAction = sorted.length > 15 ? (
     <button className="btn btn-ghost" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setShowAll(v => !v)}>
-      {showAll ? 'Reduire' : `Voir tout (${sorted.length})`}
+      {showAll ? 'Collapse' : `View all (${sorted.length})`}
     </button>
   ) : null
 
   return (
     <CollapsibleCard
-      title={<><History size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Historique des corrections</>}
+      title={<><History size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />Correction history</>}
       badge={`(${sorted.length})`}
       defaultOpen={false}
       action={showAllAction}
     >
       {sorted.length === 0 ? (
         <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Aucune correction enregistree. Corrigez une categorie dans Compte Courant pour commencer.
+          No corrections recorded. Correct a category in Checking Account to get started.
         </p>
       ) : (
         <div className="audit-history-list">
@@ -1665,15 +1665,15 @@ function AuditHistorySection({ corrections, onUndo }) {
                     {c.after?.subcategory && <span style={{ opacity: 0.7 }}> · {c.after.subcategory}</span>}
                   </span>
                   <span className={`audit-source-badge ${isAI ? 'ai' : 'user'}`}>
-                    {isAI ? 'IA' : 'Manuel'}
+                    {isAI ? 'AI' : 'Manual'}
                   </span>
                 </div>
                 <button
                   className="btn btn-ghost audit-undo-btn"
                   onClick={() => onUndo(c.id)}
-                  title={`Annuler cette correction (${c.merchant_key})`}
+                  title={`Undo this correction (${c.merchant_key})`}
                 >
-                  <RotateCcw size={12} /> Annuler
+                  <RotateCcw size={12} /> Undo
                 </button>
               </div>
             )

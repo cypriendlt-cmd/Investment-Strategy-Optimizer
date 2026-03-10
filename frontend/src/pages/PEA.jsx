@@ -70,7 +70,7 @@ function AddPeaModal({ onClose, onAdd }) {
         setForm(f => ({ ...f, name: f.name || result.name }))
       }
     } catch {
-      setSearchError('Impossible de recuperer le nom (ISIN inconnu ou erreur reseau)')
+      setSearchError('Could not retrieve name (unknown ISIN or network error)')
     } finally {
       setSearching(false)
     }
@@ -91,7 +91,7 @@ function AddPeaModal({ onClose, onAdd }) {
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h3 className="modal-title">Ajouter une position PEA</h3>
+          <h3 className="modal-title">Add PEA Position</h3>
           <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -115,30 +115,30 @@ function AddPeaModal({ onClose, onAdd }) {
             {searchError && <p className="form-error">{searchError}</p>}
           </div>
           <div className="form-group">
-            <label className="form-label">Nom</label>
+            <label className="form-label">Name</label>
             <input className="form-input" placeholder="TotalEnergies" required value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })} />
           </div>
           <div className="grid grid-2 gap-16">
             <div className="form-group">
-              <label className="form-label">Quantite</label>
+              <label className="form-label">Quantity</label>
               <input className="form-input" type="number" min="1" required value={form.quantity}
                 onChange={e => setForm({ ...form, quantity: e.target.value })} />
             </div>
             <div className="form-group">
-              <label className="form-label">Prix d'achat (EUR)</label>
+              <label className="form-label">Buy Price (EUR)</label>
               <input className="form-input" type="number" step="0.01" required value={form.buyPrice}
                 onChange={e => setForm({ ...form, buyPrice: e.target.value })} />
             </div>
           </div>
           <div className="form-group">
-            <label className="form-label">Date d'achat</label>
+            <label className="form-label">Buy Date</label>
             <input className="form-input" type="date" required value={form.buyDate}
               onChange={e => setForm({ ...form, buyDate: e.target.value })} />
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Annuler</button>
-            <button type="submit" className="btn btn-primary">Ajouter</button>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary">Add</button>
           </div>
         </form>
       </div>
@@ -170,16 +170,16 @@ function MovementForm({ peaId, onAdd }) {
       <input type="date" className="form-input asset-form-date" value={date} onChange={e => setDate(e.target.value)} />
       <div className="asset-type-toggle">
         <button type="button" className={type === 'buy' ? 'active-buy' : ''} onClick={() => setType('buy')}>
-          <ArrowDownLeft size={12} />Achat
+          <ArrowDownLeft size={12} />Buy
         </button>
         <button type="button" className={type === 'sell' ? 'active-sell' : ''} onClick={() => setType('sell')}>
-          <ArrowUpRight size={12} />Vente
+          <ArrowUpRight size={12} />Sell
         </button>
       </div>
-      <input type="number" className="form-input asset-form-qty" step="1" min="1" placeholder="Qte" required value={quantity} onChange={e => setQuantity(e.target.value)} />
-      <input type="number" className="form-input asset-form-price" step="0.01" min="0.01" placeholder="Prix" required value={price} onChange={e => setPrice(e.target.value)} />
-      <input type="number" className="form-input asset-form-fees" step="0.01" min="0" placeholder="Frais" value={fees} onChange={e => setFees(e.target.value)} />
-      <button type="submit" className="btn btn-primary btn-sm"><Plus size={14} /> Ajouter</button>
+      <input type="number" className="form-input asset-form-qty" step="1" min="1" placeholder="Qty" required value={quantity} onChange={e => setQuantity(e.target.value)} />
+      <input type="number" className="form-input asset-form-price" step="0.01" min="0.01" placeholder="Price" required value={price} onChange={e => setPrice(e.target.value)} />
+      <input type="number" className="form-input asset-form-fees" step="0.01" min="0" placeholder="Fees" value={fees} onChange={e => setFees(e.target.value)} />
+      <button type="submit" className="btn btn-primary btn-sm"><Plus size={14} /> Add</button>
     </form>
   )
 }
@@ -189,7 +189,7 @@ function PerformanceChart({ asset }) {
   const data = useMemo(() => buildChartData(asset), [asset])
 
   if (data.length < 2) {
-    return <div className="asset-chart-empty">Pas assez de donnees pour afficher le graphique (min. 2 points)</div>
+    return <div className="asset-chart-empty">Not enough data to display chart (min. 2 points)</div>
   }
 
   return (
@@ -203,8 +203,8 @@ function PerformanceChart({ asset }) {
           formatter={(value) => [fmt(value)]}
           labelFormatter={(label) => fmtDate(label)}
         />
-        <Line type="monotone" dataKey="invested" name="Investissement" stroke="var(--accent)" strokeWidth={2} dot={false} />
-        <Line type="monotone" dataKey="value" name="Valeur" stroke="var(--success)" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="invested" name="Investment" stroke="var(--accent)" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="value" name="Value" stroke="var(--success)" strokeWidth={2} dot={false} />
       </LineChart>
     </ResponsiveContainer>
   )
@@ -214,9 +214,9 @@ function PerformanceChart({ asset }) {
 const PEA_PERIODS = [
   { key: '1h', label: '1h' },
   { key: '24h', label: '24h' },
-  { key: '7d', label: '7j' },
-  { key: '30d', label: '30j' },
-  { key: '1y', label: '1a' },
+  { key: '7d', label: '7d' },
+  { key: '30d', label: '30d' },
+  { key: '1y', label: '1y' },
   { key: 'max', label: 'Max' },
 ]
 
@@ -255,7 +255,7 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
       {/* Collapsed header */}
       <div className="asset-card-header" onClick={onToggle}>
         <div className="pea-card-left">
-          <span className="asset-card-name">{asset.name || 'Sans nom'}</span>
+          <span className="asset-card-name">{asset.name || 'Unnamed'}</span>
           <span className="pea-card-isin">{asset.isin}</span>
         </div>
         <div className="pea-card-middle">
@@ -277,19 +277,19 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
       {/* Summary stats — always visible */}
       <div className="asset-card-summary">
         <div className="asset-card-summary-item">
-          <span className="asset-card-summary-label">Investi</span>
+          <span className="asset-card-summary-label">Invested</span>
           <span className="asset-card-summary-value">{m(fmt(totalInvested))}</span>
         </div>
         <div className="asset-card-summary-item">
-          <span className="asset-card-summary-label">PRU</span>
+          <span className="asset-card-summary-label">Avg. Cost</span>
           <span className="asset-card-summary-value">{m(fmt(currentPRU))}</span>
         </div>
         <div className="asset-card-summary-item">
-          <span className="asset-card-summary-label">Valeur actuelle</span>
+          <span className="asset-card-summary-label">Current Value</span>
           <span className="asset-card-summary-value font-semibold">{m(fmt(totalValue))}</span>
         </div>
         <div className="asset-card-summary-item">
-          <span className="asset-card-summary-label">+/- value</span>
+          <span className="asset-card-summary-label">Gain/Loss</span>
           <span className={`asset-card-summary-value font-semibold ${gain >= 0 ? 'text-success' : 'text-danger'}`}>
             {m(`${gain >= 0 ? '+' : ''}${fmt(gain)}`)}
           </span>
@@ -324,22 +324,22 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
         <div className="asset-card-body-inner">
           {/* Market Data */}
           <div>
-            <h4 className="asset-section-title">Donnees de marche</h4>
+            <h4 className="asset-section-title">Market Data</h4>
             <div className="asset-market-grid">
               <div className="asset-market-box">
-                <div className="asset-market-box-label">Ouverture</div>
+                <div className="asset-market-box-label">Open</div>
                 <div className="asset-market-box-value">{fmt(asset.openPrice)}</div>
               </div>
               <div className="asset-market-box">
-                <div className="asset-market-box-label">Clot. prec.</div>
+                <div className="asset-market-box-label">Prev. Close</div>
                 <div className="asset-market-box-value">{fmt(asset.previousClose)}</div>
               </div>
               <div className="asset-market-box">
-                <div className="asset-market-box-label">Haut</div>
+                <div className="asset-market-box-label">High</div>
                 <div className="asset-market-box-value">{fmt(asset.dayHigh)}</div>
               </div>
               <div className="asset-market-box">
-                <div className="asset-market-box-label">Bas</div>
+                <div className="asset-market-box-label">Low</div>
                 <div className="asset-market-box-value">{fmt(asset.dayLow)}</div>
               </div>
             </div>
@@ -348,9 +348,9 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
           {/* Movements */}
           <div>
             <div className="flex items-center justify-between">
-              <h4 className="asset-section-title">Mouvements</h4>
+              <h4 className="asset-section-title">Movements</h4>
               <button className="btn btn-danger btn-sm" onClick={() => onDelete(asset.id)}>
-                <Trash2 size={14} /> Supprimer la position
+                <Trash2 size={14} /> Delete Position
               </button>
             </div>
             {movements.length > 0 && (
@@ -360,10 +360,10 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
                     <tr>
                       <th>Date</th>
                       <th>Type</th>
-                      <th>Qte</th>
-                      <th>Prix</th>
-                      <th>PRU</th>
-                      <th className="col-fees">Frais</th>
+                      <th>Qty</th>
+                      <th>Price</th>
+                      <th>Avg. Cost</th>
+                      <th className="col-fees">Fees</th>
                       <th className="col-total">Total</th>
                       <th></th>
                     </tr>
@@ -377,7 +377,7 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
                           <td>
                             <span className={`badge ${mv.type === 'buy' ? 'badge-success' : 'badge-danger'}`}>
                               {mv.type === 'buy' ? <ArrowDownLeft size={10} /> : <ArrowUpRight size={10} />}
-                              {mv.type === 'buy' ? 'Achat' : 'Vente'}
+                              {mv.type === 'buy' ? 'Buy' : 'Sell'}
                             </span>
                           </td>
                           <td className="font-mono">{mv.quantity}</td>
@@ -398,7 +398,7 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
               </div>
             )}
             {movements.length === 0 && (
-              <p className="text-sm text-muted" style={{ marginBottom: 8 }}>Aucun mouvement enregistre.</p>
+              <p className="text-sm text-muted" style={{ marginBottom: 8 }}>No movements recorded.</p>
             )}
             <MovementForm peaId={asset.id} onAdd={onAddMovement} />
           </div>
@@ -442,7 +442,7 @@ export default function PEA() {
       <div className="card mb-24 page-hero">
         <div className="asset-header-top">
           <div>
-            <p className="stat-label">Valeur totale PEA</p>
+            <p className="stat-label">Total PEA Value</p>
             <p className="stat-value page-hero-value">{m(fmt(totals.pea))}</p>
             <div className="flex items-center gap-12 mt-8 flex-wrap">
               {(() => {
@@ -474,13 +474,13 @@ export default function PEA() {
                   </>
                 )
               })()}
-              <span className="text-sm text-muted">Investi: {m(fmt(totalInvested))}</span>
+              <span className="text-sm text-muted">Invested: {m(fmt(totalInvested))}</span>
             </div>
           </div>
           <div className="asset-header-actions">
             {pricesLastUpdated && (
               <span className="text-xs text-muted">
-                Mis a jour {fmtTime(pricesLastUpdated)}
+                Updated {fmtTime(pricesLastUpdated)}
               </span>
             )}
             <button
@@ -489,10 +489,10 @@ export default function PEA() {
               disabled={isRefreshing}
             >
               {isRefreshing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-              Rafraichir
+              Refresh
             </button>
             <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-              <Plus size={16} /> Ajouter
+              <Plus size={16} /> Add
             </button>
           </div>
         </div>
@@ -521,10 +521,10 @@ export default function PEA() {
         {portfolio.pea.length === 0 && (
           <div className="empty-state">
             <div className="empty-state-icon"><TrendingUp /></div>
-            <h3>Aucune position PEA</h3>
-            <p>Ajoutez vos actions pour suivre votre portefeuille PEA.</p>
+            <h3>No PEA Positions</h3>
+            <p>Add your stocks to track your PEA portfolio.</p>
             <button className="btn btn-primary mt-16" onClick={() => setShowModal(true)}>
-              <Plus size={16} /> Ajouter une position
+              <Plus size={16} /> Add a Position
             </button>
           </div>
         )}

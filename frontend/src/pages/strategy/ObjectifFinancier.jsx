@@ -12,10 +12,10 @@ import { runObjectiveAnalysis, DEFAULT_RETURNS, DEFAULT_INFLATION } from '../../
 import { fmt } from '../../utils/format'
 
 const STRATEGY_PROFILES = [
-  { value: 'conservative', label: 'Prudent', returnRate: 0.04 },
-  { value: 'balanced', label: 'Équilibré', returnRate: 0.06 },
-  { value: 'growth', label: 'Croissance', returnRate: 0.08 },
-  { value: 'aggressive', label: 'Agressif', returnRate: 0.10 },
+  { value: 'conservative', label: 'Conservative', returnRate: 0.04 },
+  { value: 'balanced', label: 'Balanced', returnRate: 0.06 },
+  { value: 'growth', label: 'Growth', returnRate: 0.08 },
+  { value: 'aggressive', label: 'Aggressive', returnRate: 0.10 },
 ]
 
 export default function ObjectifFinancier() {
@@ -65,9 +65,9 @@ export default function ObjectifFinancier() {
           <ArrowLeft size={16} /> Strategy Lab
         </Link>
         <div>
-          <h1 className="projection-title">Objectif financier</h1>
+          <h1 className="projection-title">Financial Target</h1>
           <p className="projection-subtitle">
-            Définissez une cible (par exemple 100 000 €) et découvrez si votre stratégie actuelle vous permet de l'atteindre, et en combien de temps.
+            Set a target (e.g. 100,000 EUR) and find out if your current strategy can reach it, and how long it will take.
           </p>
         </div>
       </div>
@@ -78,11 +78,11 @@ export default function ObjectifFinancier() {
           <Lightbulb size={16} style={{ color: 'var(--accent)', minWidth: 16 }} />
           <div style={{ flex: 1 }}>
             <p style={{ margin: 0 }}>
-              Vous avez défini un objectif long terme : <strong>{longTermGoal.label}</strong> ({fmt(longTermGoal.targetAmount)}). Voulez-vous l'utiliser comme cible ici ?
+              You have defined a long-term goal: <strong>{longTermGoal.label}</strong> ({fmt(longTermGoal.targetAmount)}). Would you like to use it as your target here?
             </p>
           </div>
           <button className="btn btn-primary btn-sm" onClick={() => { setTargetAmount(longTermGoal.targetAmount); setGoalBannerDismissed(true) }} style={{ whiteSpace: 'nowrap' }}>
-            Utiliser cet objectif
+            Use this goal
           </button>
           <button className="btn btn-ghost btn-sm" onClick={() => setGoalBannerDismissed(true)} style={{ padding: '4px 8px' }}>
             &times;
@@ -93,7 +93,7 @@ export default function ObjectifFinancier() {
       {/* Controls */}
       <div className="projection-controls">
         <div className="projection-control">
-          <label>Objectif patrimonial</label>
+          <label>Target Amount</label>
           <div className="projection-input-group">
             <input type="number" value={targetAmount} onChange={e => setTargetAmount(Math.max(0, Number(e.target.value)))} min="0" step="10000" />
             <span>€</span>
@@ -103,27 +103,27 @@ export default function ObjectifFinancier() {
           <label>Horizon</label>
           <div className="projection-input-group">
             <input type="number" value={horizonYears} onChange={e => setHorizonYears(Math.max(1, Math.min(50, Number(e.target.value))))} min="1" max="50" step="1" />
-            <span>ans</span>
+            <span>years</span>
           </div>
         </div>
         <div className="projection-control">
-          <label>Épargne mensuelle</label>
+          <label>Monthly Savings</label>
           <div className="projection-input-group">
             <input type="number" value={contribution} onChange={e => setContribution(Math.max(0, Number(e.target.value)))} min="0" step="50" />
-            <span>€/mois</span>
+            <span>€/mo</span>
           </div>
         </div>
         <div className="projection-control">
-          <label>Profil de risque</label>
+          <label>Risk Profile</label>
           <select value={strategyProfile} onChange={e => setStrategyProfile(e.target.value)}>
-            {STRATEGY_PROFILES.map(p => <option key={p.value} value={p.value}>{p.label} ({(p.returnRate * 100)}%/an)</option>)}
+            {STRATEGY_PROFILES.map(p => <option key={p.value} value={p.value}>{p.label} ({(p.returnRate * 100)}%/yr)</option>)}
           </select>
         </div>
         <div className="projection-control">
           <label>Inflation</label>
           <div className="projection-input-group">
             <input type="number" value={inflation} onChange={e => setInflation(Number(e.target.value))} min="0" max="10" step="0.1" />
-            <span>%/an</span>
+            <span>%/yr</span>
           </div>
         </div>
       </div>
@@ -135,12 +135,12 @@ export default function ObjectifFinancier() {
         </div>
         <div className="objective-result-content">
           <div className="objective-result-title">
-            {viewModel.isAchievable ? 'Objectif atteignable !' : 'Objectif non atteint à horizon'}
+            {viewModel.isAchievable ? 'Target achievable!' : 'Target not reached within horizon'}
           </div>
           <div className="objective-result-desc">
             {viewModel.isAchievable
-              ? `Votre patrimoine projeté de ${m(viewModel.projectedValue)} dépasse l'objectif de ${m(viewModel.targetAmount)} en ${viewModel.yearsToTargetLabel}.`
-              : `Patrimoine projeté : ${m(viewModel.projectedValue)}. Il manque ${m(viewModel.gap)} pour atteindre ${m(viewModel.targetAmount)}.`
+              ? `Your projected net worth of ${m(viewModel.projectedValue)} exceeds the target of ${m(viewModel.targetAmount)} in ${viewModel.yearsToTargetLabel}.`
+              : `Projected net worth: ${m(viewModel.projectedValue)}. You are ${m(viewModel.gap)} short of reaching ${m(viewModel.targetAmount)}.`
             }
           </div>
         </div>
@@ -149,7 +149,7 @@ export default function ObjectifFinancier() {
       {/* Progress Bar */}
       <div className="objective-progress-section">
         <div className="objective-progress-header">
-          <span>Progression vers l'objectif</span>
+          <span>Progress toward target</span>
           <span className="objective-progress-pct">{viewModel.progressPct.toFixed(0)}%</span>
         </div>
         <div className="objective-progress-bar">
@@ -162,7 +162,7 @@ export default function ObjectifFinancier() {
           />
         </div>
         <div className="objective-progress-labels">
-          <span>Aujourd'hui</span>
+          <span>Today</span>
           <span>{m(viewModel.targetAmount)}</span>
         </div>
       </div>
@@ -170,30 +170,30 @@ export default function ObjectifFinancier() {
       {/* KPIs */}
       <div className="projection-kpis">
         <div className="projection-kpi">
-          <span className="projection-kpi-label">Patrimoine projeté</span>
+          <span className="projection-kpi-label">Projected Net Worth</span>
           <span className="projection-kpi-value" style={{ color: 'var(--accent)' }}>{m(viewModel.projectedValue)}</span>
-          <span className="projection-kpi-sub">à {horizonYears} ans</span>
+          <span className="projection-kpi-sub">at {horizonYears} years</span>
         </div>
         <div className="projection-kpi">
-          <span className="projection-kpi-label">Date estimée</span>
+          <span className="projection-kpi-label">Estimated Date</span>
           <span className="projection-kpi-value" style={{ color: 'var(--success)' }}>{viewModel.yearsToTargetLabel}</span>
-          <span className="projection-kpi-sub">pour atteindre l'objectif</span>
+          <span className="projection-kpi-sub">to reach the target</span>
         </div>
         <div className="projection-kpi">
-          <span className="projection-kpi-label">Effort mensuel requis</span>
+          <span className="projection-kpi-label">Required Monthly Effort</span>
           <span className="projection-kpi-value" style={{ color: 'var(--warning)' }}>{m(viewModel.requiredContribution)}</span>
-          <span className="projection-kpi-sub">à {viewModel.annualReturn}/an sur {horizonYears} ans</span>
+          <span className="projection-kpi-sub">at {viewModel.annualReturn}/yr over {horizonYears} years</span>
         </div>
         <div className="projection-kpi">
-          <span className="projection-kpi-label">Effort supplémentaire</span>
+          <span className="projection-kpi-label">Additional Effort</span>
           <span className="projection-kpi-value" style={{ color: '#8b5cf6' }}>{m(viewModel.extraEffort)}</span>
-          <span className="projection-kpi-sub">au-delà de votre versement actuel</span>
+          <span className="projection-kpi-sub">beyond your current contribution</span>
         </div>
       </div>
 
       {/* Chart */}
       <div className="projection-chart-card">
-        <div className="projection-chart-title">Trajectoire vs Objectif</div>
+        <div className="projection-chart-title">Trajectory vs Target</div>
         <ResponsiveContainer width="100%" height={320}>
           <AreaChart data={viewModel.chartData}>
             <defs>
@@ -206,16 +206,16 @@ export default function ObjectifFinancier() {
             <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
             <Tooltip
-              formatter={(v, name) => [m(fmt(v)), name === 'value' ? 'Patrimoine projeté' : 'Objectif']}
+              formatter={(v, name) => [m(fmt(v)), name === 'value' ? 'Projected Net Worth' : 'Target']}
               contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }}
             />
-            <ReferenceLine y={viewModel.targetRaw} stroke="var(--danger)" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: 'Objectif', fill: 'var(--danger)', fontSize: 11 }} />
+            <ReferenceLine y={viewModel.targetRaw} stroke="var(--danger)" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: 'Target', fill: 'var(--danger)', fontSize: 11 }} />
             <Area type="monotone" dataKey="value" stroke={viewModel.isAchievable ? 'var(--success)' : 'var(--warning)'} strokeWidth={2.5} fill="url(#objGrad)" name="value" />
           </AreaChart>
         </ResponsiveContainer>
         <div className="projection-chart-legend">
-          <span><span className="projection-dot" style={{ background: viewModel.isAchievable ? 'var(--success)' : 'var(--warning)' }} /> Patrimoine projeté</span>
-          <span><span className="projection-dot projection-dot--dashed" style={{ background: 'var(--danger)' }} /> Objectif</span>
+          <span><span className="projection-dot" style={{ background: viewModel.isAchievable ? 'var(--success)' : 'var(--warning)' }} /> Projected Net Worth</span>
+          <span><span className="projection-dot projection-dot--dashed" style={{ background: 'var(--danger)' }} /> Target</span>
         </div>
       </div>
 
@@ -223,17 +223,17 @@ export default function ObjectifFinancier() {
       <div className="projection-hypotheses">
         <Info size={14} style={{ color: 'var(--text-muted)', minWidth: 14 }} />
         <p>
-          Croissance estimée : {(selectedProfile.returnRate * 100)}% / an ({selectedProfile.label}).
-          Inflation : {inflation}%/an.
-          Ces projections sont indicatives et ne constituent pas un conseil financier.
+          Estimated growth: {(selectedProfile.returnRate * 100)}% / year ({selectedProfile.label}).
+          Inflation: {inflation}%/yr.
+          These projections are indicative and do not constitute financial advice.
         </p>
       </div>
       <div className="projection-hypotheses" style={{ borderColor: 'var(--warning)' }}>
         <AlertTriangle size={14} style={{ color: 'var(--warning)', minWidth: 14 }} />
         <p>
-          Les performances passées ne préjugent pas des performances futures.
-          Les actifs volatils (crypto, actions) peuvent perdre une part significative de leur valeur.
-          Ces projections sont des estimations à titre indicatif uniquement.
+          Past performance does not guarantee future results.
+          Volatile assets (crypto, stocks) can lose a significant portion of their value.
+          These projections are estimates for informational purposes only.
         </p>
       </div>
     </div>

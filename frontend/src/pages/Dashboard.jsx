@@ -6,7 +6,7 @@ import {
 import {
   TrendingUp, TrendingDown, Target, Zap, ArrowRight,
   Activity, Award, AlertTriangle, Sparkles,
-  Calendar, GitBranch
+  Calendar, GitBranch, Shield, BarChart3, Flame
 } from 'lucide-react'
 import { usePortfolio } from '../context/PortfolioContext'
 import { useBank } from '../context/BankContext'
@@ -19,21 +19,20 @@ import { Link } from 'react-router-dom'
 import { runProjection } from '../services/strategy'
 import { fmt, fmtPct } from '../utils/format'
 
-const MONTH_NAMES = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+const MONTH_NAMES = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec']
 const DAY_NAMES = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 
 const TIME_RANGES = [
-  { key: '7d', label: '7J', days: 7 },
+  { key: '7d', label: '7D', days: 7 },
   { key: '1m', label: '1M', days: 30 },
   { key: '3m', label: '3M', days: 90 },
   { key: '6m', label: '6M', days: 180 },
-  { key: '1y', label: '1A', days: 365 },
-  { key: 'all', label: 'MAX', days: null },
+  { key: '1y', label: '1Y', days: 365 },
+  { key: 'all', label: 'ALL', days: null },
 ]
 
 function getAllMovements(portfolio) {
   const allMovements = []
-
   for (const asset of [...portfolio.crypto, ...portfolio.pea]) {
     for (const m of (asset.movements || [])) {
       allMovements.push({
@@ -42,7 +41,6 @@ function getAllMovements(portfolio) {
       })
     }
   }
-
   for (const l of portfolio.livrets) {
     for (const m of (l.movements || [])) {
       allMovements.push({
@@ -51,7 +49,6 @@ function getAllMovements(portfolio) {
       })
     }
   }
-
   allMovements.sort((a, b) => b.date - a.date)
   return allMovements
 }
@@ -68,7 +65,7 @@ function buildPortfolioHistory(portfolio, totals, rangeKey = '6m') {
   if (range.days && range.days <= 7) {
     for (let i = range.days; i >= 0; i--) {
       const d = new Date(now.getTime() - i * 86400000)
-      points.push({ date: d, label: i === 0 ? "Auj." : DAY_NAMES[d.getDay()] + ' ' + d.getDate() })
+      points.push({ date: d, label: i === 0 ? "Today" : DAY_NAMES[d.getDay()] + ' ' + d.getDate() })
     }
   } else if (range.days && range.days <= 30) {
     const step = 3
@@ -125,7 +122,7 @@ function buildProjectionData(currentTotal) {
 
   for (let y = 0; y <= years; y++) {
     data.push({
-      year: y === 0 ? 'Auj.' : `+${y}a`,
+      year: y === 0 ? 'Now' : `+${y}y`,
       projected: Math.round(projected),
       nominal: Math.round(nominal),
     })
@@ -164,11 +161,11 @@ function GaugeChart({ value, label }) {
   }
 
   const getLabel = (v) => {
-    if (v <= 25) return 'Peur extrême'
-    if (v <= 45) return 'Peur'
-    if (v <= 55) return 'Neutre'
-    if (v <= 75) return 'Avidité'
-    return 'Avidité extrême'
+    if (v <= 25) return 'Extreme Fear'
+    if (v <= 45) return 'Fear'
+    if (v <= 55) return 'Neutral'
+    if (v <= 75) return 'Greed'
+    return 'Extreme Greed'
   }
 
   const c = getColor(value)
@@ -196,6 +193,35 @@ function GaugeChart({ value, label }) {
       <span className="gauge-label">{label}</span>
     </div>
   )
+}
+
+/* Strategy Score — computed from diversification + objective progress */
+function computeStrategyScore(allocationData, progressPct, dcaSummary) {
+  let score = 50
+  // Diversification bonus: more than 2 non-zero categories
+  const nonZero = allocationData.filter(a => a.value > 0).length
+  if (nonZero >= 4) score += 15
+  else if (nonZero >= 3) score += 10
+  else if (nonZero >= 2) score += 5
+
+  // Objective progress
+  if (progressPct > 0) score += Math.min(progressPct * 0.2, 15)
+
+  // DCA discipline
+  if (dcaSummary) {
+    const ratio = dcaSummary.onTrack / Math.max(dcaSummary.total, 1)
+    score += ratio * 10
+  }
+
+  // Concentration penalty
+  const total = allocationData.reduce((s, a) => s + a.value, 0)
+  if (total > 0) {
+    const max = Math.max(...allocationData.map(a => a.value))
+    if (max / total > 0.8) score -= 10
+    else if (max / total > 0.6) score -= 5
+  }
+
+  return Math.max(0, Math.min(100, Math.round(score)))
 }
 
 export default function Dashboard() {
@@ -237,6 +263,7 @@ export default function Dashboard() {
     ...portfolio.pea.map(p => p.buyPrice * p.quantity),
   ].reduce((a, b) => a + b, 0)
   const totalGain = totals.total + bankLivrets - totalLivrets - totals.fundraising - totalInvested
+  const gainPct = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0
 
   const strategyResult = useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans)
 
@@ -265,7 +292,7 @@ export default function Dashboard() {
     { name: 'Crypto', value: totals.crypto, color: 'var(--color-crypto)' },
     { name: 'PEA', value: totals.pea, color: 'var(--color-pea)' },
     { name: 'Livrets', value: totalLivrets, color: 'var(--color-livrets)' },
-    { name: 'Levées', value: totals.fundraising, color: 'var(--color-fundraising)' },
+    { name: 'Crowdfunding', value: totals.fundraising, color: 'var(--color-fundraising)' },
   ]
 
   const dcaSummary = useMemo(() => {
@@ -291,7 +318,6 @@ export default function Dashboard() {
   const lastAgg = aggregates?.[aggregates.length - 1]
   const monthSavings = (lastAgg?.income || 0) - (lastAgg?.expenses || 0)
 
-  // Best and worst performers
   const performers = useMemo(() => {
     const cryptoGains = portfolio.crypto.map(c => ({
       name: c.symbol,
@@ -301,35 +327,52 @@ export default function Dashboard() {
     return { best: sorted[0] || null, worst: sorted[sorted.length - 1] || null }
   }, [portfolio.crypto])
 
+  const strategyScore = useMemo(() =>
+    computeStrategyScore(allocationData, progressPct, dcaSummary),
+    [allocationData, progressPct, dcaSummary]
+  )
+
+  // Risk level from allocation concentration
+  const riskLevel = useMemo(() => {
+    const total = allocationData.reduce((s, a) => s + a.value, 0)
+    if (total === 0) return { label: 'N/A', color: 'var(--text-muted)' }
+    const cryptoPct = totals.crypto / total
+    if (cryptoPct > 0.6) return { label: 'High', color: 'var(--danger)' }
+    if (cryptoPct > 0.35) return { label: 'Medium', color: 'var(--warning)' }
+    return { label: 'Low', color: 'var(--success)' }
+  }, [allocationData, totals.crypto])
+
   return (
     <div className="dashboard">
 
-      {/* ═══ 1. HERO — Patrimoine total + performance ═══ */}
+      {/* ═══ 1. HERO — Total Net Worth + Key Metrics ═══ */}
       <div className="dashboard-hero">
         <div className="dashboard-hero-content">
-          <p className="dashboard-hero-eyebrow">Patrimoine total</p>
+          <p className="dashboard-hero-eyebrow">Total Net Worth</p>
           <p className="dashboard-total">{m(fmt(patrimoineNet))}</p>
           <span className={`dashboard-hero-badge ${totalGain >= 0 ? 'dashboard-hero-badge--up' : 'dashboard-hero-badge--down'}`}>
             {totalGain >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-            {m(fmt(totalGain))} ({mp(fmtPct(totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0))})
+            {m(fmt(totalGain))} ({mp(fmtPct(gainPct))})
           </span>
         </div>
         <div className="dashboard-hero-right">
           <div className="dashboard-hero-kpis">
             <div className="dashboard-hero-kpi">
-              <span className="dashboard-hero-kpi-label">Projection 10 ans</span>
+              <span className="dashboard-hero-kpi-label">10Y Projection</span>
               <span className="dashboard-hero-kpi-value">{m(fmt(projectedTarget))}</span>
             </div>
             <div className="dashboard-hero-kpi">
-              <span className="dashboard-hero-kpi-label">Épargne / mois</span>
+              <span className="dashboard-hero-kpi-label">Monthly Savings</span>
               <span className="dashboard-hero-kpi-value">{m(fmt(monthSavings > 0 ? monthSavings : 500))}</span>
             </div>
-            {objective && (
-              <div className="dashboard-hero-kpi">
-                <span className="dashboard-hero-kpi-label">Objectif</span>
-                <span className="dashboard-hero-kpi-value dashboard-hero-kpi-value--accent">{progressPct.toFixed(0)}%</span>
-              </div>
-            )}
+            <div className="dashboard-hero-kpi">
+              <span className="dashboard-hero-kpi-label">Strategy Score</span>
+              <span className="dashboard-hero-kpi-value dashboard-hero-kpi-value--accent">{strategyScore}/100</span>
+            </div>
+            <div className="dashboard-hero-kpi">
+              <span className="dashboard-hero-kpi-label">Risk Level</span>
+              <span className="dashboard-hero-kpi-value" style={{ color: riskLevel.color }}>{riskLevel.label}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -337,7 +380,7 @@ export default function Dashboard() {
       {/* ═══ 2. TRAJECTORY CHART ═══ */}
       <div className="dash-card">
         <div className="perf-chart-header">
-          <div className="dash-card-title">Évolution du patrimoine</div>
+          <div className="dash-card-title">Portfolio Trajectory</div>
           <div className="time-range-selector">
             {TIME_RANGES.map(r => (
               <button key={r.key} className={`time-range-btn${timeRange === r.key ? ' active' : ''}`} onClick={() => setTimeRange(r.key)}>
@@ -346,19 +389,23 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={260}>
+        <ResponsiveContainer width="100%" height={280}>
           <AreaChart data={perfData}>
             <defs>
               <linearGradient id="trajectoryGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.25} />
+                <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.2} />
                 <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-            <Tooltip formatter={(v) => [m(fmt(v)), 'Valeur']} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
-            <Area type="monotone" dataKey="value" stroke="var(--accent)" strokeWidth={2.5} fill="url(#trajectoryGrad)" dot={{ fill: 'var(--accent)', r: 3, strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+            <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+            <Tooltip
+              formatter={(v) => [m(fmt(v)), 'Value']}
+              contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem', boxShadow: 'var(--shadow)' }}
+              cursor={{ stroke: 'var(--accent)', strokeWidth: 1, strokeDasharray: '4 4' }}
+            />
+            <Area type="monotone" dataKey="value" stroke="var(--accent)" strokeWidth={2.5} fill="url(#trajectoryGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--accent)' }} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -366,11 +413,11 @@ export default function Dashboard() {
       {/* ═══ 3. ALLOCATION + MARKET SENTIMENT ═══ */}
       <div className="dashboard-middle">
         <div className="dash-card">
-          <div className="dash-card-title">Allocation d'actifs</div>
+          <div className="dash-card-title">Asset Allocation</div>
           <div className="dashboard-pie-row">
             <ResponsiveContainer width={180} height={180}>
               <PieChart>
-                <Pie data={allocationData} cx={85} cy={85} innerRadius={45} outerRadius={78} paddingAngle={3} dataKey="value">
+                <Pie data={allocationData} cx={85} cy={85} innerRadius={50} outerRadius={78} paddingAngle={3} dataKey="value" strokeWidth={0}>
                   {allocationData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip formatter={(v) => m(fmt(v))} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
@@ -391,10 +438,10 @@ export default function Dashboard() {
         </div>
 
         <div className="dash-card">
-          <div className="dash-card-title">Sentiment de marché</div>
+          <div className="dash-card-title">Market Sentiment</div>
           <div className="dashboard-gauges">
             <GaugeChart value={fearGreed.crypto} label="Crypto" />
-            <GaugeChart value={fearGreed.market} label="Marchés" />
+            <GaugeChart value={fearGreed.market} label="Markets" />
           </div>
           {performers.best && (
             <div className="dashboard-performers">
@@ -420,7 +467,7 @@ export default function Dashboard() {
         <div className="objective-card-header">
           <div className="flex items-center gap-8">
             <Target size={16} className="text-warning" />
-            <span className="dash-card-title" style={{ margin: 0 }}>Objectif patrimonial</span>
+            <span className="dash-card-title" style={{ margin: 0 }}>Financial Goal</span>
           </div>
           <Link to="/strategy" className="insight-link" style={{ margin: 0, padding: 0 }}>Strategy Lab <ArrowRight size={12} /></Link>
         </div>
@@ -437,25 +484,25 @@ export default function Dashboard() {
             </div>
             <div className="objective-stats">
               <div className="objective-stat">
-                <span className="objective-stat-label">Progression</span>
+                <span className="objective-stat-label">Progress</span>
                 <span className="objective-stat-value text-accent">{progressPct.toFixed(1)}%</span>
               </div>
               <div className="objective-stat">
-                <span className="objective-stat-label">Écart restant</span>
+                <span className="objective-stat-label">Remaining</span>
                 <span className="objective-stat-value">{m(fmt(Math.max(objective - patrimoineNet, 0)))}</span>
               </div>
               <div className="objective-stat">
-                <span className="objective-stat-label">Horizon estimé</span>
-                <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} ans</span>
+                <span className="objective-stat-label">Est. Horizon</span>
+                <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} years</span>
               </div>
             </div>
           </>
         ) : (
           <div className="objective-empty">
             <Target size={28} className="text-muted" />
-            <p>Définissez un objectif patrimonial pour suivre votre progression.</p>
+            <p>Set a financial goal to track your progress toward it.</p>
             <Link to="/strategy/objectifs" className="btn btn-primary btn-sm">
-              <Target size={14} /> Définir votre objectif
+              <Target size={14} /> Set Your Goal
             </Link>
           </div>
         )}
@@ -463,12 +510,12 @@ export default function Dashboard() {
 
       {/* ═══ 5. SCENARIOS PREVIEW ═══ */}
       <div className="dashboard-scenarios">
-        <div className="dash-card-title">Scénarios à 5 ans</div>
+        <div className="dash-card-title">5-Year Scenarios</div>
         <div className="scenarios-grid">
           {[
-            { name: 'Actuel', value: projectionData[5]?.projected || 0, icon: Activity, desc: 'Stratégie inchangée', variant: 'muted' },
-            { name: 'Optimisé', value: Math.round((projectionData[5]?.projected || 0) * 1.15), icon: TrendingUp, desc: 'Allocation améliorée', variant: 'success' },
-            { name: 'Ambitieux', value: Math.round((projectionData[5]?.projected || 0) * 1.35), icon: Zap, desc: 'Effort + allocation max', variant: 'accent' },
+            { name: 'Current', value: projectionData[5]?.projected || 0, icon: Activity, desc: 'No strategy change', variant: 'muted' },
+            { name: 'Optimized', value: Math.round((projectionData[5]?.projected || 0) * 1.15), icon: TrendingUp, desc: 'Improved allocation', variant: 'success' },
+            { name: 'Ambitious', value: Math.round((projectionData[5]?.projected || 0) * 1.35), icon: Zap, desc: 'Max effort + allocation', variant: 'accent' },
           ].map(s => (
             <div key={s.name} className={`scenario-card scenario-card--${s.variant}`}>
               <div className="scenario-header">
@@ -482,7 +529,7 @@ export default function Dashboard() {
         </div>
         <div className="dashboard-scenarios-cta">
           <Link to="/strategy/scenarios" className="btn btn-secondary btn-sm">
-            <GitBranch size={14} /> Comparer les scénarios
+            <GitBranch size={14} /> Compare Scenarios
           </Link>
         </div>
       </div>
@@ -493,27 +540,27 @@ export default function Dashboard() {
           <div className="dca-dashboard-header">
             <div className="flex items-center gap-8">
               <Calendar size={15} className="text-accent" />
-              <span className="dash-card-title" style={{ margin: 0 }}>Plans DCA</span>
+              <span className="dash-card-title" style={{ margin: 0 }}>DCA Plans</span>
             </div>
-            <Link to="/portfolio/dca" className="insight-link" style={{ margin: 0, padding: 0 }}>Voir les plans <ArrowRight size={12} /></Link>
+            <Link to="/portfolio/dca" className="insight-link" style={{ margin: 0, padding: 0 }}>View plans <ArrowRight size={12} /></Link>
           </div>
           <div className="dca-dash-stats">
             <div className="dca-dash-stat">
-              <div className="dca-dash-stat-label">Versé total</div>
+              <div className="dca-dash-stat-label">Total Invested</div>
               <div className="dca-dash-stat-value">{m(fmt(dcaSummary.totalInvested))}</div>
             </div>
             <div className="dca-dash-stat">
-              <div className="dca-dash-stat-label">Dans les temps</div>
+              <div className="dca-dash-stat-label">On Track</div>
               <div className={`dca-dash-stat-value ${dcaSummary.onTrack === dcaSummary.total ? 'text-success' : 'text-warning'}`}>
                 {dcaSummary.onTrack}/{dcaSummary.total}
               </div>
             </div>
             <div className="dca-dash-stat">
-              <div className="dca-dash-stat-label">Ce mois prévu</div>
+              <div className="dca-dash-stat-label">Month Planned</div>
               <div className="dca-dash-stat-value">{m(fmt(dcaSummary.monthPlanned))}</div>
             </div>
             <div className="dca-dash-stat">
-              <div className="dca-dash-stat-label">Ce mois versé</div>
+              <div className="dca-dash-stat-label">Month Actual</div>
               <div className={`dca-dash-stat-value ${dcaSummary.monthActual >= dcaSummary.monthPlanned ? 'text-success' : 'text-warning'}`}>
                 {m(fmt(dcaSummary.monthActual))}
               </div>
@@ -521,7 +568,7 @@ export default function Dashboard() {
           </div>
           {dcaSummary.nextDates.length > 0 && (
             <div className="dca-upcoming">
-              <span className="dca-upcoming-label">Prochains :</span>
+              <span className="dca-upcoming-label">Upcoming:</span>
               {dcaSummary.nextDates.map((d, i) => (
                 <span key={i} className="dca-upcoming-chip">
                   {new Date(d.date + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
@@ -537,17 +584,17 @@ export default function Dashboard() {
       <div className="dash-card dashboard-insight-card">
         <div className="flex items-center gap-8 mb-8">
           <Sparkles size={15} className="text-accent" />
-          <span className="insight-tag">Analyse stratégique IA</span>
+          <span className="insight-tag">AI Strategy Analysis</span>
         </div>
         {insightLoading ? (
           <div className="skeleton" style={{ height: 14, width: '90%', marginBottom: 8 }} />
         ) : insight ? (
           <>
-            <p className="insight-text">{typeof insight === 'string' ? insight.slice(0, 300) : 'Analyse disponible'}...</p>
-            <Link to="/insights" className="insight-link">Voir l'analyse complète <span>→</span></Link>
+            <p className="insight-text">{typeof insight === 'string' ? insight.slice(0, 300) : 'Analysis available'}...</p>
+            <Link to="/insights" className="insight-link">View full analysis <span>→</span></Link>
           </>
         ) : (
-          <p className="text-muted text-sm">Configurez l'IA dans les paramètres pour obtenir des insights stratégiques.</p>
+          <p className="text-muted text-sm">Configure AI in settings to get strategic insights.</p>
         )}
       </div>
     </div>

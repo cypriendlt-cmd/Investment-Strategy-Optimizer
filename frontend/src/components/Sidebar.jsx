@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, TrendingUp, Landmark, Target, Brain, Settings,
   ChevronLeft, ChevronRight, ChevronDown, X,
   Bitcoin, LineChart, PiggyBank, Rocket, Calculator,
-  FlaskConical, Crosshair, GitBranch, Flame, ArrowUpRight
+  FlaskConical, Crosshair, GitBranch, Flame, ArrowUpRight, Compass
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
@@ -14,13 +14,15 @@ const NAV_ITEMS = [
     id: 'dashboard',
     path: '/',
     icon: LayoutDashboard,
-    label: 'Dashboard',
+    label: 'Strategy Dashboard',
+    shortLabel: 'Dashboard',
   },
   {
     id: 'portfolio',
     path: '/portfolio',
     icon: TrendingUp,
-    label: 'Portefeuille',
+    label: 'Portfolio Analysis',
+    shortLabel: 'Portfolio',
     children: [
       { path: '/portfolio', label: 'Vue globale', exact: true },
       { path: '/portfolio/crypto', label: 'Crypto', icon: Bitcoin },
@@ -34,13 +36,15 @@ const NAV_ITEMS = [
     id: 'banking',
     path: '/portfolio/banking',
     icon: Landmark,
-    label: 'Banque & Cash',
+    label: 'Cash & Banking',
+    shortLabel: 'Banking',
   },
   {
     id: 'strategy',
     path: '/strategy',
-    icon: Target,
-    label: 'Stratégie',
+    icon: Compass,
+    label: 'Strategy Optimization',
+    shortLabel: 'Strategy',
     children: [
       { path: '/portfolio/objectives', label: 'Objectifs', icon: Crosshair, exact: true },
       { path: '/strategy', label: 'Strategy Lab', icon: FlaskConical, exact: true },
@@ -53,13 +57,15 @@ const NAV_ITEMS = [
     id: 'insights',
     path: '/insights',
     icon: Brain,
-    label: 'Insights IA',
+    label: 'AI Strategy Insights',
+    shortLabel: 'AI Insights',
   },
   {
     id: 'settings',
     path: '/settings',
     icon: Settings,
-    label: 'Paramètres',
+    label: 'Settings',
+    shortLabel: 'Settings',
   },
 ]
 
@@ -96,41 +102,50 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
     return isChildActive(item.children)
   }
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    if (mobileOpen) onMobileClose()
+  }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <>
       {mobileOpen && (
         <div className="sidebar-mobile-overlay" onClick={onMobileClose} />
       )}
       <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''} ${mobileOpen ? 'sidebar--mobile-open' : ''}`}>
+        {/* Logo */}
         <div className="sidebar-header">
-          {!collapsed && (
+          {!collapsed ? (
             <div className="sidebar-logo">
               <div className="sidebar-logo-icon" style={{ background: accent }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                 </svg>
               </div>
-              <span className="sidebar-logo-text">Strategy</span>
+              <div className="sidebar-logo-text">
+                <span className="sidebar-logo-title">Strategy</span>
+                <span className="sidebar-logo-sub">Optimizer</span>
+              </div>
             </div>
-          )}
-          {collapsed && (
-            <div className="sidebar-logo-icon" style={{ background: accent, margin: '0 auto' }}>
+          ) : (
+            <div className="sidebar-logo-icon sidebar-logo-icon--centered" style={{ background: accent }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
               </svg>
             </div>
           )}
-          <button className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)}>
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          <button className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)} title={collapsed ? 'Expand' : 'Collapse'}>
+            {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
           </button>
           <button className="sidebar-mobile-close" onClick={onMobileClose}>
             <X size={20} />
           </button>
         </div>
 
+        {/* Navigation */}
         <nav className="sidebar-nav">
           {NAV_ITEMS.map((item) => {
-            const { id, path, icon: Icon, label, children } = item
+            const { id, path, icon: Icon, label, shortLabel, children } = item
             const hasChildren = children && children.length > 0
             const childActive = isChildActive(children)
             const isOpen = isSectionOpen(item)
@@ -149,12 +164,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
                       }
                     }}
                   >
-                    <Icon size={19} />
+                    <span className="sidebar-link-icon">
+                      <Icon size={18} />
+                    </span>
                     {!collapsed && (
                       <>
-                        <span className="sidebar-link-text">{label}</span>
+                        <span className="sidebar-link-text">{shortLabel || label}</span>
                         <ChevronDown
-                          size={14}
+                          size={13}
                           className={`sidebar-chevron ${isOpen ? 'sidebar-chevron--open' : ''}`}
                         />
                       </>
@@ -192,13 +209,16 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
                 }
                 onClick={onMobileClose}
               >
-                <Icon size={19} />
-                {!collapsed && <span className="sidebar-link-text">{label}</span>}
+                <span className="sidebar-link-icon">
+                  <Icon size={18} />
+                </span>
+                {!collapsed && <span className="sidebar-link-text">{shortLabel || label}</span>}
               </NavLink>
             )
           })}
         </nav>
 
+        {/* Footer */}
         <div className="sidebar-footer">
           <div className="sidebar-theme-dot" style={{ background: accent }} title={theme} />
           {!collapsed && user && (
@@ -220,8 +240,8 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
             <div className="sidebar-user">
               <div className="sidebar-avatar sidebar-avatar--placeholder">D</div>
               <div className="sidebar-user-info">
-                <span className="sidebar-user-name">Mode Démo</span>
-                <span className="sidebar-user-email">Non connecté</span>
+                <span className="sidebar-user-name">Mode Demo</span>
+                <span className="sidebar-user-email">Non connecte</span>
               </div>
             </div>
           )}

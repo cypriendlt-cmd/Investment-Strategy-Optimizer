@@ -40,12 +40,12 @@ function AddLivretModal({ onClose, onAdd }) {
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h3 className="modal-title">Ajouter un livret</h3>
+          <h3 className="modal-title">Add Savings Account</h3>
           <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Type de livret</label>
+            <label className="form-label">Account Type</label>
             <select className="form-select" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
               {Object.entries(LIVRET_TYPES).map(([key, val]) => (
                 <option key={key} value={key}>{val.label} ({fmtPct(getCurrentRate(key) || 0)})</option>
@@ -53,25 +53,25 @@ function AddLivretModal({ onClose, onAdd }) {
             </select>
           </div>
           <div className="form-group">
-            <label className="form-label">Banque</label>
+            <label className="form-label">Bank</label>
             <input className="form-input" placeholder="Boursorama" required value={form.bank} onChange={e => setForm({ ...form, bank: e.target.value })} />
           </div>
           <div className="form-group">
-            <label className="form-label">Solde actuel (EUR)</label>
+            <label className="form-label">Current Balance (EUR)</label>
             <input className="form-input" type="number" step="0.01" placeholder="10000" required value={form.balance} onChange={e => setForm({ ...form, balance: e.target.value })} />
-            <span className="livret-hint">Solde initial et date permettent un calcul plus precis des interets</span>
+            <span className="livret-hint">Initial balance and date allow more accurate interest calculation</span>
           </div>
           <div className="form-group">
-            <label className="form-label">Date d'ouverture (optionnel)</label>
+            <label className="form-label">Opening Date (optional)</label>
             <input className="form-input" type="date" value={form.openDate} onChange={e => setForm({ ...form, openDate: e.target.value })} />
           </div>
           <div className="form-group">
-            <label className="form-label">Taux personnalise (%) -- optionnel</label>
-            <input className="form-input" type="number" step="0.01" placeholder="Laisser vide pour taux officiel" value={form.customRate} onChange={e => setForm({ ...form, customRate: e.target.value })} />
+            <label className="form-label">Custom Rate (%) — optional</label>
+            <input className="form-input" type="number" step="0.01" placeholder="Leave blank for official rate" value={form.customRate} onChange={e => setForm({ ...form, customRate: e.target.value })} />
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Annuler</button>
-            <button type="submit" className="btn btn-primary">Ajouter</button>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary">Add</button>
           </div>
         </form>
       </div>
@@ -95,17 +95,17 @@ function MovementForm({ livretId, onAdd }) {
   return (
     <form onSubmit={handleSubmit} className="livret-movement-form">
       <input type="date" className="form-input" value={date} onChange={e => setDate(e.target.value)} />
-      <input type="number" className="form-input form-input-amount" step="0.01" min="0.01" placeholder="Montant" required value={amount} onChange={e => setAmount(e.target.value)} />
+      <input type="number" className="form-input form-input-amount" step="0.01" min="0.01" placeholder="Amount" required value={amount} onChange={e => setAmount(e.target.value)} />
       <div className="livret-type-toggle">
         <button type="button" className={type === 'deposit' ? 'active-deposit' : ''} onClick={() => setType('deposit')}>
-          <ArrowDownLeft size={12} />Depot
+          <ArrowDownLeft size={12} />Deposit
         </button>
         <button type="button" className={type === 'withdrawal' ? 'active-withdrawal' : ''} onClick={() => setType('withdrawal')}>
-          <ArrowUpRight size={12} />Retrait
+          <ArrowUpRight size={12} />Withdrawal
         </button>
       </div>
       <button type="submit" className="btn btn-primary btn-sm">
-        <Plus size={14} /> Ajouter
+        <Plus size={14} /> Add
       </button>
     </form>
   )
@@ -131,33 +131,33 @@ function ConfigureBankLivretModal({ account, onClose, onSave }) {
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h3 className="modal-title">Configurer {account.alias}</h3>
+          <h3 className="modal-title">Configure {account.alias}</h3>
           <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Type de livret</label>
+            <label className="form-label">Account Type</label>
             <select className="form-select" value={livretType} onChange={e => setLivretType(e.target.value)}>
-              <option value="">— Non défini —</option>
+              <option value="">— Not set —</option>
               {Object.entries(LIVRET_TYPES).map(([key, val]) => (
-                <option key={key} value={key}>{val.label} (plafond {fmt(val.max)})</option>
+                <option key={key} value={key}>{val.label} (ceiling {fmt(val.max)})</option>
               ))}
             </select>
             <span className="livret-hint">
-              Associer un type permet le calcul des intérêts et le suivi du plafond
+              Assign a type to enable interest calculation and ceiling tracking
             </span>
           </div>
           <div className="form-group">
-            <label className="form-label">Taux personnalisé (%) — optionnel</label>
-            <input className="form-input" type="number" step="0.01" placeholder={livretType ? `Laisser vide pour taux officiel (${fmtPct(getCurrentRate(livretType) || 0)})` : 'Définir un taux'} value={customRate} onChange={e => setCustomRate(e.target.value)} />
+            <label className="form-label">Custom Rate (%) — optional</label>
+            <input className="form-input" type="number" step="0.01" placeholder={livretType ? `Leave blank for official rate (${fmtPct(getCurrentRate(livretType) || 0)})` : 'Define a rate'} value={customRate} onChange={e => setCustomRate(e.target.value)} />
           </div>
           <div className="form-group">
-            <label className="form-label">Date d'ouverture (optionnel)</label>
+            <label className="form-label">Opening Date (optional)</label>
             <input className="form-input" type="date" value={openDate} onChange={e => setOpenDate(e.target.value)} />
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Annuler</button>
-            <button type="submit" className="btn btn-primary">Enregistrer</button>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary">Save</button>
           </div>
         </form>
       </div>
@@ -208,26 +208,26 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
   return (
     <>
       <div className="livret-bank-header">
-        <h3>Livrets importés (relevés bancaires)</h3>
-        <Link to="/banking" className="btn btn-ghost">Voir détails →</Link>
+        <h3>Imported Savings (bank statements)</h3>
+        <Link to="/banking" className="btn btn-ghost">View details →</Link>
       </div>
 
       <div className="grid grid-3 mb-24 gap-20">
         <div className="stat-card">
-          <p className="stat-label">Total livrets importés</p>
+          <p className="stat-label">Total Imported Savings</p>
           <p className="stat-value" style={{ fontSize: '1.5rem', marginTop: 4 }}>{m(fmt(bankLivretsTotal))}</p>
         </div>
         <div className="stat-card">
           <div className="flex items-center gap-8 mb-4">
             <TrendingUp size={16} style={{ color: 'var(--success)' }} />
-            <p className="stat-label" style={{ margin: 0 }}>Intérêts annuels estimés</p>
+            <p className="stat-label" style={{ margin: 0 }}>Estimated Annual Interest</p>
           </div>
           <p className="stat-value text-success">{m(fmt(totalAnnualBank))}</p>
         </div>
         <div className="stat-card">
           <div className="flex items-center gap-8 mb-4">
             <Calendar size={16} style={{ color: 'var(--accent)' }} />
-            <p className="stat-label" style={{ margin: 0 }}>Intérêts YTD</p>
+            <p className="stat-label" style={{ margin: 0 }}>YTD Interest</p>
           </div>
           <p className="stat-value">{m(fmt(totalYTDBank))}</p>
         </div>
@@ -266,8 +266,8 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
                 </div>
                 <div className="flex items-center gap-8">
                   {type && <span className="badge badge-accent">{fmtPct(rate)}</span>}
-                  {!type && <span className="badge" style={{ background: 'var(--warning-light, rgba(245,158,11,0.1))', color: 'var(--warning, #f59e0b)', fontSize: '0.7rem' }}>Non configuré</span>}
-                  <button className="btn btn-ghost btn-icon btn-sm" onClick={() => setConfigAccount(a)} title="Configurer">
+                  {!type && <span className="badge" style={{ background: 'var(--warning-light, rgba(245,158,11,0.1))', color: 'var(--warning, #f59e0b)', fontSize: '0.7rem' }}>Not configured</span>}
+                  <button className="btn btn-ghost btn-icon btn-sm" onClick={() => setConfigAccount(a)} title="Configure">
                     <Pencil size={14} />
                   </button>
                 </div>
@@ -290,15 +290,15 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
               {type && (
                 <div className="grid grid-3 gap-12 mb-12">
                   <div className="livret-stat-box">
-                    <div className="text-xs text-muted mb-4">Intérêts YTD</div>
+                    <div className="text-xs text-muted mb-4">YTD Interest</div>
                     <div className="font-semibold text-success">{m(fmt(ytd))}</div>
                   </div>
                   <div className="livret-stat-box">
-                    <div className="text-xs text-muted mb-4">Estimation annuelle</div>
+                    <div className="text-xs text-muted mb-4">Annual Estimate</div>
                     <div className="font-semibold text-success">{m(fmt(annual))}</div>
                   </div>
                   <div className="livret-stat-box">
-                    <div className="text-xs text-muted mb-4">Moy. / quinzaine</div>
+                    <div className="text-xs text-muted mb-4">Avg. / fortnight</div>
                     <div className="font-semibold text-success">{m(fmt(annual / 24))}</div>
                   </div>
                 </div>
@@ -306,7 +306,7 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
 
               {!type && (
                 <div className="livret-info-box">
-                  Configurez le type de livret pour activer le calcul des intérêts et le suivi du plafond.
+                  Configure the account type to enable interest calculation and ceiling tracking.
                 </div>
               )}
 
@@ -316,16 +316,16 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
                 onClick={() => setExpandedId(isExpanded ? null : `bank_${a.id}`)}
               >
                 {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                {isExpanded ? 'Masquer les détails' : 'Voir les détails'}
+                {isExpanded ? 'Hide details' : 'Show details'}
               </button>
 
               {/* Expanded section */}
               {isExpanded && (
                 <div className="mt-16">
                   {/* Movements */}
-                  <h4 className="livret-section-title">Mouvements ({movements.length})</h4>
+                  <h4 className="livret-section-title">Movements ({movements.length})</h4>
                   {movements.length === 0 && (
-                    <p className="text-sm text-muted mb-8">Aucun mouvement importé.</p>
+                    <p className="text-sm text-muted mb-8">No imported movements.</p>
                   )}
                   {movements.length > 0 && (
                     <div className="livret-movement-scroll">
@@ -350,15 +350,15 @@ function BankLivretsSection({ bankLivrets, bankLivretsTotal, bankCtx, m, expande
                   {/* Quinzaine table (only if type configured) */}
                   {type && byQuinzaine.length > 0 && (
                     <>
-                      <h4 className="livret-section-title-spaced">Détail par quinzaine</h4>
+                      <h4 className="livret-section-title-spaced">Fortnight Breakdown</h4>
                       <div className="livret-quinzaine-scroll">
                         <table className="livret-quinzaine-table">
                           <thead>
                             <tr>
-                              <th>Période</th>
-                              <th className="text-right">Solde</th>
-                              <th className="text-right">Taux</th>
-                              <th className="text-right">Intérêts</th>
+                              <th>Period</th>
+                              <th className="text-right">Balance</th>
+                              <th className="text-right">Rate</th>
+                              <th className="text-right">Interest</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -432,20 +432,20 @@ export default function Livrets() {
       {/* Header stats */}
       <div className="grid grid-3 mb-24 gap-20">
         <div className="stat-card">
-          <p className="stat-label">Total epargne reglementee</p>
+          <p className="stat-label">Total Regulated Savings</p>
           <p className="stat-value" style={{ fontSize: '1.75rem', marginTop: 4 }}>{m(fmt(totals.livrets))}</p>
         </div>
         <div className="stat-card">
           <div className="flex items-center gap-8 mb-4">
             <TrendingUp size={16} style={{ color: 'var(--success)' }} />
-            <p className="stat-label" style={{ margin: 0 }}>Interets annuels estimes</p>
+            <p className="stat-label" style={{ margin: 0 }}>Estimated Annual Interest</p>
           </div>
           <p className="stat-value text-success">{m(fmt(totalAnnualEstimate))}</p>
         </div>
         <div className="stat-card">
           <div className="flex items-center gap-8 mb-4">
             <Calendar size={16} style={{ color: 'var(--accent)' }} />
-            <p className="stat-label" style={{ margin: 0 }}>Interets YTD</p>
+            <p className="stat-label" style={{ margin: 0 }}>YTD Interest</p>
           </div>
           <p className="stat-value">{m(fmt(totalYTD))}</p>
         </div>
@@ -454,7 +454,7 @@ export default function Livrets() {
       {/* Add button */}
       <div className="flex justify-end mb-16">
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          <Plus size={16} /> Ajouter un livret
+          <Plus size={16} /> Add Savings Account
         </button>
       </div>
 
@@ -511,15 +511,15 @@ export default function Livrets() {
               {/* Interest stats */}
               <div className="grid grid-3 gap-12 mb-12">
                 <div className="livret-stat-box">
-                  <div className="text-xs text-muted mb-4">Interets YTD</div>
+                  <div className="text-xs text-muted mb-4">YTD Interest</div>
                   <div className="font-semibold text-success">{m(fmt(ytd))}</div>
                 </div>
                 <div className="livret-stat-box">
-                  <div className="text-xs text-muted mb-4">Estimation annuelle</div>
+                  <div className="text-xs text-muted mb-4">Annual Estimate</div>
                   <div className="font-semibold text-success">{m(fmt(annual))}</div>
                 </div>
                 <div className="livret-stat-box">
-                  <div className="text-xs text-muted mb-4">Moy. / quinzaine</div>
+                  <div className="text-xs text-muted mb-4">Avg. / fortnight</div>
                   <div className="font-semibold text-success">{m(fmt(annual / 24))}</div>
                 </div>
               </div>
@@ -530,16 +530,16 @@ export default function Livrets() {
                 onClick={() => setExpandedId(isExpanded ? null : l.id)}
               >
                 {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                {isExpanded ? 'Masquer les details' : 'Voir les details'}
+                {isExpanded ? 'Hide details' : 'Show details'}
               </button>
 
               {/* Expanded section */}
               {isExpanded && (
                 <div className="mt-16">
                   {/* Movements */}
-                  <h4 className="livret-section-title">Mouvements</h4>
+                  <h4 className="livret-section-title">Movements</h4>
                   {movements.length === 0 && (
-                    <p className="text-sm text-muted mb-8">Aucun mouvement enregistre.</p>
+                    <p className="text-sm text-muted mb-8">No movements recorded.</p>
                   )}
                   {movements.length > 0 && (
                     <div className="livret-movement-scroll-short">
@@ -568,15 +568,15 @@ export default function Livrets() {
                   <MovementForm livretId={l.id} onAdd={addLivretMovement} />
 
                   {/* Quinzaine table */}
-                  <h4 className="livret-section-title-spaced">Detail par quinzaine</h4>
+                  <h4 className="livret-section-title-spaced">Fortnight Breakdown</h4>
                   <div className="livret-quinzaine-scroll">
                     <table className="livret-quinzaine-table">
                       <thead>
                         <tr>
-                          <th>Periode</th>
-                          <th className="text-right">Solde</th>
-                          <th className="text-right">Taux</th>
-                          <th className="text-right">Interets</th>
+                          <th>Period</th>
+                          <th className="text-right">Balance</th>
+                          <th className="text-right">Rate</th>
+                          <th className="text-right">Interest</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -600,10 +600,10 @@ export default function Livrets() {
         {portfolio.livrets.length === 0 && (
           <div className="empty-state" style={{ gridColumn: 'span 2' }}>
             <div className="empty-state-icon"><PiggyBank /></div>
-            <h3>Aucun livret ajoute</h3>
-            <p>Ajoutez vos livrets d'epargne pour suivre vos interets.</p>
+            <h3>No Savings Accounts</h3>
+            <p>Add your savings accounts to track your interest.</p>
             <button className="btn btn-primary mt-16" onClick={() => setShowModal(true)}>
-              <Plus size={16} /> Ajouter un livret
+              <Plus size={16} /> Add Savings Account
             </button>
           </div>
         )}

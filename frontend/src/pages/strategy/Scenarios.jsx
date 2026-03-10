@@ -11,9 +11,9 @@ import { runScenarioSet } from '../../services/strategy/scenarioEngine'
 import { fmt } from '../../utils/format'
 
 const HORIZON_OPTIONS = [
-  { value: 10, label: '10 ans' },
-  { value: 20, label: '20 ans' },
-  { value: 30, label: '30 ans' },
+  { value: 10, label: '10 years' },
+  { value: 20, label: '20 years' },
+  { value: 30, label: '30 years' },
 ]
 
 export default function Scenarios() {
@@ -58,10 +58,10 @@ export default function Scenarios() {
         <div>
           <h1 className="projection-title">
             <GitBranch size={22} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-            Comparateur de sc{'\u00e9'}narios
+            Scenario Comparison
           </h1>
           <p className="projection-subtitle">
-            Comparez votre trajectoire actuelle avec des strat{'\u00e9'}gies optimis{'\u00e9'}es pour visualiser l'impact de chaque d{'\u00e9'}cision sur votre patrimoine.
+            Compare your current trajectory with optimized strategies to visualize the impact of each decision on your net worth.
           </p>
         </div>
       </div>
@@ -69,7 +69,7 @@ export default function Scenarios() {
       {/* Controls */}
       <div className="projection-controls">
         <div className="projection-control">
-          <label>Horizon de projection</label>
+          <label>Projection Horizon</label>
           <select value={horizon} onChange={e => setHorizon(Number(e.target.value))}>
             {HORIZON_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
@@ -82,14 +82,14 @@ export default function Scenarios() {
           <div key={s.key} className="projection-kpi">
             <span className="projection-kpi-label">{s.label}</span>
             <span className="projection-kpi-value" style={{ color: s.color }}>{m(fmt(s.kpis.finalValue))}</span>
-            <span className="projection-kpi-sub">Patrimoine projet{'\u00e9'} {'\u00e0'} {horizon} ans</span>
+            <span className="projection-kpi-sub">Projected net worth at {horizon} years</span>
           </div>
         ))}
       </div>
 
       {/* Chart */}
       <div className="projection-chart-card">
-        <div className="projection-chart-title">Trajectoire compar{'\u00e9'}e sur {horizon} ans</div>
+        <div className="projection-chart-title">Compared trajectory over {horizon} years</div>
         <ResponsiveContainer width="100%" height={340}>
           <AreaChart data={chartData}>
             <defs>
@@ -121,7 +121,7 @@ export default function Scenarios() {
             />
             <Tooltip
               formatter={(v, name) => {
-                const labels = { current: 'Strat\u00e9gie actuelle', optimized: 'Recommand\u00e9e', ambitious: 'Ambitieuse' }
+                const labels = { current: 'Current Strategy', optimized: 'Recommended', ambitious: 'Ambitious' }
                 return [m(fmt(v)), labels[name] || name]
               }}
               contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }}
@@ -132,49 +132,49 @@ export default function Scenarios() {
           </AreaChart>
         </ResponsiveContainer>
         <div className="projection-chart-legend">
-          <span><span className="projection-dot" style={{ background: 'var(--text-muted)' }} /> Strat{'\u00e9'}gie actuelle</span>
-          <span><span className="projection-dot" style={{ background: 'var(--accent)' }} /> Recommand{'\u00e9'}e</span>
-          <span><span className="projection-dot" style={{ background: 'var(--success)' }} /> Ambitieuse</span>
+          <span><span className="projection-dot" style={{ background: 'var(--text-muted)' }} /> Current Strategy</span>
+          <span><span className="projection-dot" style={{ background: 'var(--accent)' }} /> Recommended</span>
+          <span><span className="projection-dot" style={{ background: 'var(--success)' }} /> Ambitious</span>
         </div>
       </div>
 
       {/* Comparative table */}
       <div className="projection-milestones">
-        <div className="projection-section-title">Comparaison d{'\u00e9'}taill{'\u00e9'}e</div>
+        <div className="projection-section-title">Detailed Comparison</div>
         <div className="table-container">
           <table>
             <thead>
               <tr>
                 <th></th>
-                <th style={{ color: 'var(--text-muted)' }}>Strat{'\u00e9'}gie actuelle</th>
-                <th style={{ color: 'var(--accent)' }}>Recommand{'\u00e9'}e</th>
-                <th style={{ color: 'var(--success)' }}>Ambitieuse</th>
+                <th style={{ color: 'var(--text-muted)' }}>Current Strategy</th>
+                <th style={{ color: 'var(--accent)' }}>Recommended</th>
+                <th style={{ color: 'var(--success)' }}>Ambitious</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style={{ fontWeight: 600 }}>Patrimoine final</td>
+                <td style={{ fontWeight: 600 }}>Final Net Worth</td>
                 <td>{m(fmt(current?.kpis.finalValue))}</td>
                 <td>{m(fmt(optimized?.kpis.finalValue))}</td>
                 <td>{m(fmt(ambitious?.kpis.finalValue))}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: 600 }}>Gains projet{'\u00e9'}s</td>
+                <td style={{ fontWeight: 600 }}>Projected Gains</td>
                 <td>{m(fmt(current?.kpis.totalGains))}</td>
                 <td style={{ color: 'var(--success)' }}>{m(fmt(optimized?.kpis.totalGains))}</td>
                 <td style={{ color: 'var(--success)' }}>{m(fmt(ambitious?.kpis.totalGains))}</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: 600 }}>Effort mensuel</td>
-                <td>{m(fmt(current?.monthlyContribution))} /mois</td>
-                <td>{m(fmt(optimized?.monthlyContribution))} /mois</td>
-                <td>{m(fmt(ambitious?.monthlyContribution))} /mois</td>
+                <td style={{ fontWeight: 600 }}>Monthly Effort</td>
+                <td>{m(fmt(current?.monthlyContribution))} /mo</td>
+                <td>{m(fmt(optimized?.monthlyContribution))} /mo</td>
+                <td>{m(fmt(ambitious?.monthlyContribution))} /mo</td>
               </tr>
               <tr>
-                <td style={{ fontWeight: 600 }}>Effort suppl{'\u00e9'}mentaire</td>
+                <td style={{ fontWeight: 600 }}>Additional Effort</td>
                 <td style={{ color: 'var(--text-muted)' }}>{'\u2014'}</td>
-                <td>0 {'\u20ac'}/mois</td>
-                <td style={{ color: 'var(--accent)' }}>+{m(fmt(ambitious?.kpis.extraEffort))} /mois</td>
+                <td>0 {'\u20ac'}/mo</td>
+                <td style={{ color: 'var(--accent)' }}>+{m(fmt(ambitious?.kpis.extraEffort))} /mo</td>
               </tr>
             </tbody>
           </table>
@@ -187,7 +187,7 @@ export default function Scenarios() {
           <div key={scenario.key} className="projection-insights">
             <div className="projection-section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Zap size={16} style={{ color: scenario.color }} />
-              Ce que le moteur a chang{'\u00e9'} — {scenario.label}
+              What the engine changed — {scenario.label}
             </div>
             {scenario.changes.map((change, i) => (
               <div key={i} className="projection-insight projection-insight--info">
@@ -208,7 +208,7 @@ export default function Scenarios() {
       <div className="projection-hypotheses">
         <Info size={14} style={{ color: 'var(--text-muted)', minWidth: 14 }} />
         <p>
-          Ces simulations sont bas{'\u00e9'}es sur des hypoth{'\u00e8'}ses de rendement constant. Les march{'\u00e9'}s fluctuent {'\u2014'} ces chiffres sont des estimations indicatives.
+          These simulations are based on constant return assumptions. Markets fluctuate — these figures are indicative estimates.
         </p>
       </div>
 
@@ -216,9 +216,9 @@ export default function Scenarios() {
       <div className="projection-hypotheses" style={{ borderColor: 'var(--warning)' }}>
         <AlertTriangle size={14} style={{ color: 'var(--warning)', minWidth: 14 }} />
         <p>
-          Les performances pass{'\u00e9'}es ne pr{'\u00e9'}jugent pas des performances futures.
-          Les actifs volatils (crypto, actions) peuvent perdre une part significative de leur valeur.
-          Ces projections sont des estimations {'\u00e0'} titre indicatif uniquement et ne constituent pas un conseil financier.
+          Past performance does not guarantee future results.
+          Volatile assets (crypto, stocks) can lose a significant portion of their value.
+          These projections are estimates for informational purposes only and do not constitute financial advice.
         </p>
       </div>
     </div>

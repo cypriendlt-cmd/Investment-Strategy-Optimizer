@@ -12,20 +12,13 @@ export default function Layout({ children }) {
       <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
       <div className="main-content">
         {isGuest && (
-          <div style={{
-            background: 'linear-gradient(90deg, var(--accent), var(--accent-dark, var(--accent)))',
-            color: 'white',
-            textAlign: 'center',
-            padding: '7px 16px',
-            fontSize: '0.78rem',
-            fontWeight: 500,
-            letterSpacing: '0.02em',
-          }}>
-            Mode démo — Données fictives à titre illustratif.{' '}
-            <a href="#/login" style={{ color: 'white', textDecoration: 'underline', fontWeight: 700 }}>
-              Connectez-vous
+          <div className="demo-banner">
+            <span className="demo-banner-dot" />
+            Demo mode — Displaying sample data.{' '}
+            <a href="#/login" className="demo-banner-link">
+              Sign in
             </a>{' '}
-            pour accéder à vos vraies données.
+            to access your real portfolio.
           </div>
         )}
         <Header onMenuClick={() => setMobileOpen(true)} />

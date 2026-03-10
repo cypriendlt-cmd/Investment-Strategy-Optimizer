@@ -13,9 +13,9 @@ import { computeFreedomNumber, computeYearsToFire, computeFireTrajectory, comput
 import { fmt } from '../../utils/format'
 
 const RETURN_PROFILES = [
-  { value: 0.04, label: 'Prudent (4 %/an)' },
-  { value: 0.07, label: 'Équilibré (7 %/an)' },
-  { value: 0.10, label: 'Dynamique (10 %/an)' },
+  { value: 0.04, label: 'Conservative (4%/yr)' },
+  { value: 0.07, label: 'Balanced (7%/yr)' },
+  { value: 0.10, label: 'Dynamic (10%/yr)' },
 ]
 
 export default function FIRECalculator() {
@@ -84,9 +84,9 @@ export default function FIRECalculator() {
 
   // Estimated date label
   const estimatedDate = useMemo(() => {
-    if (!fireResult) return 'Non atteignable'
+    if (!fireResult) return 'Not reachable'
     const [year, month] = fireResult.projectedDate.split('-')
-    const monthNames = ['janv.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     return `${monthNames[parseInt(month, 10) - 1]} ${year}`
   }, [fireResult])
 
@@ -106,10 +106,10 @@ export default function FIRECalculator() {
         <div>
           <h1 className="projection-title">
             <Sunrise size={22} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-            Liberté financière
+            Financial Freedom
           </h1>
           <p className="projection-subtitle">
-            Calculez votre « Freedom Number » — le capital nécessaire pour vivre de vos rentes — et estimez combien d'années il vous faut pour l'atteindre selon la méthode FIRE.
+            Calculate your "Freedom Number" — the capital needed to live off your investments — and estimate how many years it will take to reach it using the FIRE method.
           </p>
         </div>
       </div>
@@ -117,7 +117,7 @@ export default function FIRECalculator() {
       {/* Controls */}
       <div className="projection-controls">
         <div className="projection-control">
-          <label>Dépenses mensuelles</label>
+          <label>Monthly Expenses</label>
           <div className="projection-input-group">
             <input
               type="number"
@@ -126,14 +126,14 @@ export default function FIRECalculator() {
               min="0"
               step="100"
             />
-            <span>€/mois</span>
+            <span>€/mo</span>
           </div>
           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
-            Pré-rempli à partir de vos transactions bancaires
+            Pre-filled from your bank transactions
           </span>
         </div>
         <div className="projection-control">
-          <label>Taux de retrait</label>
+          <label>Withdrawal Rate</label>
           <select value={withdrawalRate} onChange={e => setWithdrawalRate(Number(e.target.value))}>
             {WITHDRAWAL_RATES.map(wr => (
               <option key={wr.value} value={wr.value}>{wr.label} — {wr.desc}</option>
@@ -141,7 +141,7 @@ export default function FIRECalculator() {
           </select>
         </div>
         <div className="projection-control">
-          <label>Rendement attendu</label>
+          <label>Expected Return</label>
           <select value={annualReturn} onChange={e => setAnnualReturn(Number(e.target.value))}>
             {RETURN_PROFILES.map(rp => (
               <option key={rp.value} value={rp.value}>{rp.label}</option>
@@ -149,7 +149,7 @@ export default function FIRECalculator() {
           </select>
         </div>
         <div className="projection-control">
-          <label>Épargne mensuelle</label>
+          <label>Monthly Savings</label>
           <div className="projection-input-group">
             <input
               type="number"
@@ -158,10 +158,10 @@ export default function FIRECalculator() {
               min="0"
               step="50"
             />
-            <span>€/mois</span>
+            <span>€/mo</span>
           </div>
           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
-            Pré-rempli à partir de vos plans d'investissement actifs
+            Pre-filled from your active investment plans
           </span>
         </div>
       </div>
@@ -178,7 +178,7 @@ export default function FIRECalculator() {
           {m(fmt(freedomNumber))}
         </div>
         <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', maxWidth: 560, margin: '12px auto 0', lineHeight: 1.5 }}>
-          La règle des {(withdrawalRate * 100).toFixed(0)} % signifie que vous pouvez retirer {(withdrawalRate * 100).toFixed(0)} % de votre patrimoine chaque année sans l'épuiser sur 30 ans (étude Trinity, 1998). C'est une estimation, pas une garantie.
+          The {(withdrawalRate * 100).toFixed(0)}% rule means you can withdraw {(withdrawalRate * 100).toFixed(0)}% of your net worth each year without depleting it over 30 years (Trinity Study, 1998). This is an estimate, not a guarantee.
         </p>
       </div>
 
@@ -187,40 +187,40 @@ export default function FIRECalculator() {
         <div className="projection-kpi">
           <span className="projection-kpi-label">Freedom Number</span>
           <span className="projection-kpi-value" style={{ color: 'var(--accent)' }}>{m(fmt(freedomNumber))}</span>
-          <span className="projection-kpi-sub">capital cible</span>
+          <span className="projection-kpi-sub">target capital</span>
         </div>
         <div className="projection-kpi">
-          <span className="projection-kpi-label">Patrimoine actuel</span>
+          <span className="projection-kpi-label">Current Net Worth</span>
           <span className="projection-kpi-value" style={{ color: 'var(--text)' }}>{m(fmt(currentWealth))}</span>
-          <span className="projection-kpi-sub">investissements + banque</span>
+          <span className="projection-kpi-sub">investments + bank</span>
         </div>
         <div className="projection-kpi">
-          <span className="projection-kpi-label">Progression</span>
+          <span className="projection-kpi-label">Progress</span>
           <span className="projection-kpi-value" style={{ color: progressPct >= 100 ? 'var(--success)' : 'var(--warning)' }}>
             {progressPct.toFixed(1)} %
           </span>
-          <span className="projection-kpi-sub">du Freedom Number</span>
+          <span className="projection-kpi-sub">of Freedom Number</span>
         </div>
         <div className="projection-kpi">
-          <span className="projection-kpi-label">Années restantes</span>
+          <span className="projection-kpi-label">Years Remaining</span>
           <span className="projection-kpi-value" style={{ color: 'var(--success)' }}>
-            {fireResult ? fireResult.label : '50+ ans'}
+            {fireResult ? fireResult.label : '50+ years'}
           </span>
-          <span className="projection-kpi-sub">estimation</span>
+          <span className="projection-kpi-sub">estimate</span>
         </div>
         <div className="projection-kpi">
-          <span className="projection-kpi-label">Date estimée</span>
+          <span className="projection-kpi-label">Estimated Date</span>
           <span className="projection-kpi-value" style={{ color: '#8b5cf6' }}>
             {estimatedDate}
           </span>
-          <span className="projection-kpi-sub">indépendance financière</span>
+          <span className="projection-kpi-sub">financial independence</span>
         </div>
       </div>
 
       {/* Progress Bar */}
       <div className="objective-progress-section">
         <div className="objective-progress-header">
-          <span>Progression vers le Freedom Number</span>
+          <span>Progress toward Freedom Number</span>
           <span className="objective-progress-pct">{progressPct.toFixed(0)}%</span>
         </div>
         <div className="objective-progress-bar">
@@ -240,7 +240,7 @@ export default function FIRECalculator() {
 
       {/* Chart */}
       <div className="projection-chart-card">
-        <div className="projection-chart-title">Trajectoire vers la liberté financière</div>
+        <div className="projection-chart-title">Trajectory Toward Financial Freedom</div>
         <ResponsiveContainer width="100%" height={320}>
           <AreaChart data={trajectory}>
             <defs>
@@ -265,7 +265,7 @@ export default function FIRECalculator() {
             <Tooltip
               formatter={(v, name) => [
                 m(fmt(v)),
-                name === 'wealth' ? 'Patrimoine projeté' : 'Freedom Number',
+                name === 'wealth' ? 'Projected Net Worth' : 'Freedom Number',
               ]}
               contentStyle={{
                 background: 'var(--bg-card)',
@@ -308,10 +308,10 @@ export default function FIRECalculator() {
           </AreaChart>
         </ResponsiveContainer>
         <div className="projection-chart-legend">
-          <span><span className="projection-dot" style={{ background: 'var(--accent)' }} /> Patrimoine projeté</span>
+          <span><span className="projection-dot" style={{ background: 'var(--accent)' }} /> Projected Net Worth</span>
           <span><span className="projection-dot projection-dot--dashed" style={{ background: 'var(--success)' }} /> Freedom Number</span>
           {crossingIndex !== null && (
-            <span><span className="projection-dot" style={{ background: 'var(--success)' }} /> Point d'indépendance</span>
+            <span><span className="projection-dot" style={{ background: 'var(--success)' }} /> Independence Point</span>
           )}
         </div>
       </div>
@@ -320,32 +320,32 @@ export default function FIRECalculator() {
       <div className="projection-milestones">
         <div className="projection-section-title">
           <TrendingUp size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-          Comparaison des scénarios
+          Scenario Comparison
         </div>
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>Profil</th>
-                <th>Rendement</th>
-                <th>Années</th>
-                <th>Date estimée</th>
+                <th>Profile</th>
+                <th>Return</th>
+                <th>Years</th>
+                <th>Estimated Date</th>
               </tr>
             </thead>
             <tbody>
               {scenarios.map(sc => {
                 const dateLabel = (() => {
-                  if (!sc.result) return 'Non atteignable'
+                  if (!sc.result) return 'Not reachable'
                   const [y, mo] = sc.result.projectedDate.split('-')
-                  const monthNames = ['janv.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
+                  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                   return `${monthNames[parseInt(mo, 10) - 1]} ${y}`
                 })()
                 return (
                   <tr key={sc.key}>
                     <td style={{ fontWeight: 600 }}>{sc.label}</td>
-                    <td>{(sc.annualReturn * 100).toFixed(0)} %/an</td>
+                    <td>{(sc.annualReturn * 100).toFixed(0)} %/yr</td>
                     <td style={{ color: sc.result ? 'var(--success)' : 'var(--text-muted)' }}>
-                      {sc.result ? sc.result.label : '50+ ans'}
+                      {sc.result ? sc.result.label : '50+ years'}
                     </td>
                     <td style={{ color: sc.result ? '#8b5cf6' : 'var(--text-muted)' }}>
                       {dateLabel}
@@ -362,9 +362,9 @@ export default function FIRECalculator() {
       <div className="projection-hypotheses">
         <Info size={14} style={{ color: 'var(--text-muted)', minWidth: 14 }} />
         <p>
-          Taux de retrait : {(withdrawalRate * 100).toFixed(0)} %/an. Rendement estimé : {(annualReturn * 100).toFixed(0)} %/an.
-          Épargne mensuelle : {fmt(monthlySavings)}/mois.
-          Ces projections sont indicatives et ne constituent pas un conseil financier.
+          Withdrawal rate: {(withdrawalRate * 100).toFixed(0)}%/yr. Estimated return: {(annualReturn * 100).toFixed(0)}%/yr.
+          Monthly savings: {fmt(monthlySavings)}/mo.
+          These projections are indicative and do not constitute financial advice.
         </p>
       </div>
 
@@ -372,11 +372,11 @@ export default function FIRECalculator() {
       <div className="projection-hypotheses" style={{ borderColor: 'var(--warning)' }}>
         <AlertTriangle size={14} style={{ color: 'var(--warning)', minWidth: 14 }} />
         <p>
-          La règle des 4 % repose sur des données historiques américaines (Trinity Study, 1998).
-          Elle ne garantit pas que votre capital durera 30 ans dans tous les scénarios futurs.
-          Les performances passées ne préjugent pas des performances futures.
-          Les actifs volatils (crypto, actions) peuvent perdre une part significative de leur valeur.
-          Ces projections sont des estimations à titre indicatif uniquement.
+          The 4% rule is based on historical US data (Trinity Study, 1998).
+          It does not guarantee that your capital will last 30 years in all future scenarios.
+          Past performance does not guarantee future results.
+          Volatile assets (crypto, stocks) can lose a significant portion of their value.
+          These projections are estimates for informational purposes only.
         </p>
       </div>
     </div>
