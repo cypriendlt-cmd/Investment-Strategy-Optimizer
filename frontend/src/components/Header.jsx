@@ -87,8 +87,8 @@ export default function Header({ onMenuClick }) {
   }
 
   return (
-    <header className="header">
-      <div className="header-left">
+    <header className="topbar">
+      <div className="topbar-left">
         <button className="header-menu-btn" onClick={onMenuClick}>
           <Menu size={20} />
         </button>
@@ -98,11 +98,11 @@ export default function Header({ onMenuClick }) {
         </div>
       </div>
 
-      <div className="header-right">
+      <div className="topbar-right">
         {/* Indicateur de données en direct */}
         <div className="header-live-indicator" title={formatLastUpdate() || 'Prix non chargés'}>
           <button
-            className={`header-icon-btn header-refresh-btn ${isRefreshingPrices ? 'spinning' : ''}`}
+            className={`btn-icon header-refresh-btn ${isRefreshingPrices ? 'spinning' : ''}`}
             onClick={handleRefreshPrices}
             disabled={isRefreshingPrices}
             title="Rafraîchir les prix"
@@ -117,7 +117,7 @@ export default function Header({ onMenuClick }) {
         {/* Notifications */}
         <div className="header-notif-wrapper" ref={notifRef}>
           <button
-            className="header-icon-btn"
+            className="btn-icon"
             title="Notifications"
             onClick={() => setNotifOpen(!notifOpen)}
           >
@@ -152,12 +152,12 @@ export default function Header({ onMenuClick }) {
         </div>
 
         {/* Confidentialité */}
-        <button className="header-icon-btn" onClick={toggleHideValues} title={hideValues ? 'Afficher les montants' : 'Masquer les montants'}>
+        <button className="btn-icon" onClick={toggleHideValues} title={hideValues ? 'Afficher les montants' : 'Masquer les montants'}>
           {hideValues ? <EyeOff size={17} /> : <Eye size={17} />}
         </button>
 
         {/* Mode sombre */}
-        <button className="header-icon-btn" onClick={toggleDarkMode} title={darkMode ? 'Mode clair' : 'Mode sombre'}>
+        <button className="btn-icon" onClick={toggleDarkMode} title={darkMode ? 'Mode clair' : 'Mode sombre'}>
           {darkMode ? <Sun size={17} /> : <Moon size={17} />}
         </button>
       </div>

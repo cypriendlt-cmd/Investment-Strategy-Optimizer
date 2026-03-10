@@ -18,9 +18,9 @@ export default function Layout({ children }) {
   const { isGuest } = useAuth()
 
   return (
-    <div className="app-layout">
+    <div className="app-shell">
       <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
-      <div className="main-content">
+      <div className="main-wrapper">
         {isGuest && (
           <div className="demo-banner">
             <span className="demo-banner-dot" />

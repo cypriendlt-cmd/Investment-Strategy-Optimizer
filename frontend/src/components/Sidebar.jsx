@@ -130,7 +130,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
       return (
         <div key={id} className="sidebar-group">
           <button
-            className={`sidebar-link ${childActive ? 'sidebar-link--active' : ''}`}
+            className={`nav-item ${childActive ? 'active' : ''}`}
             onClick={() => {
               if (collapsed) {
                 setCollapsed(false)
@@ -140,12 +140,12 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
               }
             }}
           >
-            <span className="sidebar-link-icon">
+            <span className="nav-icon">
               <Icon size={18} />
             </span>
             {!collapsed && (
               <>
-                <span className="sidebar-link-text">{shortLabel || label}</span>
+                <span className="nav-label">{shortLabel || label}</span>
                 <ChevronDown
                   size={13}
                   className={`sidebar-chevron ${isOpen ? 'sidebar-chevron--open' : ''}`}
@@ -181,14 +181,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
         to={path}
         end={path === '/'}
         className={({ isActive }) =>
-          `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`
+          `nav-item ${isActive ? 'active' : ''}`
         }
         onClick={onMobileClose}
       >
-        <span className="sidebar-link-icon">
+        <span className="nav-icon">
           <Icon size={18} />
         </span>
-        {!collapsed && <span className="sidebar-link-text">{shortLabel || label}</span>}
+        {!collapsed && <span className="nav-label">{shortLabel || label}</span>}
       </NavLink>
     )
   }
@@ -232,9 +232,9 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
         {/* Navigation par groupes */}
         <nav className="sidebar-nav">
           {NAV_GROUPS.map((group, gi) => (
-            <div key={gi} className="sidebar-section">
+            <div key={gi} className="nav-section">
               {!collapsed && (
-                <span className="sidebar-section-label">{group.sectionLabel}</span>
+                <span className="nav-section-label">{group.sectionLabel}</span>
               )}
               {group.items.map(renderNavItem)}
             </div>
