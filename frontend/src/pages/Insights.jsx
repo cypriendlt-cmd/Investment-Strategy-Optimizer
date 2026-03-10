@@ -16,11 +16,11 @@ function GaugeMeter({ value, label }) {
   }
 
   const getText = (v) => {
-    if (v <= 25) return 'Extreme Fear'
-    if (v <= 45) return 'Fear'
-    if (v <= 55) return 'Neutral'
-    if (v <= 75) return 'Greed'
-    return 'Extreme Greed'
+    if (v <= 25) return 'Peur extrême'
+    if (v <= 45) return 'Peur'
+    if (v <= 55) return 'Neutre'
+    if (v <= 75) return 'Avidité'
+    return 'Avidité extrême'
   }
 
   const c = getColor(value)
@@ -245,7 +245,7 @@ export default function Insights() {
       <div className="flex items-center justify-between mb-24">
         <div>
           <p className="text-muted text-sm">
-            AI-powered portfolio analysis and market sentiment
+            Analyse IA de votre portefeuille et du sentiment de marché
             {activeProvider && activeProvider !== 'mock' && (
               <span className="insights-provider-badge">
                 <Cpu size={12} /> {activeProvider}
@@ -256,12 +256,12 @@ export default function Insights() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {lastUpdated && (
             <span className="text-xs text-muted">
-              Updated: {lastUpdated.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+              Mis à jour : {lastUpdated.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </span>
           )}
           <button className="btn btn-secondary" onClick={handleRefresh} disabled={loading || analysisLoading || isGuest}>
             <RefreshCw size={16} className={loading || analysisLoading ? 'animate-pulse' : ''} />
-            Regenerate
+            Régénérer
           </button>
         </div>
       </div>
@@ -271,9 +271,9 @@ export default function Insights() {
           <div className="flex items-center gap-12">
             <Brain size={20} style={{ color: 'var(--accent)', flexShrink: 0 }} />
             <p className="text-sm" style={{ color: 'var(--text-primary)', margin: 0 }}>
-              AI analysis requires an account.{' '}
-              <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 600 }}>Sign in</Link>{' '}
-              to access market insights and portfolio analysis.
+              L'analyse IA nécessite un compte.{' '}
+              <Link to="/login" style={{ color: 'var(--accent)', fontWeight: 600 }}>Se connecter</Link>{' '}
+              pour accéder aux analyses de marché et de portefeuille.
             </p>
           </div>
         </div>
@@ -284,9 +284,9 @@ export default function Insights() {
           <div className="flex items-center gap-12">
             <Brain size={20} style={{ color: 'var(--accent)', flexShrink: 0 }} />
             <p className="text-sm" style={{ color: 'var(--text-primary)', margin: 0 }}>
-              Configure an API key (Groq, Together AI or Hugging Face) in{' '}
-              <Link to="/settings" style={{ color: 'var(--accent)', fontWeight: 600 }}>Settings</Link>{' '}
-              to enable AI analysis.
+              Configurez une clé API (Groq, Together AI ou Hugging Face) dans{' '}
+              <Link to="/settings" style={{ color: 'var(--accent)', fontWeight: 600 }}>les Paramètres</Link>{' '}
+              pour activer l'analyse IA.
             </p>
           </div>
         </div>
@@ -298,31 +298,31 @@ export default function Insights() {
             <AlertCircle size={20} style={{ color: 'var(--danger)', flexShrink: 0 }} />
             <div>
               <p className="text-sm" style={{ color: 'var(--text-primary)', margin: 0 }}>
-                <strong>Error:</strong> {error}
+                <strong>Erreur :</strong> {error}
               </p>
               <button className="btn btn-ghost mt-8" onClick={loadAnalysis} style={{ padding: '4px 12px', fontSize: '0.8rem' }}>
-                Retry
+                Réessayer
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Fear & Greed */}
+      {/* Indice Peur & Avidité */}
       <div className="card mb-24">
-        <h3 className="mb-24">Fear & Greed Index</h3>
+        <h3 className="mb-24">Indice Peur & Avidité</h3>
         <div className="insights-gauges-row">
-          <GaugeMeter value={cryptoFgValue} label="Crypto Fear & Greed" />
+          <GaugeMeter value={cryptoFgValue} label="Peur & Avidité Crypto" />
           <div className="insights-gauge-divider" />
-          <GaugeMeter value={stockFgValue} label="Market Fear & Greed" />
+          <GaugeMeter value={stockFgValue} label="Peur & Avidité Marchés" />
         </div>
         <div className="insights-fg-legend">
           {[
-            { label: 'Extreme Fear', range: '0-25', color: '#ef4444' },
-            { label: 'Fear', range: '26-45', color: '#f97316' },
-            { label: 'Neutral', range: '46-55', color: '#f59e0b' },
-            { label: 'Greed', range: '56-75', color: '#84cc16' },
-            { label: 'Extreme Greed', range: '76-100', color: '#10b981' },
+            { label: 'Peur extrême', range: '0-25', color: '#ef4444' },
+            { label: 'Peur', range: '26-45', color: '#f97316' },
+            { label: 'Neutre', range: '46-55', color: '#f59e0b' },
+            { label: 'Avidité', range: '56-75', color: '#84cc16' },
+            { label: 'Avidité extrême', range: '76-100', color: '#10b981' },
           ].map(item => (
             <div key={item.label} className="insights-fg-item">
               <span style={{ width: 10, height: 10, borderRadius: '50%', background: item.color, display: 'inline-block' }} />
@@ -332,12 +332,12 @@ export default function Insights() {
         </div>
       </div>
 
-      {/* Market Summary */}
+      {/* Synthèse marché */}
       {marketInsight && (
         <div className="card mb-24">
           <div className="flex items-center gap-10 mb-16">
             <Sparkles size={20} style={{ color: 'var(--accent)' }} />
-            <h3 style={{ margin: 0 }}>AI Market Synthesis</h3>
+            <h3 style={{ margin: 0 }}>Synthèse IA du marché</h3>
           </div>
           <div className="text-sm" style={{ lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
             {typeof marketInsight === 'string' ? marketInsight : JSON.stringify(marketInsight)}
@@ -345,7 +345,7 @@ export default function Insights() {
         </div>
       )}
 
-      {/* Portfolio Analysis */}
+      {/* Analyse du portefeuille */}
       {analysisLoading ? (
         <div className="grid grid-2 gap-20">
           <SkeletonCard />
@@ -357,7 +357,7 @@ export default function Insights() {
         <div className="grid grid-2 gap-20">
           <AnalysisCard
             icon={TrendingUp}
-            title="Portfolio Synthesis"
+            title="Vue d'ensemble du portefeuille"
             content={analysis.synthesis}
             color="var(--accent)"
           />
@@ -369,13 +369,13 @@ export default function Insights() {
           />
           <AnalysisCard
             icon={Shield}
-            title="Over/Under Exposures"
+            title="Sur/sous-expositions"
             content={analysis.overexposures}
             color="var(--warning, #f59e0b)"
           />
           <AnalysisCard
             icon={Lightbulb}
-            title="Recommendations"
+            title="Recommandations"
             content={analysis.recommendations}
             color="var(--info, #3b82f6)"
           />
@@ -383,7 +383,7 @@ export default function Insights() {
       ) : !noProvider && !error ? (
         <div className="card" style={{ textAlign: 'center', padding: '40px 20px' }}>
           <Brain size={40} style={{ color: 'var(--text-muted)', marginBottom: 16 }} />
-          <p className="text-muted">Click "Regenerate" to launch AI analysis of your portfolio.</p>
+          <p className="text-muted">Cliquez sur « Régénérer » pour lancer l'analyse IA de votre portefeuille.</p>
         </div>
       ) : null}
 
@@ -391,7 +391,7 @@ export default function Insights() {
         <div className="flex items-center gap-12">
           <AlertCircle size={20} style={{ color: 'var(--warning)', flexShrink: 0 }} />
           <p className="text-sm" style={{ color: 'var(--text-primary)', margin: 0 }}>
-            <strong>Disclaimer:</strong> These analyses are generated by artificial intelligence and do not constitute investment advice. Do your own research before any financial decision.
+            <strong>Avertissement :</strong> Ces analyses sont générées par une intelligence artificielle et ne constituent pas des conseils en investissement. Faites vos propres recherches avant toute décision financière.
           </p>
         </div>
       </div>

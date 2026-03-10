@@ -18,7 +18,7 @@ function AddObjectiveModal({ onClose, onAdd }) {
       ...form,
       targetAmount: parseFloat(form.targetAmount),
       currentAmount: parseFloat(form.currentAmount),
-      movements: [{ date: new Date().toISOString().slice(0, 10), amount: parseFloat(form.currentAmount), note: 'Initial Amount' }],
+      movements: [{ date: new Date().toISOString().slice(0, 10), amount: parseFloat(form.currentAmount), note: 'Montant initial' }],
     })
     onClose()
   }
@@ -27,30 +27,30 @@ function AddObjectiveModal({ onClose, onAdd }) {
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h3 className="modal-title">Add Goal</h3>
+          <h3 className="modal-title">Nouvel objectif</h3>
           <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Goal Name</label>
-            <input className="form-input" placeholder="Vacation, Car, House..." required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+            <label className="form-label">Nom de l'objectif</label>
+            <input className="form-input" placeholder="Vacances, Voiture, Apport maison..." required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
           </div>
           <div className="grid grid-2 gap-16">
             <div className="form-group">
-              <label className="form-label">Target Amount (€)</label>
+              <label className="form-label">Montant à atteindre (€)</label>
               <input className="form-input" type="number" step="0.01" required value={form.targetAmount} onChange={e => setForm({ ...form, targetAmount: e.target.value })} />
             </div>
             <div className="form-group">
-              <label className="form-label">Current Amount (€)</label>
+              <label className="form-label">Montant déjà épargné (€)</label>
               <input className="form-input" type="number" step="0.01" required value={form.currentAmount} onChange={e => setForm({ ...form, currentAmount: e.target.value })} />
             </div>
           </div>
           <div className="form-group">
-            <label className="form-label">Deadline</label>
+            <label className="form-label">Date limite</label>
             <input className="form-input" type="date" required value={form.deadline} onChange={e => setForm({ ...form, deadline: e.target.value })} />
           </div>
           <div className="form-group">
-            <label className="form-label">Color</label>
+            <label className="form-label">Couleur</label>
             <div className="flex gap-8">
               {COLORS.map(c => (
                 <button key={c} type="button" onClick={() => setForm({ ...form, color: c })}
@@ -59,8 +59,8 @@ function AddObjectiveModal({ onClose, onAdd }) {
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Add</button>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Annuler</button>
+            <button type="submit" className="btn btn-primary">Créer</button>
           </div>
         </form>
       </div>
@@ -71,10 +71,10 @@ function AddObjectiveModal({ onClose, onAdd }) {
 function getStatus(obj) {
   const pct = (obj.currentAmount / obj.targetAmount) * 100
   const daysLeft = (new Date(obj.deadline) - new Date()) / (1000 * 60 * 60 * 24)
-  if (pct >= 100) return { label: 'Achieved', color: 'var(--success)', badgeClass: 'badge-success' }
-  if (daysLeft < 60 && pct < 80) return { label: 'At Risk', color: 'var(--danger)', badgeClass: 'badge-danger' }
-  if (pct < 50 && daysLeft < 180) return { label: 'Behind', color: 'var(--warning)', badgeClass: 'badge-warning' }
-  return { label: 'On Track', color: 'var(--success)', badgeClass: 'badge-success' }
+  if (pct >= 100) return { label: 'Objectif atteint !', color: 'var(--success)', badgeClass: 'badge-success' }
+  if (daysLeft < 60 && pct < 80) return { label: 'En danger', color: 'var(--danger)', badgeClass: 'badge-danger' }
+  if (pct < 50 && daysLeft < 180) return { label: 'En retard', color: 'var(--warning)', badgeClass: 'badge-warning' }
+  return { label: 'En bonne voie', color: 'var(--success)', badgeClass: 'badge-success' }
 }
 
 function ContributeForm({ obj, onUpdate }) {
@@ -102,7 +102,7 @@ function ContributeForm({ obj, onUpdate }) {
           color: type === 'add' ? '#fff' : 'var(--text-secondary)',
           display: 'flex', alignItems: 'center', gap: 4,
         }}>
-          <ArrowDownLeft size={12} />Deposit
+          <ArrowDownLeft size={12} />Verser
         </button>
         <button type="button" onClick={() => setType('withdraw')} style={{
           padding: '7px 14px', fontSize: '0.8rem', border: 'none', cursor: 'pointer',
@@ -110,13 +110,13 @@ function ContributeForm({ obj, onUpdate }) {
           color: type === 'withdraw' ? '#fff' : 'var(--text-secondary)',
           display: 'flex', alignItems: 'center', gap: 4,
         }}>
-          <ArrowUpRight size={12} />Withdraw
+          <ArrowUpRight size={12} />Retirer
         </button>
       </div>
-      <input type="number" className="form-input" step="0.01" min="0.01" placeholder="Amount" required
+      <input type="number" className="form-input" step="0.01" min="0.01" placeholder="Montant" required
         value={amount} onChange={e => setAmount(e.target.value)}
         style={{ width: 120, padding: '7px 10px', fontSize: '0.85rem' }} />
-      <input type="text" className="form-input" placeholder="Note (optional)"
+      <input type="text" className="form-input" placeholder="Note (facultatif)"
         value={note} onChange={e => setNote(e.target.value)}
         style={{ width: 160, padding: '7px 10px', fontSize: '0.85rem' }} />
       <button type="submit" className="btn btn-primary btn-sm">
@@ -143,21 +143,21 @@ export default function Objectives() {
         <div className="stat-card" style={{ gridColumn: 'span 2' }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="stat-label">Overall Goal Progress</p>
+              <p className="stat-label">Progression globale de mes objectifs</p>
               <p className="stat-value" style={{ fontSize: '2rem', marginTop: 4 }}>{m(fmt(totalCurrent))} <span className="text-muted text-lg">/ {m(fmt(totalTarget))}</span></p>
               <div className="progress-bar mt-16" style={{ height: 10 }}>
                 <div className="progress-fill" style={{ width: `${totalTarget > 0 ? Math.min((totalCurrent / totalTarget) * 100, 100) : 0}%`, background: 'var(--accent)' }} />
               </div>
             </div>
             <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-              <Plus size={16} /> Add
+              <Plus size={16} /> Nouvel objectif
             </button>
           </div>
         </div>
         <div className="stat-card">
-          <p className="stat-label">Active Goals</p>
+          <p className="stat-label">Objectifs actifs</p>
           <p className="stat-value">{portfolio.objectives.length}</p>
-          <p className="stat-sub">{portfolio.objectives.filter(o => o.currentAmount >= o.targetAmount).length} achieved</p>
+          <p className="stat-sub">{portfolio.objectives.filter(o => o.currentAmount >= o.targetAmount).length} atteint(s)</p>
         </div>
       </div>
 
@@ -179,7 +179,7 @@ export default function Objectives() {
                   </div>
                   <div>
                     <div className="font-semibold">{obj.name}</div>
-                    <div className="text-xs text-muted">Deadline: {fmtDate(obj.deadline)} · {daysLeft}d remaining</div>
+                    <div className="text-xs text-muted">Échéance : {fmtDate(obj.deadline)} · {daysLeft}j restants</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-8">
@@ -224,7 +224,7 @@ export default function Objectives() {
                     className="text-xl font-bold"
                     style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
                     onClick={() => { setEditingAmountId(obj.id); setEditAmountValue(String(obj.currentAmount)) }}
-                    title="Click to edit current amount"
+                    title="Cliquez pour corriger le montant actuel"
                   >
                     {m(fmt(obj.currentAmount))}
                     <Edit2 size={14} style={{ color: 'var(--text-muted)', opacity: 0.6 }} />
@@ -238,8 +238,8 @@ export default function Objectives() {
               </div>
 
               <div className="flex justify-between mb-12">
-                <span className="text-xs text-muted">{pct.toFixed(1)}% achieved</span>
-                <span className="text-xs text-muted">Remaining: {m(fmt(Math.max(remaining, 0)))}</span>
+                <span className="text-xs text-muted">{pct.toFixed(1)}% atteint</span>
+                <span className="text-xs text-muted">Reste à épargner : {m(fmt(Math.max(remaining, 0)))}</span>
               </div>
 
               {/* Contribute form — always visible */}
@@ -252,7 +252,7 @@ export default function Objectives() {
                 onClick={() => setExpandedId(isExpanded ? null : obj.id)}
               >
                 {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                {isExpanded ? 'Hide History' : 'Show History'}
+                {isExpanded ? "Masquer l'historique" : "Voir l'historique"}
               </button>
 
               {isExpanded && movements.length > 0 && (
@@ -275,7 +275,7 @@ export default function Objectives() {
                 </div>
               )}
               {isExpanded && movements.length === 0 && (
-                <p className="text-sm text-muted" style={{ marginTop: 8 }}>No movements recorded.</p>
+                <p className="text-sm text-muted" style={{ marginTop: 8 }}>Aucun mouvement enregistré.</p>
               )}
             </div>
           )
@@ -284,10 +284,10 @@ export default function Objectives() {
         {portfolio.objectives.length === 0 && (
           <div className="empty-state" style={{ gridColumn: 'span 2' }}>
             <div className="empty-state-icon"><Target /></div>
-            <h3>No Goals Defined</h3>
-            <p>Set financial goals to stay motivated.</p>
+            <h3>Aucun objectif défini</h3>
+            <p>Fixez-vous des objectifs pour donner un sens à votre épargne !</p>
             <button className="btn btn-primary mt-16" onClick={() => setShowModal(true)}>
-              <Plus size={16} /> Add Goal
+              <Plus size={16} /> Nouvel objectif
             </button>
           </div>
         )}

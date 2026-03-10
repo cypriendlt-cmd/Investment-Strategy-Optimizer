@@ -13,11 +13,11 @@ const THEME_META = {
 }
 
 const FEATURES = [
-  { icon: TrendingUp, text: 'Portfolio projection & trajectory modeling' },
-  { icon: BarChart3, text: 'Multi-strategy comparison & optimization' },
-  { icon: Shield, text: 'Crypto, PEA, savings & crowdfunding tracking' },
-  { icon: Brain, text: 'AI-powered strategic insights' },
-  { icon: Zap, text: 'Data secured on your personal Google Drive' },
+  { icon: TrendingUp, text: 'Projection de votre patrimoine et modélisation de trajectoire' },
+  { icon: BarChart3, text: 'Comparaison et optimisation de plusieurs stratégies' },
+  { icon: Shield, text: 'Suivi crypto, PEA, livrets et crowdfunding' },
+  { icon: Brain, text: 'Recommandations stratégiques alimentées par l\'IA' },
+  { icon: Zap, text: 'Données sécurisées sur votre Google Drive personnel' },
 ]
 
 export default function Login() {
@@ -38,7 +38,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-bg" />
 
-      {/* Left — Branding */}
+      {/* Gauche — Présentation */}
       <div className="login-branding">
         <div className="login-branding-content">
           <div className="login-branding-logo">
@@ -49,7 +49,7 @@ export default function Login() {
             </div>
           </div>
           <h1 className="login-branding-title">Investment Strategy<br />Optimizer</h1>
-          <p className="login-branding-subtitle">Your AI-powered copilot for investment strategy optimization</p>
+          <p className="login-branding-subtitle">Votre copilote IA pour optimiser votre stratégie d'investissement</p>
 
           <div className="login-branding-features">
             {FEATURES.map(({ icon: Icon, text }) => (
@@ -62,11 +62,11 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right — Login Card */}
+      {/* Droite — Carte de connexion */}
       <div className="login-card-wrapper">
         <div className="login-card">
-          <h2 className="login-title">Welcome back</h2>
-          <p className="login-subtitle">Sign in to access your portfolio and strategy tools</p>
+          <h2 className="login-title">Bienvenue</h2>
+          <p className="login-subtitle">Connectez-vous pour accéder à votre portefeuille et vos outils de stratégie</p>
 
           {error && (
             <div className="login-error">
@@ -81,22 +81,22 @@ export default function Login() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            Continue with Google
+            Se connecter avec Google
           </button>
 
           <div className="login-divider">
-            <span>or</span>
+            <span>ou</span>
           </div>
 
           <button
             className="login-guest-btn"
             onClick={() => { loginAsGuest(); navigate('/', { replace: true }) }}
           >
-            Continue without signing in
+            Continuer en mode invité
           </button>
 
           <p className="login-note">
-            Your data is stored securely on your personal Google Drive. No financial data passes through our servers.
+            Vos données sont stockées en toute sécurité sur votre Google Drive personnel. Aucune donnée financière ne transite par nos serveurs.
           </p>
 
           <div className="login-themes">
@@ -112,7 +112,7 @@ export default function Login() {
             <button
               onClick={toggleDarkMode}
               className="login-theme-btn login-theme-btn--mode"
-              title={darkMode ? 'Light mode' : 'Dark mode'}
+              title={darkMode ? 'Mode clair' : 'Mode sombre'}
             >
               {darkMode ? '☀' : '🌙'}
             </button>

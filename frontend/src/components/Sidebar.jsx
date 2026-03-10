@@ -4,76 +4,87 @@ import {
   LayoutDashboard, TrendingUp, Landmark, Target, Brain, Settings,
   ChevronLeft, ChevronRight, ChevronDown, X,
   Bitcoin, LineChart, PiggyBank, Rocket, Calculator,
-  FlaskConical, Crosshair, GitBranch, Flame, ArrowUpRight, Compass
+  FlaskConical, Crosshair, GitBranch, Flame, ArrowUpRight, Compass,
+  HelpCircle, Sparkles
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
-const NAV_ITEMS = [
+const NAV_GROUPS = [
   {
-    id: 'dashboard',
-    path: '/',
-    icon: LayoutDashboard,
-    label: 'Strategy Dashboard',
-    shortLabel: 'Dashboard',
-  },
-  {
-    id: 'portfolio',
-    path: '/portfolio',
-    icon: TrendingUp,
-    label: 'Portfolio Analysis',
-    shortLabel: 'Portfolio',
-    children: [
-      { path: '/portfolio', label: 'Vue globale', exact: true },
-      { path: '/portfolio/crypto', label: 'Crypto', icon: Bitcoin },
-      { path: '/portfolio/pea', label: 'PEA / Actions', icon: LineChart },
-      { path: '/portfolio/livrets', label: 'Livrets', icon: PiggyBank },
-      { path: '/portfolio/fundraising', label: 'Crowdfunding', icon: Rocket },
-      { path: '/portfolio/dca', label: 'DCA', icon: Calculator },
+    sectionLabel: 'Menu principal',
+    items: [
+      {
+        id: 'dashboard',
+        path: '/',
+        icon: LayoutDashboard,
+        label: 'Tableau de bord',
+        shortLabel: 'Tableau de bord',
+      },
+      {
+        id: 'portfolio',
+        path: '/portfolio',
+        icon: TrendingUp,
+        label: 'Patrimoine',
+        shortLabel: 'Patrimoine',
+        children: [
+          { path: '/portfolio', label: 'Vue globale', exact: true },
+          { path: '/portfolio/crypto', label: 'Crypto', icon: Bitcoin },
+          { path: '/portfolio/pea', label: 'PEA / Actions', icon: LineChart },
+          { path: '/portfolio/livrets', label: 'Livrets', icon: PiggyBank },
+          { path: '/portfolio/fundraising', label: 'Crowdfunding', icon: Rocket },
+          { path: '/portfolio/dca', label: 'Invest. programmé', icon: Calculator },
+        ],
+      },
+      {
+        id: 'banking',
+        path: '/portfolio/banking',
+        icon: Landmark,
+        label: 'Banque',
+        shortLabel: 'Banque',
+      },
+      {
+        id: 'strategy',
+        path: '/strategy',
+        icon: Compass,
+        label: 'Stratégie',
+        shortLabel: 'Stratégie',
+        children: [
+          { path: '/portfolio/objectives', label: 'Objectifs', icon: Crosshair, exact: true },
+          { path: '/strategy', label: 'Labo Stratégie', icon: FlaskConical, exact: true },
+          { path: '/strategy/projection', label: 'Projection', icon: ArrowUpRight },
+          { path: '/strategy/fire', label: 'Liberté financière', icon: Flame },
+          { path: '/strategy/scenarios', label: 'Scénarios', icon: GitBranch },
+        ],
+      },
     ],
   },
   {
-    id: 'banking',
-    path: '/portfolio/banking',
-    icon: Landmark,
-    label: 'Cash & Banking',
-    shortLabel: 'Banking',
-  },
-  {
-    id: 'strategy',
-    path: '/strategy',
-    icon: Compass,
-    label: 'Strategy Optimization',
-    shortLabel: 'Strategy',
-    children: [
-      { path: '/portfolio/objectives', label: 'Objectifs', icon: Crosshair, exact: true },
-      { path: '/strategy', label: 'Strategy Lab', icon: FlaskConical, exact: true },
-      { path: '/strategy/projection', label: 'Projection', icon: ArrowUpRight },
-      { path: '/strategy/fire', label: 'Liberté FIRE', icon: Flame },
-      { path: '/strategy/scenarios', label: 'Scénarios', icon: GitBranch },
+    sectionLabel: 'Outils',
+    items: [
+      {
+        id: 'insights',
+        path: '/insights',
+        icon: Sparkles,
+        label: 'Analyses IA',
+        shortLabel: 'Analyses IA',
+      },
+      {
+        id: 'settings',
+        path: '/settings',
+        icon: Settings,
+        label: 'Paramètres',
+        shortLabel: 'Paramètres',
+      },
     ],
-  },
-  {
-    id: 'insights',
-    path: '/insights',
-    icon: Brain,
-    label: 'AI Strategy Insights',
-    shortLabel: 'AI Insights',
-  },
-  {
-    id: 'settings',
-    path: '/settings',
-    icon: Settings,
-    label: 'Settings',
-    shortLabel: 'Settings',
   },
 ]
 
 const themeColors = {
-  crimson: '#dc2626',
-  ocean: '#2563eb',
-  slate: '#64748b',
-  amethyst: '#8b5cf6',
+  crimson: '#e53e3e',
+  ocean: '#0177fb',
+  slate: '#7c7fff',
+  amethyst: '#9f17df',
   teal: '#06b6d4',
 }
 
@@ -102,10 +113,85 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
     return isChildActive(item.children)
   }
 
-  // Close mobile sidebar on route change
   useEffect(() => {
     if (mobileOpen) onMobileClose()
   }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const displayName = user?.name || user?.email?.split('@')[0] || 'Démo'
+  const initials = displayName[0]?.toUpperCase()
+
+  const renderNavItem = (item) => {
+    const { id, path, icon: Icon, label, shortLabel, children } = item
+    const hasChildren = children && children.length > 0
+    const childActive = isChildActive(children)
+    const isOpen = isSectionOpen(item)
+
+    if (hasChildren) {
+      return (
+        <div key={id} className="sidebar-group">
+          <button
+            className={`sidebar-link ${childActive ? 'sidebar-link--active' : ''}`}
+            onClick={() => {
+              if (collapsed) {
+                setCollapsed(false)
+                setOpenSections(prev => ({ ...prev, [id]: true }))
+              } else {
+                toggleSection(id)
+              }
+            }}
+          >
+            <span className="sidebar-link-icon">
+              <Icon size={18} />
+            </span>
+            {!collapsed && (
+              <>
+                <span className="sidebar-link-text">{shortLabel || label}</span>
+                <ChevronDown
+                  size={13}
+                  className={`sidebar-chevron ${isOpen ? 'sidebar-chevron--open' : ''}`}
+                />
+              </>
+            )}
+          </button>
+          {!collapsed && isOpen && (
+            <div className="sidebar-sub">
+              {children.map((child) => (
+                <NavLink
+                  key={child.path}
+                  to={child.path}
+                  end={child.exact}
+                  className={({ isActive }) =>
+                    `sidebar-sub-link ${isActive ? 'sidebar-sub-link--active' : ''}`
+                  }
+                  onClick={onMobileClose}
+                >
+                  {child.icon && <child.icon size={14} />}
+                  <span>{child.label}</span>
+                </NavLink>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <NavLink
+        key={id}
+        to={path}
+        end={path === '/'}
+        className={({ isActive }) =>
+          `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`
+        }
+        onClick={onMobileClose}
+      >
+        <span className="sidebar-link-icon">
+          <Icon size={18} />
+        </span>
+        {!collapsed && <span className="sidebar-link-text">{shortLabel || label}</span>}
+      </NavLink>
+    )
+  }
 
   return (
     <>
@@ -113,6 +199,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
         <div className="sidebar-mobile-overlay" onClick={onMobileClose} />
       )}
       <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''} ${mobileOpen ? 'sidebar--mobile-open' : ''}`}>
+
         {/* Logo */}
         <div className="sidebar-header">
           {!collapsed ? (
@@ -134,7 +221,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
               </svg>
             </div>
           )}
-          <button className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)} title={collapsed ? 'Expand' : 'Collapse'}>
+          <button className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)} title={collapsed ? 'Développer' : 'Réduire'}>
             {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
           </button>
           <button className="sidebar-mobile-close" onClick={onMobileClose}>
@@ -142,109 +229,32 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation par groupes */}
         <nav className="sidebar-nav">
-          {NAV_ITEMS.map((item) => {
-            const { id, path, icon: Icon, label, shortLabel, children } = item
-            const hasChildren = children && children.length > 0
-            const childActive = isChildActive(children)
-            const isOpen = isSectionOpen(item)
-
-            if (hasChildren) {
-              return (
-                <div key={id} className="sidebar-group">
-                  <button
-                    className={`sidebar-link ${childActive ? 'sidebar-link--active' : ''}`}
-                    onClick={() => {
-                      if (collapsed) {
-                        setCollapsed(false)
-                        setOpenSections(prev => ({ ...prev, [id]: true }))
-                      } else {
-                        toggleSection(id)
-                      }
-                    }}
-                  >
-                    <span className="sidebar-link-icon">
-                      <Icon size={18} />
-                    </span>
-                    {!collapsed && (
-                      <>
-                        <span className="sidebar-link-text">{shortLabel || label}</span>
-                        <ChevronDown
-                          size={13}
-                          className={`sidebar-chevron ${isOpen ? 'sidebar-chevron--open' : ''}`}
-                        />
-                      </>
-                    )}
-                  </button>
-                  {!collapsed && isOpen && (
-                    <div className="sidebar-sub">
-                      {children.map((child) => (
-                        <NavLink
-                          key={child.path}
-                          to={child.path}
-                          end={child.exact}
-                          className={({ isActive }) =>
-                            `sidebar-sub-link ${isActive ? 'sidebar-sub-link--active' : ''}`
-                          }
-                          onClick={onMobileClose}
-                        >
-                          {child.icon && <child.icon size={14} />}
-                          <span>{child.label}</span>
-                        </NavLink>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            }
-
-            return (
-              <NavLink
-                key={id}
-                to={path}
-                end={path === '/'}
-                className={({ isActive }) =>
-                  `sidebar-link ${isActive ? 'sidebar-link--active' : ''}`
-                }
-                onClick={onMobileClose}
-              >
-                <span className="sidebar-link-icon">
-                  <Icon size={18} />
-                </span>
-                {!collapsed && <span className="sidebar-link-text">{shortLabel || label}</span>}
-              </NavLink>
-            )
-          })}
+          {NAV_GROUPS.map((group, gi) => (
+            <div key={gi} className="sidebar-section">
+              {!collapsed && (
+                <span className="sidebar-section-label">{group.sectionLabel}</span>
+              )}
+              {group.items.map(renderNavItem)}
+            </div>
+          ))}
         </nav>
 
-        {/* Footer */}
+        {/* Footer utilisateur */}
         <div className="sidebar-footer">
-          <div className="sidebar-theme-dot" style={{ background: accent }} title={theme} />
-          {!collapsed && user && (
-            <div className="sidebar-user">
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.name} className="sidebar-avatar" />
-              ) : (
-                <div className="sidebar-avatar sidebar-avatar--placeholder">
-                  {(user.name || user.email || 'U')[0].toUpperCase()}
-                </div>
-              )}
-              <div className="sidebar-user-info">
-                <span className="sidebar-user-name">{user.name || 'Utilisateur'}</span>
-                <span className="sidebar-user-email">{user.email}</span>
-              </div>
+          <div className="sidebar-divider" />
+          <div className="sidebar-user">
+            <div className="sidebar-avatar sidebar-avatar--placeholder" style={{ '--avatar-bg': accent }}>
+              {initials}
             </div>
-          )}
-          {!collapsed && !user && (
-            <div className="sidebar-user">
-              <div className="sidebar-avatar sidebar-avatar--placeholder">D</div>
+            {!collapsed && (
               <div className="sidebar-user-info">
-                <span className="sidebar-user-name">Mode Demo</span>
-                <span className="sidebar-user-email">Non connecte</span>
+                <span className="sidebar-user-name">{displayName}</span>
+                <span className="sidebar-user-email">{user ? user.email : 'Mode démo'}</span>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </aside>
     </>

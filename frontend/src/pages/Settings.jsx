@@ -127,7 +127,7 @@ export default function Settings() {
       setTimeout(() => setReportStatus(null), 4000)
     } else {
       setReportStatus('error')
-      setReportError(result.error || 'Unknown error.')
+      setReportError(result.error || 'Erreur inconnue.')
     }
   }
 
@@ -166,7 +166,7 @@ export default function Settings() {
   const handleTestBinance = async () => {
     const key = binanceKey.trim()
     const secret = binanceSecret.trim()
-    if (!key || !secret) { setBinanceTest('error'); setBinanceError('API key and secret required'); return }
+    if (!key || !secret) { setBinanceTest('error'); setBinanceError('Clé API et clé secrète requises'); return }
     setBinanceTest('testing')
     setBinanceError('')
     try {
@@ -176,11 +176,11 @@ export default function Settings() {
         setBinanceTest('ok')
       } else {
         setBinanceTest('error')
-        setBinanceError(result.error || 'Connection error')
+        setBinanceError(result.error || 'Erreur de connexion')
       }
     } catch (e) {
       setBinanceTest('error')
-      setBinanceError(e.message || 'Unknown error')
+      setBinanceError(e.message || 'Erreur inconnue')
     }
   }
 
@@ -196,7 +196,7 @@ export default function Settings() {
 
   return (
     <div className="settings animate-fade-in">
-      <Section title="Google Connection" icon={User}>
+      <Section title="Connexion Google" icon={User}>
         {user && !isGuest ? (
           <div className="settings-account">
             {user.avatar ? (
@@ -209,14 +209,14 @@ export default function Settings() {
             <div>
               <div className="font-semibold">{user.name}</div>
               <div className="text-sm text-muted">{user.email}</div>
-              <div className="text-xs text-muted mt-4">Connected via Google OAuth</div>
+              <div className="text-xs text-muted mt-4">Connecté via Google OAuth</div>
             </div>
           </div>
         ) : (
           <div>
-            <p className="text-muted text-sm" style={{ marginBottom: 12 }}>{isGuest ? 'Guest mode — sign in to sync your data.' : 'Not connected.'}</p>
+            <p className="text-muted text-sm" style={{ marginBottom: 12 }}>{isGuest ? 'Mode invité — connectez-vous pour synchroniser vos données.' : 'Non connecté.'}</p>
             <button className="btn btn-primary" onClick={login} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Globe size={16} /> Sign in with Google Drive
+              <Globe size={16} /> Se connecter avec Google Drive
             </button>
           </div>
         )}
@@ -224,20 +224,20 @@ export default function Settings() {
         <div className="gc-status mt-16">
           <div className={`gc-status-item ${user && !isGuest ? 'gc-ok' : 'gc-warn'}`}>
             {user && !isGuest ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-            <span>Google Account {user && !isGuest ? `connected (${user.email})` : 'not connected'}</span>
+            <span>Compte Google {user && !isGuest ? `connecté (${user.email})` : 'non connecté'}</span>
           </div>
           <div className={`gc-status-item ${driveConnected ? 'gc-ok' : driveError ? 'gc-error' : 'gc-warn'}`}>
             {driveConnected ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-            <span>Google Drive {driveConnected ? 'synced' : driveError || 'pending'}</span>
+            <span>Google Drive {driveConnected ? 'synchronisé' : driveError || 'en attente'}</span>
           </div>
         </div>
       </Section>
 
-      <Section title="Appearance" icon={Palette}>
+      <Section title="Apparence" icon={Palette}>
         <div className="settings-row">
           <div>
-            <div className="settings-label">Color Theme</div>
-            <div className="settings-hint">Choose your preferred color palette</div>
+            <div className="settings-label">Thème de couleur</div>
+            <div className="settings-hint">Choisissez votre palette de couleurs préférée</div>
           </div>
         </div>
         <div className="theme-grid">
@@ -259,8 +259,8 @@ export default function Settings() {
 
         <div className="settings-row mt-24">
           <div>
-            <div className="settings-label">Dark Mode</div>
-            <div className="settings-hint">Toggle between light and dark mode</div>
+            <div className="settings-label">Mode sombre</div>
+            <div className="settings-hint">Basculer entre le mode clair et le mode sombre</div>
           </div>
           <button className="settings-toggle" onClick={toggleDarkMode}>
             <div className={`settings-toggle-ball ${darkMode ? 'settings-toggle-ball--on' : ''}`} />
@@ -269,21 +269,21 @@ export default function Settings() {
         </div>
       </Section>
 
-      <Section title="Preferences" icon={Globe}>
+      <Section title="Préférences" icon={Globe}>
         <div className="settings-row">
           <div>
-            <div className="settings-label">Language</div>
-            <div className="settings-hint">Interface language</div>
+            <div className="settings-label">Langue</div>
+            <div className="settings-hint">Langue de l'interface</div>
           </div>
           <select className="form-select" style={{ width: 'auto' }} value={language} onChange={e => setLanguage(e.target.value)}>
-            <option value="fr">Francais</option>
+            <option value="fr">Français</option>
             <option value="en">English</option>
           </select>
         </div>
         <div className="settings-row">
           <div>
-            <div className="settings-label">Currency</div>
-            <div className="settings-hint">Default display currency</div>
+            <div className="settings-label">Devise</div>
+            <div className="settings-hint">Devise d'affichage par défaut</div>
           </div>
           <select className="form-select" style={{ width: 'auto' }} value={currency} onChange={e => setCurrency(e.target.value)}>
             <option value="EUR">EUR (€)</option>
@@ -300,9 +300,9 @@ export default function Settings() {
               <div className={`gc-status-item ${notifPermission === 'granted' ? 'gc-ok' : notifPermission === 'denied' ? 'gc-error' : 'gc-warn'}`}>
                 {notifPermission === 'granted' ? <CheckCircle size={16} /> : notifPermission === 'denied' ? <BellOff size={16} /> : <AlertCircle size={16} />}
                 <span>
-                  {notifPermission === 'granted' && 'Notifications enabled'}
-                  {notifPermission === 'denied' && 'Notifications blocked — change browser settings'}
-                  {notifPermission === 'default' && 'Notifications not configured'}
+                  {notifPermission === 'granted' && 'Notifications activées'}
+                  {notifPermission === 'denied' && 'Notifications bloquées — modifiez les paramètres du navigateur'}
+                  {notifPermission === 'default' && 'Notifications non configurées'}
                 </span>
               </div>
             </div>
@@ -312,7 +312,7 @@ export default function Settings() {
                   const result = await requestPermission()
                   setNotifPermission(result)
                 }}>
-                  <Bell size={16} /> Enable notifications
+                  <Bell size={16} /> Activer les notifications
                 </button>
               )}
               <button className="btn btn-secondary" onClick={async () => {
@@ -323,89 +323,89 @@ export default function Settings() {
                 }
                 await testNotification()
               }}>
-                <Send size={16} /> Test
+                <Send size={16} /> Tester
               </button>
             </div>
             <p className="text-xs text-muted mt-12">
-              Notifications are used for DCA reminders. No third-party server required.
+              Les notifications servent aux rappels DCA. Aucun serveur tiers requis.
             </p>
           </>
         ) : (
-          <p className="text-sm text-muted">Your browser does not support notifications.</p>
+          <p className="text-sm text-muted">Votre navigateur ne prend pas en charge les notifications.</p>
         )}
       </Section>
 
-      <Section title="Binance API" icon={Key}>
+      <Section title="API Binance" icon={Key}>
         <p className="text-sm text-muted mb-16">
-          Connect your Binance account to auto-sync your cryptocurrencies.
-          Use a read-only API key (Enable Reading only).
+          Connectez votre compte Binance pour synchroniser automatiquement vos cryptomonnaies.
+          Utilisez une clé API en lecture seule (activer la lecture uniquement).
         </p>
         <div className="form-group">
-          <label className="form-label">API Key</label>
-          <input className="form-input" type="password" placeholder="Enter your Binance API key" value={binanceKey} onChange={e => setBinanceKey(e.target.value)} />
+          <label className="form-label">Clé API</label>
+          <input className="form-input" type="password" placeholder="Entrez votre clé API Binance" value={binanceKey} onChange={e => setBinanceKey(e.target.value)} />
         </div>
         <div className="form-group">
-          <label className="form-label">Secret Key</label>
-          <input className="form-input" type="password" placeholder="Enter your Binance secret key" value={binanceSecret} onChange={e => setBinanceSecret(e.target.value)} />
+          <label className="form-label">Clé secrète</label>
+          <input className="form-input" type="password" placeholder="Entrez votre clé secrète Binance" value={binanceSecret} onChange={e => setBinanceSecret(e.target.value)} />
         </div>
         <div className="gc-actions">
           <button className="btn btn-primary" onClick={handleSave}>
-            {saved ? <><Check size={16} /> Saved</> : 'Save keys'}
+            {saved ? <><Check size={16} /> Enregistré</> : 'Enregistrer les clés'}
           </button>
           <button className="btn btn-secondary" onClick={handleTestBinance}>
-            {binanceTest === 'testing' ? <><Loader2 size={16} /> Testing...</> : 'Test connection'}
+            {binanceTest === 'testing' ? <><Loader2 size={16} /> Test en cours...</> : 'Tester la connexion'}
           </button>
         </div>
         <div className="gc-status mt-16">
           <div className={`gc-status-item ${binanceKey ? 'gc-ok' : 'gc-warn'}`}>
             {binanceKey ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-            <span>API Key {binanceKey ? 'configured' : 'not configured'}</span>
+            <span>Clé API {binanceKey ? 'configurée' : 'non configurée'}</span>
           </div>
           {binanceTest === 'ok' && (
-            <div className="gc-status-item gc-ok"><CheckCircle size={16} /><span>Binance connection OK</span></div>
+            <div className="gc-status-item gc-ok"><CheckCircle size={16} /><span>Connexion Binance OK</span></div>
           )}
           {binanceTest === 'error' && (
-            <div className="gc-status-item gc-error"><AlertCircle size={16} /><span>{binanceError || 'Connection failed'}</span></div>
+            <div className="gc-status-item gc-error"><AlertCircle size={16} /><span>{binanceError || 'Échec de la connexion'}</span></div>
           )}
         </div>
       </Section>
 
-      <Section title="Anthropic API (Invest LAB)" icon={Key}>
+      <Section title="API Anthropic (Invest LAB)" icon={Key}>
         <p className="text-sm text-muted mb-16">
-          Anthropic API key for the Stock Screener (Invest LAB).
-          Get your key at <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>console.anthropic.com</a>.
+          Clé API Anthropic pour le Stock Screener (Invest LAB).
+          Obtenez votre clé sur <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>console.anthropic.com</a>.
         </p>
         <div className="form-group">
-          <label className="form-label">Anthropic API Key</label>
+          <label className="form-label">Clé API Anthropic</label>
           <input className="form-input" type="password" placeholder="sk-ant-..." value={anthropicKey} onChange={e => setAnthropicKey(e.target.value)} />
         </div>
         <div className="gc-actions">
           <button className="btn btn-primary" onClick={handleSaveAnthropic}>
-            {anthropicSaved ? <><Check size={16} /> Saved</> : 'Save'}
+            {anthropicSaved ? <><Check size={16} /> Enregistré</> : 'Enregistrer'}
           </button>
         </div>
         <div className="gc-status mt-16">
           <div className={`gc-status-item ${anthropicKey ? 'gc-ok' : 'gc-warn'}`}>
             {anthropicKey ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-            <span>API Key {anthropicKey ? 'configured' : 'not configured'}</span>
+            <span>Clé API {anthropicKey ? 'configurée' : 'non configurée'}</span>
           </div>
         </div>
       </Section>
 
-      <Section title="Data" icon={Download}>
+      <Section title="Données" icon={Download}>
         <div className="settings-data-btns">
           <button className="btn btn-secondary" onClick={handleExport}>
-            <Download size={16} /> Export data
+            <Download size={16} /> Exporter les données
           </button>
           <label className="btn btn-ghost" style={{ cursor: 'pointer' }}>
-            <Upload size={16} /> Import data
+            <Upload size={16} /> Importer des données
             <input type="file" accept=".json" style={{ display: 'none' }} />
           </label>
           <button className="btn btn-ghost" onClick={handleClearCache} style={{ color: 'var(--danger)' }}>
-            {cacheCleared ? <><Check size={16} /> Cache cleared</> : <><Trash2 size={16} /> Clear cache</>}
+            {cacheCleared ? <><Check size={16} /> Cache vidé</> : <><Trash2 size={16} /> Vider le cache</>}
           </button>
         </div>
-        <p className="text-xs text-muted mt-12">Data is stored on your personal Google Drive.</p>
+        <p className="text-xs text-muted mt-12">Les données sont stockées sur votre Google Drive personnel.</p>
       </Section>
 
       <div style={{ textAlign: 'center', padding: '8px 0' }}>
@@ -415,9 +415,9 @@ export default function Settings() {
         </span>
       </div>
 
-      <Section title="Report a bug / FAQ" icon={MessageSquare}>
+      <Section title="Signaler un bug / FAQ" icon={MessageSquare}>
         <p className="text-sm text-muted mb-16">
-          Found a problem, have an idea, or a question? Send us a message.
+          Vous avez trouvé un problème, une idée ou une question ? Envoyez-nous un message.
         </p>
 
         <form onSubmit={handleSendReport}>
@@ -432,7 +432,7 @@ export default function Settings() {
           />
 
           <div className="form-group mb-16">
-            <label className="form-label">Message type</label>
+            <label className="form-label">Type de message</label>
             <div className="report-type-toggle">
               {[
                 { key: 'bug', label: 'Bug', icon: Bug },
@@ -453,11 +453,11 @@ export default function Settings() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Subject *</label>
+            <label className="form-label">Sujet *</label>
             <input
               className="form-input"
               type="text"
-              placeholder="Summarize your message"
+              placeholder="Résumez votre message"
               value={reportSubject}
               onChange={e => setReportSubject(e.target.value)}
               required
@@ -470,7 +470,7 @@ export default function Settings() {
             <textarea
               className="form-input"
               rows={5}
-              placeholder="Describe the issue, suggestion or question in detail..."
+              placeholder="Décrivez le problème, la suggestion ou la question en détail..."
               value={reportDesc}
               onChange={e => setReportDesc(e.target.value)}
               required
@@ -480,17 +480,17 @@ export default function Settings() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Contact email (optional)</label>
+            <label className="form-label">Email de contact (optionnel)</label>
             <input
               className="form-input"
               type="email"
-              placeholder="your@email.com"
+              placeholder="votre@email.com"
               value={reportEmail}
               onChange={e => setReportEmail(e.target.value)}
               disabled={reportStatus === 'loading'}
             />
             <span className="text-xs text-muted" style={{ marginTop: 4 }}>
-              So we can follow up if needed.
+              Pour que nous puissions vous recontacter si besoin.
             </span>
           </div>
 
@@ -501,9 +501,9 @@ export default function Settings() {
               disabled={reportStatus === 'loading' || !reportSubject.trim() || !reportDesc.trim()}
             >
               {reportStatus === 'loading' ? (
-                <><Loader2 size={16} className="animate-pulse" /> Sending...</>
+                <><Loader2 size={16} className="animate-pulse" /> Envoi en cours...</>
               ) : (
-                <><Send size={16} /> Send</>
+                <><Send size={16} /> Envoyer</>
               )}
             </button>
           </div>
@@ -513,7 +513,7 @@ export default function Settings() {
           <div className="gc-status mt-16">
             <div className="gc-status-item gc-ok">
               <CheckCircle size={16} />
-              <span>Message sent successfully! Thank you for your feedback.</span>
+              <span>Message envoyé avec succès ! Merci pour votre retour.</span>
             </div>
           </div>
         )}
@@ -530,7 +530,7 @@ export default function Settings() {
       {user && (
         <div className="settings-logout">
           <button className="btn btn-danger" onClick={logout}>
-            <LogOut size={16} /> Sign out
+            <LogOut size={16} /> Se déconnecter
           </button>
         </div>
       )}

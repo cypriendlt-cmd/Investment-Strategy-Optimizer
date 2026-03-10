@@ -14,11 +14,11 @@ export default function Layout({ children }) {
         {isGuest && (
           <div className="demo-banner">
             <span className="demo-banner-dot" />
-            Demo mode — Displaying sample data.{' '}
+            Mode démo — Données d'exemple affichées.{' '}
             <a href="#/login" className="demo-banner-link">
-              Sign in
+              Se connecter
             </a>{' '}
-            to access your real portfolio.
+            pour accéder à votre vrai portefeuille.
           </div>
         )}
         <Header onMenuClick={() => setMobileOpen(true)} />

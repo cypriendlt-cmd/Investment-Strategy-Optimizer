@@ -7,13 +7,13 @@ import { usePrivacyMask } from '../hooks/usePrivacyMask'
 const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)
 
 const SECTIONS = [
-  { path: '/portfolio/crypto', icon: Bitcoin, label: 'Crypto', description: 'Cryptocurrency positions', color: '#3b82f6', colorLight: 'rgba(59, 130, 246, 0.1)', key: 'crypto' },
-  { path: '/portfolio/pea', icon: TrendingUp, label: 'PEA / Actions', description: 'Equity portfolio', color: '#10b981', colorLight: 'rgba(16, 185, 129, 0.1)', key: 'pea' },
-  { path: '/portfolio/livrets', icon: PiggyBank, label: 'Livrets', description: 'Savings accounts', color: '#f59e0b', colorLight: 'rgba(245, 158, 11, 0.1)', key: 'livrets' },
-  { path: '/portfolio/fundraising', icon: Rocket, label: 'Crowdfunding', description: 'Fundraising investments', color: '#8b5cf6', colorLight: 'rgba(139, 92, 246, 0.1)', key: 'fundraising' },
-  { path: '/portfolio/objectives', icon: Target, label: 'Financial Goals', description: 'Track your objectives', color: '#06b6d4', colorLight: 'rgba(6, 182, 212, 0.1)', key: null },
-  { path: '/portfolio/banking', icon: Landmark, label: 'Cash & Banking', description: 'Bank accounts & cash flow', color: '#64748b', colorLight: 'rgba(100, 116, 139, 0.1)', key: null },
-  { path: '/portfolio/dca', icon: Calculator, label: 'DCA Plans', description: 'Dollar cost averaging', color: '#ec4899', colorLight: 'rgba(236, 72, 153, 0.1)', key: null },
+  { path: '/portfolio/crypto', icon: Bitcoin, label: 'Crypto', description: 'Mes cryptomonnaies', color: '#3b82f6', colorLight: 'rgba(59, 130, 246, 0.1)', key: 'crypto' },
+  { path: '/portfolio/pea', icon: TrendingUp, label: 'PEA / Actions', description: 'Mon portefeuille actions', color: '#10b981', colorLight: 'rgba(16, 185, 129, 0.1)', key: 'pea' },
+  { path: '/portfolio/livrets', icon: PiggyBank, label: 'Livrets', description: 'Mes livrets d\'épargne', color: '#f59e0b', colorLight: 'rgba(245, 158, 11, 0.1)', key: 'livrets' },
+  { path: '/portfolio/fundraising', icon: Rocket, label: 'Crowdfunding', description: 'Mes levées de fonds', color: '#8b5cf6', colorLight: 'rgba(139, 92, 246, 0.1)', key: 'fundraising' },
+  { path: '/portfolio/objectives', icon: Target, label: 'Objectifs', description: 'Suivre mes objectifs d\'épargne', color: '#06b6d4', colorLight: 'rgba(6, 182, 212, 0.1)', key: null },
+  { path: '/portfolio/banking', icon: Landmark, label: 'Banque', description: 'Comptes bancaires et flux', color: '#64748b', colorLight: 'rgba(100, 116, 139, 0.1)', key: null },
+  { path: '/portfolio/dca', icon: Calculator, label: 'Plans DCA', description: 'Investissement programmé (DCA)', color: '#ec4899', colorLight: 'rgba(236, 72, 153, 0.1)', key: null },
 ]
 
 export default function Portfolio() {
@@ -47,13 +47,13 @@ export default function Portfolio() {
     <div className="portfolio-hub">
       <div className="portfolio-hub-header">
         <div>
-          <h1 className="portfolio-hub-title">Portfolio Analysis</h1>
+          <h1 className="portfolio-hub-title">Analyse du patrimoine</h1>
           <p className="portfolio-hub-subtitle">
-            Complete overview of your assets, positions and investment vehicles.
+            Vue complète de vos actifs, positions et placements.
           </p>
         </div>
         <div className="portfolio-hub-total">
-          <span className="portfolio-hub-total-label">Total Portfolio</span>
+          <span className="portfolio-hub-total-label">Patrimoine total</span>
           <span className="portfolio-hub-total-value">{m(fmt(patrimoineTotal))}</span>
           <span className={`portfolio-hub-total-gain ${totalGain >= 0 ? 'text-success' : 'text-danger'}`}>
             {totalGain >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
@@ -79,11 +79,11 @@ export default function Portfolio() {
                   <>
                     <span className="portfolio-hub-card-value">{m(fmt(value))}</span>
                     <span className="portfolio-hub-card-meta">
-                      {pct && `${pct}% of portfolio`}{count != null && ` · ${count} position${count > 1 ? 's' : ''}`}
+                      {pct && `${pct}% du patrimoine`}{count != null && ` · ${count} position${count > 1 ? 's' : ''}`}
                     </span>
                   </>
                 ) : (
-                  <span className="portfolio-hub-card-meta">Manage →</span>
+                  <span className="portfolio-hub-card-meta">Gérer →</span>
                 )}
               </div>
               <ArrowRight size={16} className="portfolio-hub-card-arrow" />

@@ -42,11 +42,11 @@ function simulateDca(monthlyAmount, totalMonths, annualRate, initialAmount = 0) 
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
-  on_track: { label: 'On Track',  color: '#22c55e', Icon: CheckCircle },
-  behind:   { label: 'Behind',    color: '#ef4444', Icon: AlertTriangle },
-  ahead:    { label: 'Ahead',     color: '#3b82f6', Icon: TrendingUp },
-  paused:   { label: 'Paused',    color: '#94a3b8', Icon: Pause },
-  pending:  { label: 'Pending',   color: '#f59e0b', Icon: Clock },
+  on_track: { label: 'Dans les temps',  color: '#22c55e', Icon: CheckCircle },
+  behind:   { label: 'En retard',       color: '#ef4444', Icon: AlertTriangle },
+  ahead:    { label: 'En avance',       color: '#3b82f6', Icon: TrendingUp },
+  paused:   { label: 'En pause',        color: '#94a3b8', Icon: Pause },
+  pending:  { label: 'En attente',      color: '#f59e0b', Icon: Clock },
 }
 function StatusBadge({ status }) {
   const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending
@@ -81,10 +81,10 @@ function AssetPicker({ portfolio, accountType, onSelect, onCancel }) {
   const list = accountType === 'crypto' ? portfolio.crypto : portfolio.pea
   return (
     <div className="dca-asset-picker">
-      <div className="dca-asset-picker-title">Select asset to link</div>
+      <div className="dca-asset-picker-title">Sélectionner l'actif à relier</div>
       {(list || []).length === 0 && (
         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', padding: '8px 0' }}>
-          No {accountType === 'crypto' ? 'crypto' : 'PEA'} asset found.
+          Aucun actif {accountType === 'crypto' ? 'crypto' : 'PEA'} trouvé.
         </div>
       )}
       <div className="dca-asset-picker-list">
@@ -99,7 +99,7 @@ function AssetPicker({ portfolio, accountType, onSelect, onCancel }) {
         ))}
       </div>
       <button className="btn btn-ghost" style={{ marginTop: 8, fontSize: '0.78rem' }} onClick={onCancel}>
-        Cancel
+        Annuler
       </button>
     </div>
   )
@@ -110,11 +110,11 @@ const CHART_RANGES = ['6M', '1Y', '2Y', '5Y', 'Max']
 
 // ─── Carte plan DCA ───────────────────────────────────────────────────────────
 const CHART_LINES = [
-  { key: 'Investi',            label: 'Invested',            color: 'var(--text-muted)' },
-  { key: 'Projection',        label: 'Plan Projection',     color: '#22c55e' },
-  { key: 'Réel',              label: 'Actual',              color: 'var(--accent)' },
-  { key: 'Tendance',          label: 'Trend',               color: '#f59e0b' },
-  { key: 'ProjectionRéelle',  label: 'Actual Projection',   color: '#a855f7' },
+  { key: 'Investi',            label: 'Investi',              color: 'var(--text-muted)' },
+  { key: 'Projection',        label: 'Projection du plan',   color: '#22c55e' },
+  { key: 'Réel',              label: 'Réel',                 color: 'var(--accent)' },
+  { key: 'Tendance',          label: 'Tendance',             color: '#f59e0b' },
+  { key: 'ProjectionRéelle',  label: 'Projection réelle',    color: '#a855f7' },
 ]
 
 function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink }) {
@@ -175,8 +175,8 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
 
   const tableRows = extendedSeries
 
-  const cadenceLabel = plan.cadence === 'weekly' ? '/wk'
-    : plan.cadence === 'biweekly' ? '/2wk' : '/mo'
+  const cadenceLabel = plan.cadence === 'weekly' ? '/sem'
+    : plan.cadence === 'biweekly' ? '/2 sem' : '/mois'
 
   return (
     <div className={`dca-plan-card ${!plan.enabled ? 'dca-plan-card--paused' : ''}`}>
@@ -189,15 +189,15 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
         </div>
         <div className="dca-plan-header-right">
           <span className="dca-plan-amount">{fmt(plan.amount_per_period)}{cadenceLabel}</span>
-          <button className="btn btn-ghost btn-icon" onClick={() => setExpanded(v => !v)} title="Details">
+          <button className="btn btn-ghost btn-icon" onClick={() => setExpanded(v => !v)} title="Détails">
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
         </div>
       </div>
 
       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: 10 }}>
-        {plan.account_type?.toUpperCase()} · Day {plan.day_of_month}
-        · since {new Date(plan.start_date + 'T00:00:00').toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
+        {plan.account_type?.toUpperCase()} · Jour {plan.day_of_month}
+        · depuis {new Date(plan.start_date + 'T00:00:00').toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
         {asset && <span style={{ marginLeft: 6, color: 'var(--success)' }}>· {asset.name}</span>}
       </div>
 
@@ -206,11 +206,11 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
         <div className="dca-link-prompt">
           <Link2 size={13} style={{ color: 'var(--warning)' }} />
           <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', flex: 1 }}>
-            No linked asset — link an asset to see actual progress.
+            Aucun actif relié — reliez un actif pour voir votre progression réelle.
           </span>
           <button className="btn btn-ghost" style={{ fontSize: '0.75rem', padding: '3px 10px' }}
             onClick={onLink}>
-            Link
+            Relier
           </button>
         </div>
       )}
@@ -235,22 +235,22 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
           {/* Métriques */}
           <div className="dca-stats-row">
             <div className="dca-stat">
-              <div className="dca-stat-label">Expected</div>
+              <div className="dca-stat-label">Prévu</div>
               <div className="dca-stat-value">{fmt(progress.expected_contribution)}</div>
             </div>
             <div className="dca-stat">
-              <div className="dca-stat-label">Contributed</div>
+              <div className="dca-stat-label">Versé</div>
               <div className="dca-stat-value">{fmt(progress.actual_contribution)}</div>
             </div>
             <div className="dca-stat">
-              <div className="dca-stat-label">Gap</div>
+              <div className="dca-stat-label">Écart</div>
               <div className="dca-stat-value"
                 style={{ color: progress.contribution_gap >= 0 ? 'var(--success)' : 'var(--danger)' }}>
                 {progress.contribution_gap >= 0 ? '+' : ''}{fmt(progress.contribution_gap)}
               </div>
             </div>
             <div className="dca-stat">
-              <div className="dca-stat-label">Value</div>
+              <div className="dca-stat-label">Valeur</div>
               <div className="dca-stat-value">{fmt(progress.current_value)}</div>
             </div>
             <div className="dca-stat">
@@ -270,7 +270,7 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
       {progress?.upcoming_dates?.length > 0 && (
         <div className="dca-upcoming">
           <Calendar size={11} style={{ color: 'var(--text-muted)' }} />
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Upcoming:</span>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Prochains :</span>
           {progress.upcoming_dates.map(d => (
             <span key={d} className="dca-upcoming-chip">{fmtShortDate(d)}</span>
           ))}
@@ -286,7 +286,7 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
             <div className="dca-chart-wrap">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  DCA Projection ({plan.annual_return_estimate || 0}% /yr)
+                  Projection DCA ({plan.annual_return_estimate || 0}% /an)
                 </span>
                 <div className="dca-time-range-selector">
                   {CHART_RANGES.map(r => (
@@ -345,27 +345,27 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
                   {visibleLines.Investi && (
                     <Area type="monotone" dataKey="Investi" stroke="var(--text-muted)"
                       fill={`url(#gradInv-${plan.plan_id})`} strokeWidth={1.5} strokeDasharray="4 2"
-                      dot={false} name="Invested" />
+                      dot={false} name="Investi" />
                   )}
                   {visibleLines.Projection && (
                     <Area type="monotone" dataKey="Projection" stroke="#22c55e"
                       fill={`url(#gradProj-${plan.plan_id})`} strokeWidth={2} dot={false}
-                      name={`Plan Projection (${plan.annual_return_estimate || 0}%)`} />
+                      name={`Projection du plan (${plan.annual_return_estimate || 0}%)`} />
                   )}
                   {visibleLines.Réel && (
                     <Area type="monotone" dataKey="Réel" stroke="var(--accent)"
                       fill={`url(#gradReel-${plan.plan_id})`} strokeWidth={2} dot={false}
-                      connectNulls={false} name="Actual" />
+                      connectNulls={false} name="Réel" />
                   )}
                   {visibleLines.Tendance && (
                     <Area type="monotone" dataKey="Tendance" stroke="#f59e0b"
                       fill={`url(#gradTend-${plan.plan_id})`} strokeWidth={1.5} strokeDasharray="6 3"
-                      dot={false} connectNulls={false} name="Trend" />
+                      dot={false} connectNulls={false} name="Tendance" />
                   )}
                   {visibleLines.ProjectionRéelle && (
                     <Area type="monotone" dataKey="ProjectionRéelle" stroke="#a855f7"
                       fill={`url(#gradProjR-${plan.plan_id})`} strokeWidth={2} strokeDasharray="6 3"
-                      dot={false} connectNulls={false} name="Actual Projection" />
+                      dot={false} connectNulls={false} name="Projection réelle" />
                   )}
                 </AreaChart>
               </ResponsiveContainer>
@@ -376,16 +376,16 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
           {tableRows.length > 0 && (
             <div className="dca-lines-table-wrap">
               <div style={{ fontSize: '0.78rem', fontWeight: 600, margin: '12px 0 6px', color: 'var(--text-secondary)' }}>
-                Scheduled Lines
+                Échéancier
               </div>
               <div className="dca-lines-table-scroll">
                 <table className="dca-lines-table">
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>Expected</th>
-                      <th>Actual</th>
-                      <th>Status</th>
+                      <th>Prévu</th>
+                      <th>Réel</th>
+                      <th>Statut</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -398,10 +398,10 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
                         <td>{row.actual != null ? fmt(row.actual) : <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>
                         <td>
                           {row.future
-                            ? <span className="dca-row-chip dca-row-chip--future"><Calendar size={9} /> Scheduled</span>
+                            ? <span className="dca-row-chip dca-row-chip--future"><Calendar size={9} /> Planifié</span>
                             : row.actual > 0
-                              ? <span className="dca-row-chip dca-row-chip--ok"><CheckCircle size={9} /> Executed</span>
-                              : <span className="dca-row-chip dca-row-chip--miss"><AlertTriangle size={9} /> Missed</span>
+                              ? <span className="dca-row-chip dca-row-chip--ok"><CheckCircle size={9} /> Fait ✓</span>
+                              : <span className="dca-row-chip dca-row-chip--miss"><AlertTriangle size={9} /> Manqué</span>
                           }
                         </td>
                       </tr>
@@ -418,16 +418,16 @@ function PlanCard({ plan, progress, asset, onEdit, onDelete, onLink, onUnlink })
       <div className="dca-plan-actions">
         {isLinked && (
           <button className="btn btn-ghost" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}
-            onClick={onUnlink} title="Unlink asset">
-            <Unlink size={12} /> Unlink
+            onClick={onUnlink} title="Délier l'actif">
+            <Unlink size={12} /> Délier
           </button>
         )}
         <button className="btn btn-ghost" style={{ fontSize: '0.75rem' }} onClick={onEdit}>
-          <Edit3 size={12} /> Edit
+          <Edit3 size={12} /> Modifier
         </button>
         <button className="btn btn-ghost" style={{ fontSize: '0.75rem', color: 'var(--danger)' }}
           onClick={onDelete}>
-          <Trash2 size={12} /> Delete
+          <Trash2 size={12} /> Supprimer
         </button>
       </div>
     </div>
@@ -515,11 +515,11 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
 
   return (
     <div className="dca-plan-form">
-      <div className="dca-form-title">{initial ? 'Edit Plan' : 'New DCA Plan'}</div>
+      <div className="dca-form-title">{initial ? 'Modifier le plan' : 'Nouveau plan DCA'}</div>
 
       {/* Sélection actif portfolio */}
       <div className="dca-form-group full-width">
-        <label>Target asset — from my portfolio</label>
+        <label>Actif cible — depuis mon portefeuille</label>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <select value={form.account_type}
             onChange={e => { set('account_type', e.target.value); setPickerOpen(false) }}
@@ -530,12 +530,12 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
           </select>
           <button className="btn btn-ghost" style={{ fontSize: '0.78rem', padding: '6px 12px' }}
             type="button" onClick={() => setPickerOpen(v => !v)}>
-            <Link2 size={12} /> {form.asset_target.name ? `Linked: ${form.asset_target.name}` : 'Choose from portfolio'}
+            <Link2 size={12} /> {form.asset_target.name ? `Relié : ${form.asset_target.name}` : 'Choisir depuis le portefeuille'}
           </button>
           {form.asset_target.name && (
             <button className="btn btn-ghost" style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}
               type="button" onClick={() => setForm(f => ({ ...f, asset_target: EMPTY_FORM.asset_target }))}>
-              <Unlink size={11} /> Clear
+              <Unlink size={11} /> Effacer
             </button>
           )}
         </div>
@@ -556,12 +556,12 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
 
       <div className="dca-form-row">
         <div className="dca-form-group">
-          <label>Plan Name</label>
+          <label>Nom du plan</label>
           <input type="text" placeholder="ex: ETF S&P 500 PEA"
             value={form.label} onChange={e => set('label', e.target.value)} />
         </div>
         <div className="dca-form-group">
-          <label>Amount ({form.cadence === 'weekly' ? 'weekly' : form.cadence === 'biweekly' ? 'bi-weekly' : 'monthly'}) €</label>
+          <label>Montant ({form.cadence === 'weekly' ? 'hebdomadaire' : form.cadence === 'biweekly' ? 'bihebdomadaire' : 'mensuel'}) €</label>
           <input type="number" min="1" value={form.amount_per_period}
             onChange={e => set('amount_per_period', Number(e.target.value))} />
         </div>
@@ -569,16 +569,16 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
 
       <div className="dca-form-row">
         <div className="dca-form-group">
-          <label>Frequency</label>
+          <label>Fréquence</label>
           <select value={form.cadence} onChange={e => set('cadence', e.target.value)}>
-            <option value="monthly">Monthly</option>
-            <option value="weekly">Weekly</option>
-            <option value="biweekly">Bi-weekly</option>
+            <option value="monthly">Mensuel</option>
+            <option value="weekly">Hebdomadaire</option>
+            <option value="biweekly">Bihebdomadaire</option>
           </select>
         </div>
         {form.cadence === 'monthly' && (
           <div className="dca-form-group">
-            <label>Day of Month (1-28)</label>
+            <label>Jour du mois (1-28)</label>
             <input type="number" min="1" max="28" value={form.day_of_month}
               onChange={e => set('day_of_month', Math.max(1, Math.min(28, Number(e.target.value))))} />
           </div>
@@ -587,23 +587,23 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
 
       <div className="dca-form-row">
         <div className="dca-form-group">
-          <label>Start Date</label>
+          <label>Date de début</label>
           <input type="date" value={form.start_date} onChange={e => set('start_date', e.target.value)} />
         </div>
         <div className="dca-form-group">
-          <label>End Date (optional)</label>
+          <label>Date de fin (facultatif)</label>
           <input type="date" value={form.end_date} onChange={e => set('end_date', e.target.value)} />
         </div>
       </div>
 
       <div className="dca-form-row">
         <div className="dca-form-group">
-          <label>Estimated Annual Return (%)</label>
+          <label>Rendement annuel espéré (%)</label>
           <input type="number" step="0.1" value={form.annual_return_estimate}
             onChange={e => set('annual_return_estimate', Number(e.target.value))} />
         </div>
         <div className="dca-form-group">
-          <label>Tolerance (days)</label>
+          <label>Tolérance (jours)</label>
           <input type="number" min="1" max="30"
             value={form.tolerance_days ?? 7}
             onChange={e => set('tolerance_days', Number(e.target.value))} />
@@ -614,7 +614,7 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
       <button className="btn btn-ghost" type="button"
         style={{ fontSize: '0.78rem', marginBottom: 8 }}
         onClick={() => setShowSim(v => !v)}>
-        <BarChart2 size={13} /> {showSim ? 'Hide' : 'Show'} simulated projection
+        <BarChart2 size={13} /> {showSim ? 'Masquer' : 'Afficher'} la projection simulée
       </button>
 
       {showSim && simData.length > 0 && (
@@ -628,7 +628,7 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
                 tickFormatter={v => `${(v / 1000).toFixed(0)}k`} width={34} />
               <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)',
                 borderRadius: 8, fontSize: '0.75rem' }}
-                formatter={(val, name) => [fmt(val), name === 'invested' ? 'Invested' : 'Projection']} />
+                formatter={(val, name) => [fmt(val), name === 'invested' ? 'Investi' : 'Projection']} />
               <Line type="monotone" dataKey="invested" stroke="var(--text-muted)"
                 strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="invested" />
               <Line type="monotone" dataKey="projectedValue" stroke="var(--accent)"
@@ -640,13 +640,13 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
             return (
               <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  Invested: <strong>{fmt(last.invested)}</strong>
+                  Investi : <strong>{fmt(last.invested)}</strong>
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--accent)' }}>
-                  Projection: <strong>{fmt(last.projectedValue)}</strong>
+                  Projection : <strong>{fmt(last.projectedValue)}</strong>
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--success)' }}>
-                  Est. Gain: <strong>{fmt(last.projectedValue - last.invested)}</strong>
+                  Gain estimé : <strong>{fmt(last.projectedValue - last.invested)}</strong>
                 </span>
               </div>
             )
@@ -657,10 +657,10 @@ function PlanForm({ initial, portfolio, onSave, onCancel }) {
       <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
         <button className="btn btn-primary" type="button" onClick={handleSave}
           disabled={!form.label || form.amount_per_period <= 0}>
-          {initial ? 'Save' : 'Create Plan'}
+          {initial ? 'Enregistrer' : 'Créer le plan'}
         </button>
         <button className="btn btn-ghost" type="button" onClick={onCancel}>
-          Cancel
+          Annuler
         </button>
       </div>
     </div>
@@ -790,13 +790,13 @@ export default function DCA() {
     <div className="dca-page animate-fade-in">
       <div className="dca-page-header">
         <div>
-          <h2 style={{ marginBottom: 4 }}>DCA Plans</h2>
+          <h2 style={{ marginBottom: 4 }}>Mes investissements programmés</h2>
           <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-            Scheduled investments — plan vs actual
+            Suivez vos versements réguliers
           </p>
         </div>
         <button className="btn btn-primary" onClick={() => { setShowForm(true); setEditingId(null) }}>
-          <Plus size={14} /> New Plan
+          <Plus size={14} /> Nouveau plan
         </button>
       </div>
 
@@ -804,22 +804,22 @@ export default function DCA() {
       {plans.length > 0 && (
         <div className="dca-global-stats">
           <div className="dca-gstat">
-            <div className="dca-gstat-label">Total Contributed</div>
+            <div className="dca-gstat-label">Total versé</div>
             <div className="dca-gstat-value">{fmt(globalStats.totalActual)}</div>
           </div>
           <div className="dca-gstat">
-            <div className="dca-gstat-label">Total Expected</div>
+            <div className="dca-gstat-label">Total prévu</div>
             <div className="dca-gstat-value">{fmt(globalStats.totalExpected)}</div>
           </div>
           <div className="dca-gstat">
-            <div className="dca-gstat-label">Global Gap</div>
+            <div className="dca-gstat-label">Écart global</div>
             <div className="dca-gstat-value"
               style={{ color: globalStats.totalActual >= globalStats.totalExpected ? 'var(--success)' : 'var(--danger)' }}>
               {globalStats.totalActual - globalStats.totalExpected >= 0 ? '+' : ''}{fmt(globalStats.totalActual - globalStats.totalExpected)}
             </div>
           </div>
           <div className="dca-gstat">
-            <div className="dca-gstat-label">On Track</div>
+            <div className="dca-gstat-label">Dans les temps</div>
             <div className="dca-gstat-value" style={{ color: 'var(--success)' }}>
               {globalStats.onTrack}/{globalStats.total}
             </div>
@@ -848,7 +848,7 @@ export default function DCA() {
             return (
               <>
                 <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: 8 }}>
-                  Link "{plan.label}" to an asset
+                  Relier « {plan.label} » à un actif
                 </div>
                 <AssetPicker
                   portfolio={portfolio}
@@ -866,12 +866,12 @@ export default function DCA() {
       {plans.length === 0 && !showForm && (
         <div className="dca-empty-state">
           <Target size={40} style={{ opacity: 0.25, display: 'block', margin: '0 auto 16px' }} />
-          <div style={{ fontWeight: 600, marginBottom: 8 }}>No DCA Plans</div>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>Aucun plan programmé</div>
           <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 16 }}>
-            Create your first plan to link scheduled investments to your real assets.
+            Créez votre premier plan pour relier vos investissements programmés à vos actifs réels.
           </div>
           <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-            <Plus size={14} /> Create a Plan
+            <Plus size={14} /> Créer un plan
           </button>
         </div>
       )}
@@ -887,7 +887,7 @@ export default function DCA() {
               progress={progress}
               asset={asset}
               onEdit={() => { setEditingId(plan.plan_id); setShowForm(false); setLinkingId(null) }}
-              onDelete={() => { if (window.confirm(`Delete plan "${plan.label}"?`)) deleteDcaPlan(plan.plan_id) }}
+              onDelete={() => { if (window.confirm(`Supprimer le plan « ${plan.label} » ?`)) deleteDcaPlan(plan.plan_id) }}
               onLink={() => { setLinkingId(plan.plan_id); setShowForm(false); setEditingId(null) }}
               onUnlink={() => unlinkPlan(plan.plan_id)}
             />

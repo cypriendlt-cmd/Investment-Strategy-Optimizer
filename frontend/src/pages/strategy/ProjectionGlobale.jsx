@@ -12,11 +12,11 @@ import { runProjection, getDcaMonthlyContribution, buildPortfolioSnapshot, DEFAU
 import { fmt } from '../../utils/format'
 
 const HORIZON_OPTIONS = [
-  { value: 5, label: '5 years' },
-  { value: 10, label: '10 years' },
-  { value: 15, label: '15 years' },
-  { value: 20, label: '20 years' },
-  { value: 30, label: '30 years' },
+  { value: 5, label: '5 ans' },
+  { value: 10, label: '10 ans' },
+  { value: 15, label: '15 ans' },
+  { value: 20, label: '20 ans' },
+  { value: 30, label: '30 ans' },
 ]
 
 const ENVELOPE_COLORS = {
@@ -59,12 +59,12 @@ export default function ProjectionGlobale() {
       {/* Header */}
       <div className="projection-header">
         <Link to="/strategy" className="projection-back">
-          <ArrowLeft size={16} /> Strategy Lab
+          <ArrowLeft size={16} /> Labo Stratégie
         </Link>
         <div>
-          <h1 className="projection-title">Global Projection</h1>
+          <h1 className="projection-title">Projection globale</h1>
           <p className="projection-subtitle">
-            This simulation shows how your net worth could evolve if you continue saving at the same pace. This is an estimate, not a guarantee.
+            Cette simulation montre comment votre patrimoine pourrait évoluer si vous continuez à épargner au même rythme. C'est une estimation, pas une garantie.
           </p>
         </div>
       </div>
@@ -72,26 +72,26 @@ export default function ProjectionGlobale() {
       {/* Controls */}
       <div className="projection-controls">
         <div className="projection-control">
-          <label>Time Horizon</label>
+          <label>Horizon de projection</label>
           <select value={horizon} onChange={e => setHorizon(Number(e.target.value))}>
             {HORIZON_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <div className="projection-control">
-          <label>Monthly Savings</label>
+          <label>Épargne mensuelle</label>
           <div className="projection-input-group">
             <input type="number" value={contribution} onChange={e => setContribution(Math.max(0, Number(e.target.value)))} min="0" step="50" />
-            <span>€/mo</span>
+            <span>€/mois</span>
           </div>
           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
-            Pre-filled from your active investment plans
+            Pré-rempli à partir de vos plans d'investissement actifs
           </span>
         </div>
         <div className="projection-control">
           <label>Inflation</label>
           <div className="projection-input-group">
             <input type="number" value={inflation} onChange={e => setInflation(Number(e.target.value))} min="0" max="10" step="0.1" />
-            <span>%/yr</span>
+            <span>%/an</span>
           </div>
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function ProjectionGlobale() {
 
       {/* Main Chart */}
       <div className="projection-chart-card">
-        <div className="projection-chart-title">Projected Net Worth Trajectory</div>
+        <div className="projection-chart-title">Trajectoire projetée de votre patrimoine</div>
         <ResponsiveContainer width="100%" height={320}>
           <AreaChart data={viewModel.chartData}>
             <defs>
@@ -126,7 +126,7 @@ export default function ProjectionGlobale() {
             <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
             <Tooltip
-              formatter={(v, name) => [m(fmt(v)), name === 'nominal' ? 'Estimated Value' : name === 'real' ? 'Inflation-Adjusted Value' : 'Capital + Contributions']}
+              formatter={(v, name) => [m(fmt(v)), name === 'nominal' ? 'Valeur estimée' : name === 'real' ? 'Valeur ajustée (inflation)' : 'Capital + versements']}
               contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }}
             />
             <Area type="monotone" dataKey="nominal" stroke="var(--accent)" strokeWidth={2.5} fill="url(#nominalGrad)" name="nominal" />
@@ -135,24 +135,24 @@ export default function ProjectionGlobale() {
           </AreaChart>
         </ResponsiveContainer>
         <div className="projection-chart-legend">
-          <span><span className="projection-dot" style={{ background: 'var(--accent)' }} /> Estimated Value</span>
-          <span><span className="projection-dot" style={{ background: 'var(--success)' }} /> Inflation-Adjusted Value</span>
-          <span><span className="projection-dot projection-dot--dashed" /> Capital + Contributions</span>
+          <span><span className="projection-dot" style={{ background: 'var(--accent)' }} /> Valeur estimée</span>
+          <span><span className="projection-dot" style={{ background: 'var(--success)' }} /> Valeur ajustée (inflation)</span>
+          <span><span className="projection-dot projection-dot--dashed" /> Capital + versements</span>
         </div>
       </div>
 
       {/* Milestones Table */}
       <div className="projection-milestones">
-        <div className="projection-section-title">Progression Milestones</div>
+        <div className="projection-section-title">Étapes de progression</div>
         <div className="table-container">
           <table>
             <thead>
               <tr>
                 <th>Horizon</th>
-                <th>Estimated Value</th>
-                <th>Inflation-Adjusted Value</th>
-                <th>Cumulative Contributions</th>
-                <th>Projected Gains</th>
+                <th>Valeur estimée</th>
+                <th>Valeur ajustée</th>
+                <th>Versements cumulés</th>
+                <th>Gains projetés</th>
               </tr>
             </thead>
             <tbody>
@@ -172,7 +172,7 @@ export default function ProjectionGlobale() {
 
       {/* Growth Drivers */}
       <div className="projection-drivers">
-        <div className="projection-section-title">What Grows Your Money</div>
+        <div className="projection-section-title">Ce qui fait grandir votre argent</div>
         <div className="projection-drivers-grid">
           {viewModel.growthDrivers.map(driver => (
             <div key={driver.id} className="projection-driver-card">
@@ -182,11 +182,11 @@ export default function ProjectionGlobale() {
               </div>
               <div className="projection-driver-values">
                 <div>
-                  <span className="projection-driver-sub">Start</span>
+                  <span className="projection-driver-sub">Départ</span>
                   <span className="projection-driver-value">{m(fmt(driver.startValue))}</span>
                 </div>
                 <div>
-                  <span className="projection-driver-sub">Projected</span>
+                  <span className="projection-driver-sub">Projeté</span>
                   <span className="projection-driver-value" style={{ color: 'var(--success)' }}>{m(fmt(driver.endValue))}</span>
                 </div>
                 <div>
@@ -202,7 +202,7 @@ export default function ProjectionGlobale() {
       {/* Insights */}
       {insights.length > 0 && (
         <div className="projection-insights">
-          <div className="projection-section-title">Strategic Analysis</div>
+          <div className="projection-section-title">Analyse stratégique</div>
           {insights.map((ins, i) => (
             <div key={i} className={`projection-insight projection-insight--${ins.type}`}>
               <div className="projection-insight-icon">
@@ -221,17 +221,17 @@ export default function ProjectionGlobale() {
       <div className="projection-hypotheses">
         <Info size={14} style={{ color: 'var(--text-muted)', minWidth: 14 }} />
         <p>
-          Estimated growth rates used: ETF {(DEFAULT_RETURNS.etf * 100)}%, Crypto {(DEFAULT_RETURNS.crypto * 100)}%, Cash {(DEFAULT_RETURNS.cash * 100)}%, Other {(DEFAULT_RETURNS.other * 100)}%.
-          These projections are indicative and do not constitute financial advice.
+          Taux de croissance estimés : ETF {(DEFAULT_RETURNS.etf * 100)}%, Crypto {(DEFAULT_RETURNS.crypto * 100)}%, Livrets {(DEFAULT_RETURNS.cash * 100)}%, Autre {(DEFAULT_RETURNS.other * 100)}%.
+          Ces projections sont indicatives et ne constituent pas un conseil en investissement.
         </p>
       </div>
       <div className="projection-hypotheses" style={{ borderColor: 'var(--warning)' }}>
         <AlertTriangle size={14} style={{ color: 'var(--warning)', minWidth: 14 }} />
         <p>
-          The displayed return rates (ETF {DEFAULT_RETURNS.etf * 100}%, Crypto {DEFAULT_RETURNS.crypto * 100}%) are long-term historical averages.
-          Past performance does not guarantee future results.
-          Volatile assets (crypto, stocks) can lose a significant portion of their value.
-          These projections are estimates for informational purposes only.
+          Les taux de rendement affichés (ETF {DEFAULT_RETURNS.etf * 100}%, Crypto {DEFAULT_RETURNS.crypto * 100}%) sont des moyennes historiques long terme.
+          Les performances passées ne garantissent pas les résultats futurs.
+          Les actifs volatils (crypto, actions) peuvent perdre une part importante de leur valeur.
+          Ces projections sont des estimations à titre informatif uniquement.
         </p>
       </div>
     </div>

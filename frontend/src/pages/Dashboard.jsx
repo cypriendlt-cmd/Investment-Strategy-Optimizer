@@ -6,7 +6,7 @@ import {
 import {
   TrendingUp, TrendingDown, Target, Zap, ArrowRight,
   Activity, Award, AlertTriangle, Sparkles,
-  Calendar, GitBranch, Shield, BarChart3, Flame
+  Calendar, GitBranch, Shield, BarChart3, Flame, ArrowUpRight
 } from 'lucide-react'
 import { usePortfolio } from '../context/PortfolioContext'
 import { useBank } from '../context/BankContext'
@@ -23,12 +23,12 @@ const MONTH_NAMES = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aout', 
 const DAY_NAMES = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 
 const TIME_RANGES = [
-  { key: '7d', label: '7D', days: 7 },
+  { key: '7d', label: '7J', days: 7 },
   { key: '1m', label: '1M', days: 30 },
   { key: '3m', label: '3M', days: 90 },
   { key: '6m', label: '6M', days: 180 },
-  { key: '1y', label: '1Y', days: 365 },
-  { key: 'all', label: 'ALL', days: null },
+  { key: '1y', label: '1A', days: 365 },
+  { key: 'all', label: 'TOUT', days: null },
 ]
 
 function getAllMovements(portfolio) {
@@ -65,7 +65,7 @@ function buildPortfolioHistory(portfolio, totals, rangeKey = '6m') {
   if (range.days && range.days <= 7) {
     for (let i = range.days; i >= 0; i--) {
       const d = new Date(now.getTime() - i * 86400000)
-      points.push({ date: d, label: i === 0 ? "Today" : DAY_NAMES[d.getDay()] + ' ' + d.getDate() })
+      points.push({ date: d, label: i === 0 ? "Aujourd'hui" : DAY_NAMES[d.getDay()] + ' ' + d.getDate() })
     }
   } else if (range.days && range.days <= 30) {
     const step = 3
@@ -122,7 +122,7 @@ function buildProjectionData(currentTotal) {
 
   for (let y = 0; y <= years; y++) {
     data.push({
-      year: y === 0 ? 'Now' : `+${y}y`,
+      year: y === 0 ? 'Maintenant' : `+${y}a`,
       projected: Math.round(projected),
       nominal: Math.round(nominal),
     })
@@ -157,15 +157,15 @@ function GaugeChart({ value, label }) {
     if (v <= 45) return '#f97316'
     if (v <= 55) return '#f59e0b'
     if (v <= 75) return '#84cc16'
-    return '#10b981'
+    return '#11ec79'
   }
 
   const getLabel = (v) => {
-    if (v <= 25) return 'Extreme Fear'
-    if (v <= 45) return 'Fear'
-    if (v <= 55) return 'Neutral'
-    if (v <= 75) return 'Greed'
-    return 'Extreme Greed'
+    if (v <= 25) return 'Peur extrême'
+    if (v <= 45) return 'Peur'
+    if (v <= 55) return 'Neutre'
+    if (v <= 75) return 'Avidité'
+    return 'Avidité extrême'
   }
 
   const c = getColor(value)
@@ -184,7 +184,7 @@ function GaugeChart({ value, label }) {
           <path
             d={`M ${cx - r} ${cy} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`}
             fill="none" stroke={c} strokeWidth="10" strokeLinecap="round"
-            style={{ '--gauge-color': c }} filter={`url(#glow-${label})`}
+            filter={`url(#glow-${label})`}
           />
         )}
         <text x={cx} y={cy - 10} textAnchor="middle" fill="var(--text-primary)" fontSize="22" fontWeight="700">{value}</text>
@@ -195,39 +195,30 @@ function GaugeChart({ value, label }) {
   )
 }
 
-/* Strategy Score — computed from diversification + objective progress */
 function computeStrategyScore(allocationData, progressPct, dcaSummary) {
   let score = 50
-  // Diversification bonus: more than 2 non-zero categories
   const nonZero = allocationData.filter(a => a.value > 0).length
   if (nonZero >= 4) score += 15
   else if (nonZero >= 3) score += 10
   else if (nonZero >= 2) score += 5
-
-  // Objective progress
   if (progressPct > 0) score += Math.min(progressPct * 0.2, 15)
-
-  // DCA discipline
   if (dcaSummary) {
     const ratio = dcaSummary.onTrack / Math.max(dcaSummary.total, 1)
     score += ratio * 10
   }
-
-  // Concentration penalty
   const total = allocationData.reduce((s, a) => s + a.value, 0)
   if (total > 0) {
     const max = Math.max(...allocationData.map(a => a.value))
     if (max / total > 0.8) score -= 10
     else if (max / total > 0.6) score -= 5
   }
-
   return Math.max(0, Math.min(100, Math.round(score)))
 }
 
 export default function Dashboard() {
   const { portfolio, totals, dcaPlans } = usePortfolio()
   const { accountBalances, aggregates } = useBank() || {}
-  const { isGuest } = useAuth()
+  const { user, isGuest } = useAuth()
   const { m, mp } = usePrivacyMask()
   const [fearGreed, setFearGreed] = useState({ crypto: 0, market: 0 })
   const [insight, setInsight] = useState(null)
@@ -264,6 +255,7 @@ export default function Dashboard() {
   ].reduce((a, b) => a + b, 0)
   const totalGain = totals.total + bankLivrets - totalLivrets - totals.fundraising - totalInvested
   const gainPct = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0
+  const isPositive = totalGain >= 0
 
   const strategyResult = useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans)
 
@@ -332,55 +324,88 @@ export default function Dashboard() {
     [allocationData, progressPct, dcaSummary]
   )
 
-  // Risk level from allocation concentration
   const riskLevel = useMemo(() => {
     const total = allocationData.reduce((s, a) => s + a.value, 0)
     if (total === 0) return { label: 'N/A', color: 'var(--text-muted)' }
     const cryptoPct = totals.crypto / total
-    if (cryptoPct > 0.6) return { label: 'High', color: 'var(--danger)' }
-    if (cryptoPct > 0.35) return { label: 'Medium', color: 'var(--warning)' }
-    return { label: 'Low', color: 'var(--success)' }
+    if (cryptoPct > 0.6) return { label: 'Élevé', color: 'var(--danger)' }
+    if (cryptoPct > 0.35) return { label: 'Modéré', color: 'var(--warning)' }
+    return { label: 'Faible', color: 'var(--success)' }
   }, [allocationData, totals.crypto])
+
+  const firstName = user?.name?.split(' ')[0] || 'Investisseur'
 
   return (
     <div className="dashboard">
 
-      {/* ═══ 1. HERO — Total Net Worth + Key Metrics ═══ */}
-      <div className="dashboard-hero">
-        <div className="dashboard-hero-content">
-          <p className="dashboard-hero-eyebrow">Total Net Worth</p>
-          <p className="dashboard-total">{m(fmt(patrimoineNet))}</p>
-          <span className={`dashboard-hero-badge ${totalGain >= 0 ? 'dashboard-hero-badge--up' : 'dashboard-hero-badge--down'}`}>
-            {totalGain >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-            {m(fmt(totalGain))} ({mp(fmtPct(gainPct))})
-          </span>
+      {/* ══ GREETING ══ */}
+      <div className="dashboard-greeting">
+        <div>
+          <h1 className="dashboard-greeting-title">Bonjour, {firstName} 👋</h1>
+          <p className="dashboard-greeting-sub">Voici l'état de votre patrimoine en temps réel.</p>
         </div>
-        <div className="dashboard-hero-right">
-          <div className="dashboard-hero-kpis">
-            <div className="dashboard-hero-kpi">
-              <span className="dashboard-hero-kpi-label">10Y Projection</span>
-              <span className="dashboard-hero-kpi-value">{m(fmt(projectedTarget))}</span>
-            </div>
-            <div className="dashboard-hero-kpi">
-              <span className="dashboard-hero-kpi-label">Monthly Savings</span>
-              <span className="dashboard-hero-kpi-value">{m(fmt(monthSavings > 0 ? monthSavings : 500))}</span>
-            </div>
-            <div className="dashboard-hero-kpi">
-              <span className="dashboard-hero-kpi-label">Strategy Score</span>
-              <span className="dashboard-hero-kpi-value dashboard-hero-kpi-value--accent">{strategyScore}/100</span>
-            </div>
-            <div className="dashboard-hero-kpi">
-              <span className="dashboard-hero-kpi-label">Risk Level</span>
-              <span className="dashboard-hero-kpi-value" style={{ color: riskLevel.color }}>{riskLevel.label}</span>
-            </div>
-          </div>
+        <div className="dashboard-date">
+          {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </div>
       </div>
 
-      {/* ═══ 2. TRAJECTORY CHART ═══ */}
-      <div className="dash-card">
+      {/* ══ BENTO ROW 1 : Hero + KPIs ══ */}
+      <div className="bento-row bento-row--hero">
+
+        {/* Hero card — patrimoine total */}
+        <div className="bento-card bento-card--hero dash-card">
+          <span className="bento-card-eyebrow">Patrimoine total</span>
+          <p className="dashboard-total">{m(fmt(patrimoineNet))}</p>
+          <span className={`dashboard-hero-badge ${isPositive ? 'dashboard-hero-badge--up' : 'dashboard-hero-badge--down'}`}>
+            {isPositive ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+            {m(fmt(totalGain))} ({mp(fmtPct(gainPct))})
+          </span>
+          <div className="bento-hero-divider" />
+          <div className="bento-hero-meta">
+            <span className="bento-hero-meta-label">Projection 10 ans</span>
+            <span className="bento-hero-meta-value">{m(fmt(projectedTarget))}</span>
+          </div>
+        </div>
+
+        {/* KPI cards */}
+        <div className="bento-card bento-card--kpi dash-card">
+          <span className="bento-card-eyebrow">Épargne mensuelle</span>
+          <span className="bento-kpi-value">{m(fmt(monthSavings > 0 ? monthSavings : 500))}</span>
+          <span className="bento-kpi-sub">ce mois</span>
+        </div>
+
+        <div className="bento-card bento-card--kpi dash-card">
+          <span className="bento-card-eyebrow">Score stratégie</span>
+          <span className="bento-kpi-value text-accent">{strategyScore}<span className="bento-kpi-unit">/100</span></span>
+          <span className="bento-kpi-sub">cohérence globale</span>
+        </div>
+
+        <div className="bento-card bento-card--kpi dash-card">
+          <span className="bento-card-eyebrow">Niveau de risque</span>
+          <span className="bento-kpi-value" style={{ color: riskLevel.color }}>{riskLevel.label}</span>
+          <span className="bento-kpi-sub">concentration crypto</span>
+        </div>
+
+        <div className="bento-card bento-card--kpi dash-card">
+          <span className="bento-card-eyebrow">Objectif</span>
+          {objective ? (
+            <>
+              <span className="bento-kpi-value text-accent">{progressPct.toFixed(0)}<span className="bento-kpi-unit">%</span></span>
+              <span className="bento-kpi-sub">{m(fmt(objective))}</span>
+            </>
+          ) : (
+            <>
+              <span className="bento-kpi-value text-muted">—</span>
+              <Link to="/strategy/objectifs" className="bento-kpi-sub bento-kpi-link">Définir →</Link>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ══ BENTO ROW 2 : Trajectory chart ══ */}
+      <div className="bento-card bento-card--chart dash-card">
         <div className="perf-chart-header">
-          <div className="dash-card-title">Portfolio Trajectory</div>
+          <div className="dash-card-title">Trajectoire du patrimoine</div>
           <div className="time-range-selector">
             {TIME_RANGES.map(r => (
               <button key={r.key} className={`time-range-btn${timeRange === r.key ? ' active' : ''}`} onClick={() => setTimeRange(r.key)}>
@@ -389,11 +414,11 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={260}>
           <AreaChart data={perfData}>
             <defs>
               <linearGradient id="trajectoryGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.2} />
+                <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.25} />
                 <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
               </linearGradient>
             </defs>
@@ -401,7 +426,7 @@ export default function Dashboard() {
             <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
             <Tooltip
-              formatter={(v) => [m(fmt(v)), 'Value']}
+              formatter={(v) => [m(fmt(v)), 'Valeur']}
               contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem', boxShadow: 'var(--shadow)' }}
               cursor={{ stroke: 'var(--accent)', strokeWidth: 1, strokeDasharray: '4 4' }}
             />
@@ -410,14 +435,16 @@ export default function Dashboard() {
         </ResponsiveContainer>
       </div>
 
-      {/* ═══ 3. ALLOCATION + MARKET SENTIMENT ═══ */}
-      <div className="dashboard-middle">
-        <div className="dash-card">
-          <div className="dash-card-title">Asset Allocation</div>
+      {/* ══ BENTO ROW 3 : Allocation + Sentiment + Objectif ══ */}
+      <div className="bento-row bento-row--middle">
+
+        {/* Allocation */}
+        <div className="bento-card dash-card">
+          <div className="dash-card-title">Répartition des actifs</div>
           <div className="dashboard-pie-row">
-            <ResponsiveContainer width={180} height={180}>
+            <ResponsiveContainer width={170} height={170}>
               <PieChart>
-                <Pie data={allocationData} cx={85} cy={85} innerRadius={50} outerRadius={78} paddingAngle={3} dataKey="value" strokeWidth={0}>
+                <Pie data={allocationData} cx={80} cy={80} innerRadius={46} outerRadius={72} paddingAngle={3} dataKey="value" strokeWidth={0}>
                   {allocationData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip formatter={(v) => m(fmt(v))} contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }} />
@@ -437,11 +464,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="dash-card">
-          <div className="dash-card-title">Market Sentiment</div>
+        {/* Sentiment */}
+        <div className="bento-card dash-card">
+          <div className="dash-card-title">Sentiment de marché</div>
           <div className="dashboard-gauges">
             <GaugeChart value={fearGreed.crypto} label="Crypto" />
-            <GaugeChart value={fearGreed.market} label="Markets" />
+            <GaugeChart value={fearGreed.market} label="Marchés" />
           </div>
           {performers.best && (
             <div className="dashboard-performers">
@@ -460,143 +488,158 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* ═══ 4. OBJECTIVE PROGRESS ═══ */}
-      <div className="dash-card objective-card">
-        <div className="objective-card-header">
-          <div className="flex items-center gap-8">
-            <Target size={16} className="text-warning" />
-            <span className="dash-card-title" style={{ margin: 0 }}>Financial Goal</span>
-          </div>
-          <Link to="/strategy" className="insight-link" style={{ margin: 0, padding: 0 }}>Strategy Lab <ArrowRight size={12} /></Link>
-        </div>
-        {objective ? (
-          <>
-            <div className="objective-progress-container">
-              <div className="objective-progress-bar">
-                <div className="objective-progress-fill" style={{ width: `${progressPct}%` }} />
-              </div>
-              <div className="objective-progress-labels">
-                <span>{m(fmt(patrimoineNet))}</span>
-                <span className="text-muted">{m(fmt(objective))}</span>
-              </div>
-            </div>
-            <div className="objective-stats">
-              <div className="objective-stat">
-                <span className="objective-stat-label">Progress</span>
-                <span className="objective-stat-value text-accent">{progressPct.toFixed(1)}%</span>
-              </div>
-              <div className="objective-stat">
-                <span className="objective-stat-label">Remaining</span>
-                <span className="objective-stat-value">{m(fmt(Math.max(objective - patrimoineNet, 0)))}</span>
-              </div>
-              <div className="objective-stat">
-                <span className="objective-stat-label">Est. Horizon</span>
-                <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} years</span>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="objective-empty">
-            <Target size={28} className="text-muted" />
-            <p>Set a financial goal to track your progress toward it.</p>
-            <Link to="/strategy/objectifs" className="btn btn-primary btn-sm">
-              <Target size={14} /> Set Your Goal
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* ═══ 5. SCENARIOS PREVIEW ═══ */}
-      <div className="dashboard-scenarios">
-        <div className="dash-card-title">5-Year Scenarios</div>
-        <div className="scenarios-grid">
-          {[
-            { name: 'Current', value: projectionData[5]?.projected || 0, icon: Activity, desc: 'No strategy change', variant: 'muted' },
-            { name: 'Optimized', value: Math.round((projectionData[5]?.projected || 0) * 1.15), icon: TrendingUp, desc: 'Improved allocation', variant: 'success' },
-            { name: 'Ambitious', value: Math.round((projectionData[5]?.projected || 0) * 1.35), icon: Zap, desc: 'Max effort + allocation', variant: 'accent' },
-          ].map(s => (
-            <div key={s.name} className={`scenario-card scenario-card--${s.variant}`}>
-              <div className="scenario-header">
-                <s.icon size={16} />
-                <span className="scenario-name">{s.name}</span>
-              </div>
-              <div className="scenario-value">{m(fmt(s.value))}</div>
-              <span className="scenario-desc">{s.desc}</span>
-            </div>
-          ))}
-        </div>
-        <div className="dashboard-scenarios-cta">
-          <Link to="/strategy/scenarios" className="btn btn-secondary btn-sm">
-            <GitBranch size={14} /> Compare Scenarios
-          </Link>
-        </div>
-      </div>
-
-      {/* ═══ 6. DCA SUMMARY (conditional) ═══ */}
-      {dcaSummary && (
-        <div className="dash-card dca-dashboard-card">
-          <div className="dca-dashboard-header">
+        {/* Objectif */}
+        <div className="bento-card dash-card objective-card">
+          <div className="objective-card-header">
             <div className="flex items-center gap-8">
-              <Calendar size={15} className="text-accent" />
-              <span className="dash-card-title" style={{ margin: 0 }}>DCA Plans</span>
+              <Target size={16} className="text-warning" />
+              <span className="dash-card-title" style={{ margin: 0 }}>Objectif financier</span>
             </div>
-            <Link to="/portfolio/dca" className="insight-link" style={{ margin: 0, padding: 0 }}>View plans <ArrowRight size={12} /></Link>
+            <Link to="/strategy" className="insight-link" style={{ margin: 0, padding: 0 }}>Stratégie <ArrowRight size={12} /></Link>
           </div>
-          <div className="dca-dash-stats">
-            <div className="dca-dash-stat">
-              <div className="dca-dash-stat-label">Total Invested</div>
-              <div className="dca-dash-stat-value">{m(fmt(dcaSummary.totalInvested))}</div>
-            </div>
-            <div className="dca-dash-stat">
-              <div className="dca-dash-stat-label">On Track</div>
-              <div className={`dca-dash-stat-value ${dcaSummary.onTrack === dcaSummary.total ? 'text-success' : 'text-warning'}`}>
-                {dcaSummary.onTrack}/{dcaSummary.total}
+          {objective ? (
+            <>
+              <div className="objective-progress-container">
+                <div className="objective-progress-bar">
+                  <div className="objective-progress-fill" style={{ width: `${progressPct}%` }} />
+                </div>
+                <div className="objective-progress-labels">
+                  <span>{m(fmt(patrimoineNet))}</span>
+                  <span className="text-muted">{m(fmt(objective))}</span>
+                </div>
               </div>
-            </div>
-            <div className="dca-dash-stat">
-              <div className="dca-dash-stat-label">Month Planned</div>
-              <div className="dca-dash-stat-value">{m(fmt(dcaSummary.monthPlanned))}</div>
-            </div>
-            <div className="dca-dash-stat">
-              <div className="dca-dash-stat-label">Month Actual</div>
-              <div className={`dca-dash-stat-value ${dcaSummary.monthActual >= dcaSummary.monthPlanned ? 'text-success' : 'text-warning'}`}>
-                {m(fmt(dcaSummary.monthActual))}
+              <div className="objective-stats">
+                <div className="objective-stat">
+                  <span className="objective-stat-label">Progression</span>
+                  <span className="objective-stat-value text-accent">{progressPct.toFixed(1)}%</span>
+                </div>
+                <div className="objective-stat">
+                  <span className="objective-stat-label">Reste</span>
+                  <span className="objective-stat-value">{m(fmt(Math.max(objective - patrimoineNet, 0)))}</span>
+                </div>
+                <div className="objective-stat">
+                  <span className="objective-stat-label">Horizon</span>
+                  <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} ans</span>
+                </div>
               </div>
-            </div>
-          </div>
-          {dcaSummary.nextDates.length > 0 && (
-            <div className="dca-upcoming">
-              <span className="dca-upcoming-label">Upcoming:</span>
-              {dcaSummary.nextDates.map((d, i) => (
-                <span key={i} className="dca-upcoming-chip">
-                  {new Date(d.date + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                  {' · '}{d.label}{' · '}{fmt(d.amount)}
-                </span>
-              ))}
+            </>
+          ) : (
+            <div className="objective-empty">
+              <Target size={28} className="text-muted" />
+              <p>Définissez un objectif financier pour suivre votre progression.</p>
+              <Link to="/strategy/objectifs" className="btn btn-primary btn-sm">
+                <Target size={14} /> Définir un objectif
+              </Link>
             </div>
           )}
         </div>
-      )}
-
-      {/* ═══ 7. AI INSIGHTS SUMMARY ═══ */}
-      <div className="dash-card dashboard-insight-card">
-        <div className="flex items-center gap-8 mb-8">
-          <Sparkles size={15} className="text-accent" />
-          <span className="insight-tag">AI Strategy Analysis</span>
-        </div>
-        {insightLoading ? (
-          <div className="skeleton" style={{ height: 14, width: '90%', marginBottom: 8 }} />
-        ) : insight ? (
-          <>
-            <p className="insight-text">{typeof insight === 'string' ? insight.slice(0, 300) : 'Analysis available'}...</p>
-            <Link to="/insights" className="insight-link">View full analysis <span>→</span></Link>
-          </>
-        ) : (
-          <p className="text-muted text-sm">Configure AI in settings to get strategic insights.</p>
-        )}
       </div>
+
+      {/* ══ BENTO ROW 4 : Scénarios + DCA + IA ══ */}
+      <div className="bento-row bento-row--bottom">
+
+        {/* Scénarios */}
+        <div className="bento-card dash-card dashboard-scenarios">
+          <div className="dash-card-title">Scénarios à 5 ans</div>
+          <div className="scenarios-grid">
+            {[
+              { name: 'Actuel', value: projectionData[5]?.projected || 0, icon: Activity, desc: 'Sans changement', variant: 'muted' },
+              { name: 'Optimisé', value: Math.round((projectionData[5]?.projected || 0) * 1.15), icon: TrendingUp, desc: 'Meilleure allocation', variant: 'success' },
+              { name: 'Ambitieux', value: Math.round((projectionData[5]?.projected || 0) * 1.35), icon: Zap, desc: 'Effort maximal', variant: 'accent' },
+            ].map(s => (
+              <div key={s.name} className={`scenario-card scenario-card--${s.variant}`}>
+                <div className="scenario-header">
+                  <s.icon size={16} />
+                  <span className="scenario-name">{s.name}</span>
+                </div>
+                <div className="scenario-value">{m(fmt(s.value))}</div>
+                <span className="scenario-desc">{s.desc}</span>
+              </div>
+            ))}
+          </div>
+          <div className="dashboard-scenarios-cta">
+            <Link to="/strategy/scenarios" className="btn btn-secondary btn-sm">
+              <GitBranch size={14} /> Comparer les scénarios
+            </Link>
+          </div>
+        </div>
+
+        {/* DCA */}
+        {dcaSummary ? (
+          <div className="bento-card dash-card dca-dashboard-card">
+            <div className="dca-dashboard-header">
+              <div className="flex items-center gap-8">
+                <Calendar size={15} className="text-accent" />
+                <span className="dash-card-title" style={{ margin: 0 }}>Invest. programmé</span>
+              </div>
+              <Link to="/portfolio/dca" className="insight-link" style={{ margin: 0, padding: 0 }}>Voir <ArrowRight size={12} /></Link>
+            </div>
+            <div className="dca-dash-stats">
+              <div className="dca-dash-stat">
+                <div className="dca-dash-stat-label">Total investi</div>
+                <div className="dca-dash-stat-value">{m(fmt(dcaSummary.totalInvested))}</div>
+              </div>
+              <div className="dca-dash-stat">
+                <div className="dca-dash-stat-label">Dans les temps</div>
+                <div className={`dca-dash-stat-value ${dcaSummary.onTrack === dcaSummary.total ? 'text-success' : 'text-warning'}`}>
+                  {dcaSummary.onTrack}/{dcaSummary.total}
+                </div>
+              </div>
+              <div className="dca-dash-stat">
+                <div className="dca-dash-stat-label">Mensualité prévue</div>
+                <div className="dca-dash-stat-value">{m(fmt(dcaSummary.monthPlanned))}</div>
+              </div>
+              <div className="dca-dash-stat">
+                <div className="dca-dash-stat-label">Réalisé</div>
+                <div className={`dca-dash-stat-value ${dcaSummary.monthActual >= dcaSummary.monthPlanned ? 'text-success' : 'text-warning'}`}>
+                  {m(fmt(dcaSummary.monthActual))}
+                </div>
+              </div>
+            </div>
+            {dcaSummary.nextDates.length > 0 && (
+              <div className="dca-upcoming">
+                <span className="dca-upcoming-label">Prochains :</span>
+                {dcaSummary.nextDates.map((d, i) => (
+                  <span key={i} className="dca-upcoming-chip">
+                    {new Date(d.date + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                    {' · '}{d.label}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bento-card dash-card bento-card--empty">
+            <Calendar size={28} className="text-muted" />
+            <p className="text-muted text-sm">Aucun plan DCA actif</p>
+            <Link to="/portfolio/dca" className="btn btn-secondary btn-sm" style={{ marginTop: 12 }}>Créer un plan</Link>
+          </div>
+        )}
+
+        {/* IA */}
+        <div className="bento-card dash-card dashboard-insight-card">
+          <div className="flex items-center gap-8 mb-8">
+            <Sparkles size={15} className="text-accent" />
+            <span className="insight-tag">Analyse IA</span>
+          </div>
+          {insightLoading ? (
+            <>
+              <div className="skeleton" style={{ height: 13, width: '90%', marginBottom: 8 }} />
+              <div className="skeleton" style={{ height: 13, width: '70%', marginBottom: 8 }} />
+              <div className="skeleton" style={{ height: 13, width: '80%' }} />
+            </>
+          ) : insight ? (
+            <>
+              <p className="insight-text">{typeof insight === 'string' ? insight.slice(0, 240) : 'Analyse disponible'}...</p>
+              <Link to="/insights" className="insight-link">Voir l'analyse complète <ArrowRight size={12} /></Link>
+            </>
+          ) : (
+            <p className="text-muted text-sm">Configurez l'IA dans les paramètres pour obtenir des recommandations stratégiques.</p>
+          )}
+        </div>
+      </div>
+
     </div>
   )
 }

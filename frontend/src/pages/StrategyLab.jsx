@@ -5,8 +5,8 @@ const MODULES = [
   {
     id: 'projection',
     icon: TrendingUp,
-    title: 'Global Projection',
-    description: 'Model how your portfolio could grow over 10-30 years based on your current strategy. This is a simulation, not a guarantee.',
+    title: 'Projection globale',
+    description: 'Simulez l\'évolution de votre patrimoine sur 10 à 30 ans. C\'est une estimation, pas une garantie.',
     status: 'active',
     color: 'var(--accent)',
     colorLight: 'var(--accent-light)',
@@ -14,8 +14,8 @@ const MODULES = [
   {
     id: 'objective',
     icon: Target,
-    title: 'Financial Target',
-    description: 'Set a target amount and discover if your current strategy can reach it, and how long it would take.',
+    title: 'Objectif patrimonial',
+    description: 'Fixez un montant cible et découvrez si votre stratégie actuelle peut l\'atteindre.',
     status: 'active',
     color: 'var(--warning)',
     colorLight: 'var(--warning-light)',
@@ -23,8 +23,8 @@ const MODULES = [
   {
     id: 'objectifs',
     icon: Crosshair,
-    title: 'Your Goals',
-    description: 'Every euro you save can serve a specific purpose. Link your accounts to your projects for better control.',
+    title: 'Mes objectifs',
+    description: 'Chaque euro épargné peut servir un projet précis. Reliez vos comptes à vos objectifs.',
     status: 'active',
     color: 'var(--success)',
     colorLight: 'var(--success-light)',
@@ -32,8 +32,8 @@ const MODULES = [
   {
     id: 'fire',
     icon: Sunrise,
-    title: 'Financial Freedom',
-    description: 'Calculate your Freedom Number and estimate when you could live off passive income using the 4% rule.',
+    title: 'Indépendance financière',
+    description: 'Calculez votre nombre de liberté et estimez quand vous pourriez vivre de vos revenus passifs (règle des 4 %).',
     status: 'active',
     color: '#f59e0b',
     colorLight: 'rgba(245, 158, 11, 0.12)',
@@ -41,8 +41,8 @@ const MODULES = [
   {
     id: 'scenarios',
     icon: GitBranch,
-    title: 'Scenario Comparison',
-    description: 'Compare 3 investment strategies and see which one gets you to your goal fastest.',
+    title: 'Comparaison de scénarios',
+    description: 'Comparez 3 stratégies et voyez laquelle vous rapproche le plus vite de votre objectif.',
     status: 'active',
     color: 'var(--danger)',
     colorLight: 'rgba(239, 68, 68, 0.12)',
@@ -50,8 +50,8 @@ const MODULES = [
   {
     id: 'envelopes',
     icon: Layers,
-    title: 'Account-Type Projection',
-    description: 'Analyze how each account type contributes to your overall wealth growth over time.',
+    title: 'Projection par enveloppe',
+    description: 'Analysez comment chaque type de compte contribue à votre patrimoine.',
     status: 'coming',
     color: '#8b5cf6',
     colorLight: 'rgba(139, 92, 246, 0.12)',
@@ -64,11 +64,11 @@ export default function StrategyLab() {
       <div className="strategy-lab-hero">
         <div className="strategy-lab-hero-content">
           <div className="strategy-lab-hero-badge">
-            <Sparkles size={14} /> Strategy Optimization
+            <Sparkles size={14} /> Optimisation stratégique
           </div>
-          <h1 className="strategy-lab-title">Strategy Lab</h1>
+          <h1 className="strategy-lab-title">Labo Stratégie</h1>
           <p className="strategy-lab-subtitle">
-            Your strategic laboratory. Project, compare and optimize your wealth trajectory with data-driven tools.
+            Votre laboratoire stratégique. Projetez, comparez et optimisez la trajectoire de votre patrimoine.
           </p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function StrategyLab() {
               {status === 'coming' && (
                 <span className="strategy-lab-badge">
                   <Lock size={10} />
-                  Coming Soon
+                  Bientôt disponible
                 </span>
               )}
             </div>
@@ -92,11 +92,11 @@ export default function StrategyLab() {
             <div className="strategy-lab-card-footer">
               {status === 'coming' ? (
                 <span className="strategy-lab-card-cta strategy-lab-card-cta--disabled">
-                  Available soon
+                  Disponible prochainement
                 </span>
               ) : (
                 <Link to={`/strategy/${id}`} className="strategy-lab-card-cta">
-                  Open <ArrowRight size={14} />
+                  Ouvrir <ArrowRight size={14} />
                 </Link>
               )}
             </div>
@@ -115,12 +115,12 @@ export default function StrategyLab() {
           <TrendingUp size={18} />
         </div>
         <div>
-          <h4>How does Strategy Lab work?</h4>
+          <h4>Comment fonctionne le Labo Stratégie ?</h4>
           <p>
-            Strategy Lab uses your real portfolio data as a starting point,
-            then applies projection engines to simulate wealth evolution
-            under different assumptions. Each module lets you explore a specific
-            aspect of your investment strategy.
+            Le Labo Stratégie utilise les données réelles de votre patrimoine comme point de départ,
+            puis applique des moteurs de projection pour simuler l'évolution de votre richesse
+            selon différentes hypothèses. Chaque module vous permet d'explorer un aspect précis
+            de votre stratégie d'investissement.
           </p>
         </div>
       </div>

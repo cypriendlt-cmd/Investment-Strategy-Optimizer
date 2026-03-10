@@ -26,35 +26,35 @@ function AddFundraisingModal({ onClose, onAdd }) {
     <div className="modal-overlay">
       <div className="modal">
         <div className="modal-header">
-          <h3 className="modal-title">Add Project</h3>
+          <h3 className="modal-title">Ajouter un projet</h3>
           <button className="btn btn-ghost btn-icon" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Project Name</label>
+            <label className="form-label">Nom du projet</label>
             <input className="form-input" placeholder="Startup XYZ" required value={form.projectName} onChange={e => setForm({ ...form, projectName: e.target.value })} />
           </div>
           <div className="grid grid-2 gap-16">
             <div className="form-group">
-              <label className="form-label">Amount Invested (€)</label>
+              <label className="form-label">Montant investi (€)</label>
               <input className="form-input" type="number" step="0.01" required value={form.amountInvested} onChange={e => setForm({ ...form, amountInvested: e.target.value })} />
             </div>
             <div className="form-group">
-              <label className="form-label">Unit Price (€)</label>
+              <label className="form-label">Prix unitaire (€)</label>
               <input className="form-input" type="number" step="0.01" required value={form.unitPrice} onChange={e => setForm({ ...form, unitPrice: e.target.value })} />
             </div>
           </div>
           <div className="form-group">
-            <label className="form-label">Number of Units</label>
+            <label className="form-label">Nombre de parts</label>
             <input className="form-input" type="number" step="any" required value={form.units} onChange={e => setForm({ ...form, units: e.target.value })} />
           </div>
           <div className="form-group">
-            <label className="form-label">Investment Date</label>
+            <label className="form-label">Date d'investissement</label>
             <input className="form-input" type="date" required value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Add</button>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Annuler</button>
+            <button type="submit" className="btn btn-primary">Ajouter</button>
           </div>
         </form>
       </div>
@@ -81,12 +81,12 @@ export default function Fundraising() {
       <div className="card mb-24 page-hero">
         <div className="flex items-center justify-between">
           <div>
-            <p className="stat-label">Total Invested — Fundraising</p>
+            <p className="stat-label">Mes participations (levées de fonds)</p>
             <p className="stat-value page-hero-value">{m(fmt(totals.fundraising))}</p>
-            <p className="stat-sub mt-8">{portfolio.fundraising.length} project{portfolio.fundraising.length > 1 ? 's' : ''}</p>
+            <p className="stat-sub mt-8">{portfolio.fundraising.length} projet{portfolio.fundraising.length > 1 ? 's' : ''}</p>
           </div>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            <Plus size={16} /> Add Project
+            <Plus size={16} /> Ajouter un projet
           </button>
         </div>
       </div>
@@ -96,12 +96,12 @@ export default function Fundraising() {
           <table>
             <thead>
               <tr>
-                <th>Project</th>
-                <th>Amount Invested</th>
-                <th>Unit Price</th>
-                <th>Number of Units</th>
+                <th>Projet</th>
+                <th>Montant investi</th>
+                <th>Prix unitaire</th>
+                <th>Nombre de parts</th>
                 <th>Date</th>
-                {(portfolio.goals || []).length > 0 && <th>Goal</th>}
+                {(portfolio.goals || []).length > 0 && <th>Objectif</th>}
                 <th></th>
               </tr>
             </thead>
@@ -135,8 +135,8 @@ export default function Fundraising() {
                   <td colSpan={6}>
                     <div className="empty-state">
                       <div className="empty-state-icon"><Rocket /></div>
-                      <h3>No Projects</h3>
-                      <p>Add your fundraising projects to track them here.</p>
+                      <h3>Aucun projet</h3>
+                      <p>Ajoutez vos investissements en startups ou projets privés.</p>
                     </div>
                   </td>
                 </tr>
