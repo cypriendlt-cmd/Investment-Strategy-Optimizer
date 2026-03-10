@@ -964,6 +964,9 @@ tr:hover td { background: var(--bg-card-hover); }
 .account-type { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
 .account-balance { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin-top: 8px; }
 .balance-input-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.balance-input-row input { flex: 1; padding: 7px 10px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.82rem; outline: none; font-family: inherit; transition: border-color var(--transition-fast); }
+.balance-input-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle); }
+.balance-input-row input::placeholder { color: var(--text-muted); }
 
 /* Stats mini */
 .stats-row { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -979,6 +982,13 @@ tr:hover td { background: var(--bg-card-hover); }
 
 /* Transactions */
 .tx-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.tx-filters input, .tx-filters select { padding: 7px 10px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.82rem; outline: none; font-family: inherit; transition: border-color var(--transition-fast); color-scheme: dark; }
+.tx-filters input { min-width: 160px; }
+.tx-filters input:focus, .tx-filters select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle); }
+.tx-filters input::placeholder { color: var(--text-muted); }
+.tx-filters select option { background: var(--bg-secondary); color: var(--text-primary); }
+[data-mode="light"] .tx-filters input, [data-mode="light"] .tx-filters select { color-scheme: light; }
+[data-mode="light"] .tx-filters select option { background: #ffffff; color: #0f172a; }
 .tx-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
 .tx-table th { text-align: left; font-size: 0.67rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 10px; border-bottom: 1px solid var(--border); }
 .tx-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
