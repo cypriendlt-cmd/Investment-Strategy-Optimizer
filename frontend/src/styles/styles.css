@@ -1018,10 +1018,35 @@ tr:hover td { background: var(--bg-card-hover); }
 .alloc-value { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-secondary); min-width: 72px; text-align: right; }
 
 /* Projection bars */
-.projection-bars { display: flex; flex-direction: column; gap: 10px; }
-.projection-bar-col { display: flex; flex-direction: column; gap: 4px; }
+.projection-bars {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 6px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  min-height: 180px;
+}
+.projection-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 48px;
+}
+.projection-bar {
+  width: 100%;
+  background: var(--accent);
+  border-radius: 4px 4px 0 0;
+  opacity: 0.7;
+  transition: height 0.4s ease, opacity 0.2s;
+  min-height: 4px;
+}
+.projection-bar:hover { opacity: 1; }
+.projection-bar.highlight { background: #22c55e; opacity: 1; }
 .projection-bar-label { font-size: 0.72rem; color: var(--text-muted); }
-.projection-bar-value { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600; }
+.projection-bar-value { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
 
 /* Coach tab */
 .coach-tab { display: flex; flex-direction: column; gap: 20px; }
