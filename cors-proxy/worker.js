@@ -1,5 +1,5 @@
 /**
- * Cloudflare Worker — CORS proxy for Portfolio Manager
+ * Cloudflare Worker — CORS proxy for Strategy Optimizer
  *
  * Deployment:
  *   1. Go to https://dash.cloudflare.com → Workers & Pages → Create

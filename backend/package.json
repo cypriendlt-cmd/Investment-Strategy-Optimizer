@@ -1,7 +1,7 @@
 {
   "name": "portfolio-manager-backend",
   "version": "1.0.0",
-  "description": "Portfolio Manager V2 Backend API",
+  "description": "Strategy Optimizer Backend API",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

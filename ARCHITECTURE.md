@@ -1,4 +1,4 @@
-# Portfolio Manager V2 - Architecture
+# Strategy Optimizer - Architecture
 
 ## Tech Stack
 

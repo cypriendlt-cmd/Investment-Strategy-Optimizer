@@ -534,6 +534,10 @@ p { color: var(--text-secondary); }
 .form-input, .form-select { width: 100%; padding: 9px 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.85rem; transition: all var(--transition-fast); outline: none; }
 .form-input:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-subtle); background: rgba(255,255,255,0.06); }
 .form-input::placeholder { color: var(--text-muted); }
+select, .form-select { color-scheme: dark; }
+select option { background: var(--bg-secondary); color: var(--text-primary); }
+[data-mode="light"] select, [data-mode="light"] .form-select { color-scheme: light; }
+[data-mode="light"] select option { background: #ffffff; color: #0f172a; }
 .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 .form-hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
 
@@ -963,10 +967,10 @@ tr:hover td { background: var(--bg-card-hover); }
 
 /* Stats mini */
 .stats-row { display: flex; gap: 12px; flex-wrap: wrap; }
-.stat-mini { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; flex: 1; min-width: 110px; }
-.stat-mini-label { font-size: 0.67rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
-.stat-mini-value { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-top: 4px; }
-.stat-mini-note { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+.stat-mini { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; flex: 1; min-width: 110px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.stat-mini-label { display: block; font-size: 0.67rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.stat-mini-value { display: block; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); }
+.stat-mini-note { display: block; font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
 
 /* Segmented control */
 .segmented-control { display: inline-flex; background: var(--bg-secondary); border-radius: var(--radius-md); padding: 3px; gap: 2px; }
@@ -1017,6 +1021,12 @@ tr:hover td { background: var(--bg-card-hover); }
 .coach-gauge-label { font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 4px; }
 .coach-profile-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
 .coach-profile-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.coach-profile-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast); text-align: left; flex: 1; min-width: 120px; }
+.coach-profile-btn strong { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); display: block; }
+.coach-profile-btn span { font-size: 0.72rem; color: var(--text-muted); display: block; line-height: 1.4; }
+.coach-profile-btn:hover { border-color: var(--accent); background: var(--accent-subtle); }
+.coach-profile-btn.active { border-color: var(--accent); background: var(--accent-light); color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.coach-profile-btn.active strong { color: var(--accent); }
 .coach-recs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
 .coach-rec-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 8px; transition: border-color var(--transition-fast); }
 .coach-rec-card:hover { border-color: var(--border-strong); }

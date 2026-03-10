@@ -1,5 +1,5 @@
 /**
- * Portfolio Manager V2 - Express Server
+ * Strategy Optimizer - Express Server
  * Entry point for the backend API.
  *
  * Port: 3001 (configurable via PORT env var)
@@ -148,7 +148,7 @@ app.use((err, req, res, _next) => {
 const PORT = config.server.port;
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 Portfolio Manager API running on http://localhost:${PORT}`);
+  console.log(`\n🚀 Strategy Optimizer API running on http://localhost:${PORT}`);
   console.log(`   Environment: ${config.server.nodeEnv}`);
   console.log(`   Frontend URL: ${config.frontend.url}`);
   console.log(`\n📍 Available routes:`);
