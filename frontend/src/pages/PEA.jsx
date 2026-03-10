@@ -285,8 +285,8 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
           <span className="asset-card-summary-value">{m(fmt(currentPRU))}</span>
         </div>
         <div className="asset-card-summary-item">
-          <span className="asset-card-summary-label">Valeur actuelle</span>
-          <span className="asset-card-summary-value font-semibold">{m(fmt(totalValue))}</span>
+          <span className="asset-card-summary-label">Cours actuel</span>
+          <span className="asset-card-summary-value font-semibold">{fmt(current)}</span>
         </div>
         <div className="asset-card-summary-item">
           <span className="asset-card-summary-label">Plus/moins-value</span>

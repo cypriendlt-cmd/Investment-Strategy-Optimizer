@@ -576,19 +576,30 @@ const SUGGESTED = {
 
 function InvestmentsTab({ profile, hasProfile, m }) {
   const { totals } = usePortfolio()
+  const { accountBalances } = useBank() || {}
+
+  // Livrets imported from bank export (type === 'livret') not already tracked in portfolio
+  const bankLivretsTotal = useMemo(() => {
+    if (!accountBalances) return 0
+    return accountBalances
+      .filter(a => a.type === 'livret')
+      .reduce((s, a) => s + (a.balance || 0), 0)
+  }, [accountBalances])
 
   const data = useMemo(() => {
     if (!totals || !hasProfile || !profile) return null
-    const total = ALLOC_KEYS.reduce((s, k) => s + (totals[k] || 0), 0)
-    const current = ALLOC_KEYS.map(k => total > 0 ? ((totals[k] || 0) / total) * 100 : 0)
+    // Merge portfolio livrets + bank-imported livrets
+    const mergedTotals = { ...totals, livrets: (totals.livrets || 0) + bankLivretsTotal }
+    const total = ALLOC_KEYS.reduce((s, k) => s + (mergedTotals[k] || 0), 0)
+    const current = ALLOC_KEYS.map(k => total > 0 ? ((mergedTotals[k] || 0) / total) * 100 : 0)
     const key = `${profile.riskTolerance}-${profile.investmentHorizon}`
     const suggested = SUGGESTED[key] || SUGGESTED['modere-moyen']
-    return { total, current, suggested }
-  }, [totals, profile, hasProfile])
+    return { total, current, suggested, mergedTotals }
+  }, [totals, bankLivretsTotal, profile, hasProfile])
 
   if (!hasProfile || !data) return null
 
-  const { total, current, suggested } = data
+  const { total, current, suggested, mergedTotals } = data
 
   return (
     <>
@@ -606,7 +617,7 @@ function InvestmentsTab({ profile, hasProfile, m }) {
                 <div className="alloc-bar" style={{ width: `${current[i]}%`, background: ALLOC_COLORS[k] }} />
               </div>
               <span className="alloc-pct">{current[i].toFixed(1)} %</span>
-              <span className="alloc-value">{m(fmt(totals[k] || 0))}</span>
+              <span className="alloc-value">{m(fmt(mergedTotals[k] || 0))}</span>
             </div>
           ))
         )}

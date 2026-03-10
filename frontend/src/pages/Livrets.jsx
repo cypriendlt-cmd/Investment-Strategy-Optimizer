@@ -408,10 +408,26 @@ export default function Livrets() {
   }
   const [showModal, setShowModal] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
+  const [configAccount, setConfigAccount] = useState(null)
 
   // Bank livrets (from imported Excel)
   const bankLivrets = (bankCtx?.accountBalances || []).filter(a => a.type !== 'courant')
   const bankLivretsTotal = bankLivrets.reduce((s, a) => s + a.balance, 0)
+
+  const bankLivretData = useMemo(() => {
+    const data = {}
+    for (const acc of bankLivrets) {
+      const type = acc.livretType
+      if (!type) continue
+      const txs = (bankCtx?.bankHistory?.transactions || [])
+        .filter(t => t.accountId === acc.id)
+        .map(t => ({ date: t.date, amount: t.amount }))
+        .sort((a, b) => a.date.localeCompare(b.date))
+      const livretObj = { type, balance: acc.balance, movements: txs, openDate: acc.openDate || null, customRate: acc.customRate != null ? acc.customRate : null }
+      data[acc.id] = { ytd: calculateInterestYTD(livretObj), annual: calculateInterestAnnualEstimate(livretObj) }
+    }
+    return data
+  }, [bankLivrets, bankCtx?.bankHistory?.transactions])
 
   const interestData = useMemo(() => {
     const data = {}
@@ -597,7 +613,7 @@ export default function Livrets() {
           )
         })}
 
-        {portfolio.livrets.length === 0 && (
+        {portfolio.livrets.length === 0 && bankLivrets.length === 0 && (
           <div className="empty-state" style={{ gridColumn: 'span 2' }}>
             <div className="empty-state-icon"><PiggyBank /></div>
             <h3>Aucun livret ajouté</h3>
@@ -607,17 +623,138 @@ export default function Livrets() {
             </button>
           </div>
         )}
+
+        {/* Bank-imported livrets merged into main grid */}
+        {bankLivrets.map(a => {
+          const type = a.livretType
+          const info = type ? (LIVRET_TYPES[type] || { label: type, color: 'var(--accent)', max: 0 }) : null
+          const rate = a.customRate != null ? a.customRate : (type ? (getCurrentRate(type) || 0) : 0)
+          const data = bankLivretData[a.id]
+          const ytd = data?.ytd?.ytd || 0
+          const annual = data?.annual?.annual || 0
+          const byQuinzaine = data?.annual?.byQuinzaine || []
+          const fillPct = info?.max ? Math.min((a.balance / info.max) * 100, 100) : 0
+          const isExpanded = expandedId === `bank_${a.id}`
+          const color = info?.color || 'var(--accent)'
+          const movements = (bankCtx?.bankHistory?.transactions || [])
+            .filter(t => t.accountId === a.id)
+            .sort((x, y) => y.date.localeCompare(x.date))
+
+          return (
+            <div key={a.id} className="card" style={{ borderTop: `3px solid ${color}` }}>
+              <div className="flex items-center justify-between mb-16">
+                <div className="flex items-center gap-12">
+                  <div className="livret-card-icon" style={{ background: (info ? color : 'var(--accent)') + '22', color }}>
+                    <PiggyBank size={20} />
+                  </div>
+                  <div>
+                    <div className="font-semibold">{a.alias}</div>
+                    <div className="text-sm text-muted">{info ? info.label : a.type}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-8">
+                  <span className="badge" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-muted)', fontSize: '0.65rem' }}>Via export bancaire</span>
+                  {type && <span className="badge badge-accent">{fmtPct(rate)}</span>}
+                  {!type && <span className="badge" style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b', fontSize: '0.7rem' }}>Non configuré</span>}
+                  <button className="btn btn-ghost btn-icon btn-sm" onClick={() => setConfigAccount(a)} title="Configurer">
+                    <Pencil size={14} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-16">
+                <div className="flex justify-between mb-8">
+                  <span className="text-2xl font-bold">{m(fmt(a.balance))}</span>
+                  {info?.max > 0 && <span className="text-sm text-muted">/ {fmt(info.max)}</span>}
+                </div>
+                {info?.max > 0 && (
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${fillPct}%`, background: color }} />
+                  </div>
+                )}
+              </div>
+
+              {type ? (
+                <div className="grid grid-3 gap-12 mb-12">
+                  <div className="livret-stat-box">
+                    <div className="text-xs text-muted mb-4">Intérêts depuis le 1er janvier</div>
+                    <div className="font-semibold text-success">{m(fmt(ytd))}</div>
+                  </div>
+                  <div className="livret-stat-box">
+                    <div className="text-xs text-muted mb-4">Estimation annuelle</div>
+                    <div className="font-semibold text-success">{m(fmt(annual))}</div>
+                  </div>
+                  <div className="livret-stat-box">
+                    <div className="text-xs text-muted mb-4">Moy. par quinzaine</div>
+                    <div className="font-semibold text-success">{m(fmt(annual / 24))}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="livret-info-box">
+                  Configurez le type de livret pour activer le calcul automatique des intérêts.
+                </div>
+              )}
+
+              <button
+                className="btn btn-ghost btn-sm livret-expand-btn"
+                onClick={() => setExpandedId(isExpanded ? null : `bank_${a.id}`)}
+              >
+                {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                {isExpanded ? 'Masquer les détails' : 'Voir les détails'}
+              </button>
+
+              {isExpanded && (
+                <div className="mt-16">
+                  <h4 className="livret-section-title">Mouvements ({movements.length})</h4>
+                  {movements.length === 0 && <p className="text-sm text-muted mb-8">Aucun mouvement importé.</p>}
+                  {movements.length > 0 && (
+                    <div className="livret-movement-scroll">
+                      {movements.map((mv, idx) => (
+                        <div key={idx} className="flex items-center justify-between livret-movement-item">
+                          <div className="flex items-center gap-8">
+                            {mv.amount > 0 ? <ArrowDownLeft size={14} className="text-success" /> : <ArrowUpRight size={14} className="text-danger" />}
+                            <span className="text-sm">{fmtDate(mv.date)}</span>
+                            <span className="text-xs text-muted livret-movement-label">{mv.label}</span>
+                          </div>
+                          <span className={`text-sm font-semibold ${mv.amount > 0 ? 'text-success' : 'text-danger'}`}>
+                            {m(`${mv.amount > 0 ? '+' : ''}${fmt(mv.amount)}`)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {type && byQuinzaine.length > 0 && (
+                    <>
+                      <h4 className="livret-section-title-spaced">Détail par quinzaine</h4>
+                      <div className="livret-quinzaine-scroll">
+                        <table className="livret-quinzaine-table">
+                          <thead><tr><th>Période</th><th className="text-right">Solde</th><th className="text-right">Taux</th><th className="text-right">Intérêts</th></tr></thead>
+                          <tbody>
+                            {byQuinzaine.map((q, i) => (
+                              <tr key={i}>
+                                <td>{fmtDate(q.start)} - {fmtDate(q.end)}</td>
+                                <td className="text-right">{m(fmt(q.balance))}</td>
+                                <td className="text-right">{fmtPct(q.rate)}</td>
+                                <td className="text-right text-success">{m(fmt(q.interest))}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
 
-      {/* ═══ Bank Livrets (imported from Excel) ═══ */}
-      {bankLivrets.length > 0 && (
-        <BankLivretsSection
-          bankLivrets={bankLivrets}
-          bankLivretsTotal={bankLivretsTotal}
-          bankCtx={bankCtx}
-          m={m}
-          expandedId={expandedId}
-          setExpandedId={setExpandedId}
+      {configAccount && (
+        <ConfigureBankLivretModal
+          account={configAccount}
+          onClose={() => setConfigAccount(null)}
+          onSave={(id, fields) => bankCtx.updateAccount(id, fields)}
         />
       )}
 
