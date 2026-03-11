@@ -794,6 +794,16 @@ tbody tr:hover td { background: var(--bg-hover); }
 .objective-empty               { text-align: center; padding: 24px 16px; }
 .objective-empty p             { margin: 8px 0 16px; font-size: 0.875rem; color: var(--text-muted); }
 
+/* Dashboard goals list */
+.dash-goals-list               { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.dash-goal-item                { display: flex; flex-direction: column; gap: 5px; }
+.dash-goal-item-header         { display: flex; justify-content: space-between; align-items: center; }
+.dash-goal-item-name           { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }
+.dash-goal-item-pct            { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--accent); }
+.dash-goal-item-bar            { height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden; }
+.dash-goal-item-bar-fill       { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; min-width: 2px; }
+.dash-goal-item-footer         { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; }
+
 .scenarios-grid       { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
 .scenario-card        { padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-card); transition: all var(--transition-fast); }
 .scenario-card:hover  { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
@@ -1273,6 +1283,20 @@ tbody tr:hover td { background: var(--bg-hover); }
 .goals-card-progress-bar    { width: 100%; height: 8px; background: var(--bg-input); border-radius: var(--radius-full); overflow: hidden; }
 .goals-card-progress-fill   { height: 100%; border-radius: var(--radius-full); transition: width 0.5s ease; }
 .goals-card-meta   { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.75rem; color: var(--text-muted); }
+
+/* Goal feasibility panel */
+.goal-feasibility-panel        { margin-top: 16px; border-radius: var(--radius-md); border: 1px solid var(--border); overflow: hidden; }
+.goal-feasibility-header       { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 0.82rem; font-weight: 600; }
+.goal-feasibility--ok          { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+.goal-feasibility--warn        { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+.goal-feasibility-detail       { padding: 8px 14px; font-size: 0.78rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 4px; }
+.goal-feasibility-detail strong { color: var(--text-primary); }
+.goal-feasibility-suggestions  { padding: 10px 14px; border-top: 1px solid var(--border); }
+.goal-feasibility-suggestions-title { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+.goal-feasibility-suggestion   { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; }
+.goal-feasibility-suggestion-label  { font-size: 0.78rem; color: var(--text-muted); }
+.goal-feasibility-suggestion-value  { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--radius-sm); background: var(--accent-light); color: var(--accent); font-size: 0.78rem; font-weight: 600; border: 1px solid transparent; cursor: pointer; transition: all 0.15s ease; }
+.goal-feasibility-suggestion-value:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
 
 /* ============================================================
    31. BANKING

@@ -18,6 +18,7 @@ import { getMonthlyDcaSummary, getLinkedAsset, computeDcaProgress } from '../ser
 import { Link } from 'react-router-dom'
 import { runProjection } from '../services/strategy'
 import { analyzePortfolio } from '../services/portfolioAnalytics'
+import { computeGoalProgress } from '../services/goalsEngine'
 import { fmt, fmtPct } from '../utils/format'
 
 const MONTH_NAMES = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -255,8 +256,12 @@ export default function Dashboard() {
     const goals = portfolio?.goals || []
     if (goals.length === 0) return null
     const totalTarget = goals.reduce((s, g) => s + (g.targetAmount || 0), 0)
-    return { count: goals.length, totalTarget }
-  }, [portfolio?.goals])
+    const displayed = goals.slice(0, 3).map(g => {
+      const progress = computeGoalProgress(g, portfolio, totals, accountBalances)
+      return { ...g, progress }
+    })
+    return { count: goals.length, totalTarget, goals: displayed }
+  }, [portfolio?.goals, portfolio, totals, accountBalances])
   const objective = goalsData?.totalTarget || null
   const progressPct = objective ? Math.min((patrimoineNet / objective) * 100, 100) : 0
 
@@ -446,11 +451,11 @@ export default function Dashboard() {
         </div>
 
         <div className="bento-card bento-card--kpi dash-card">
-          <span className="bento-card-eyebrow">Objectif</span>
-          {objective ? (
+          <span className="bento-card-eyebrow">Objectifs</span>
+          {goalsData ? (
             <>
-              <span className="bento-kpi-value text-accent">{progressPct.toFixed(0)}<span className="bento-kpi-unit">%</span></span>
-              <span className="bento-kpi-sub">{m(fmt(objective))}</span>
+              <span className="bento-kpi-value text-accent">{goalsData.count}</span>
+              <span className="bento-kpi-sub">{progressPct.toFixed(0)}% global</span>
             </>
           ) : (
             <>
@@ -553,36 +558,30 @@ export default function Dashboard() {
           <div className="objective-card-header">
             <div className="flex items-center gap-8">
               <Target size={16} className="text-warning" />
-              <span className="dash-card-title" style={{ margin: 0 }}>Objectif financier</span>
+              <span className="dash-card-title" style={{ margin: 0 }}>Mes objectifs</span>
             </div>
-            <Link to="/strategy" className="insight-link" style={{ margin: 0, padding: 0 }}>Stratégie <ArrowRight size={12} /></Link>
+            <Link to="/strategy/objectifs" className="insight-link" style={{ margin: 0, padding: 0 }}>
+              {goalsData && goalsData.count > 3 ? 'Voir tous' : 'Gérer'} <ArrowRight size={12} />
+            </Link>
           </div>
-          {objective ? (
-            <>
-              <div className="objective-progress-container">
-                <div className="objective-progress-bar">
-                  <div className="objective-progress-fill" style={{ width: `${progressPct}%` }} />
+          {goalsData ? (
+            <div className="dash-goals-list">
+              {goalsData.goals.map(g => (
+                <div key={g.id} className="dash-goal-item">
+                  <div className="dash-goal-item-header">
+                    <span className="dash-goal-item-name">{g.label}</span>
+                    <span className="dash-goal-item-pct">{g.progress.progressPct}%</span>
+                  </div>
+                  <div className="dash-goal-item-bar">
+                    <div className="dash-goal-item-bar-fill" style={{ width: `${g.progress.progressPct}%` }} />
+                  </div>
+                  <div className="dash-goal-item-footer">
+                    <span>{m(fmt(g.progress.currentAmount))}</span>
+                    <span className="text-muted">{m(fmt(g.targetAmount))}</span>
+                  </div>
                 </div>
-                <div className="objective-progress-labels">
-                  <span>{m(fmt(patrimoineNet))}</span>
-                  <span className="text-muted">{m(fmt(objective))}</span>
-                </div>
-              </div>
-              <div className="objective-stats">
-                <div className="objective-stat">
-                  <span className="objective-stat-label">Progression</span>
-                  <span className="objective-stat-value text-accent">{progressPct.toFixed(1)}%</span>
-                </div>
-                <div className="objective-stat">
-                  <span className="objective-stat-label">Reste</span>
-                  <span className="objective-stat-value">{m(fmt(Math.max(objective - patrimoineNet, 0)))}</span>
-                </div>
-                <div className="objective-stat">
-                  <span className="objective-stat-label">Horizon</span>
-                  <span className="objective-stat-value">~{Math.ceil(Math.log(objective / Math.max(patrimoineNet, 1)) / Math.log(1.07))} ans</span>
-                </div>
-              </div>
-            </>
+              ))}
+            </div>
           ) : (
             <div className="objective-empty">
               <Target size={28} className="text-muted" />

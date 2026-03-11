@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Plus, Target, Shield, TrendingUp, Star, Plane, Home, Pencil, Trash2, X, Info } from 'lucide-react'
+import { ArrowLeft, Plus, Target, Shield, TrendingUp, Star, Plane, Home, Pencil, Trash2, X, Info, AlertTriangle, CheckCircle, Lightbulb } from 'lucide-react'
 import { usePortfolio } from '../../context/PortfolioContext'
 import { useBank } from '../../context/BankContext'
 import { usePrivacyMask } from '../../hooks/usePrivacyMask'
 import { createGoal, updateGoal, deleteGoal, computeAllGoalsProgress } from '../../services/goalsEngine'
-import { fmtMonths } from '../../services/goalProjectionEngine'
+import { fmtMonths, analyzeFeasibility, INFLATION_RATE } from '../../services/goalProjectionEngine'
 import { fmt } from '../../utils/format'
 
 const GOAL_TYPES = {
@@ -33,6 +33,27 @@ export default function Objectifs() {
   const goalsWithProgress = useMemo(() => {
     return computeAllGoalsProgress(goals, portfolio, totals, accountBalances || [])
   }, [goals, portfolio, totals, accountBalances])
+
+  const feasibility = useMemo(() => {
+    const target = Number(form.targetAmount)
+    const monthly = Number(form.monthlyContribution) || 0
+    if (!target || target <= 0) return null
+
+    // For editing, compute currentAmount from linked assets
+    let currentAmount = 0
+    if (editingId) {
+      const existing = goalsWithProgress.find(g => g.id === editingId)
+      if (existing) currentAmount = existing.progress.currentAmount
+    }
+
+    return analyzeFeasibility({
+      type: form.type,
+      targetAmount: target,
+      currentAmount,
+      monthlyContribution: monthly,
+      targetDate: form.targetDate || null,
+    })
+  }, [form.targetAmount, form.monthlyContribution, form.type, form.targetDate, editingId, goalsWithProgress])
 
   /* --- Modal handlers --- */
 
@@ -177,7 +198,7 @@ export default function Objectifs() {
                 <div className="goals-card-meta">
                   Date estimée : {estimatedDate ? new Date(estimatedDate + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : '—'}
                   {goal.progress.monthsToReach != null && goal.progress.monthsToReach > 0 && (
-                    <span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>({fmtMonths(goal.progress.monthsToReach)})</span>
+                    <span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>({fmtMonths(goal.progress.monthsToReach)}, inflation {(INFLATION_RATE * 100).toFixed(0)}%/an incluse)</span>
                   )}
                 </div>
 
@@ -355,6 +376,58 @@ export default function Objectifs() {
                 })}
               </div>
             </div>
+
+            {/* Feasibility panel */}
+            {feasibility && Number(form.monthlyContribution) > 0 && (
+              <div className="goal-feasibility-panel">
+                <div className={`goal-feasibility-header ${feasibility.feasible ? 'goal-feasibility--ok' : 'goal-feasibility--warn'}`}>
+                  {feasibility.feasible
+                    ? <><CheckCircle size={15} /> <span>Objectif atteignable</span></>
+                    : <><AlertTriangle size={15} /> <span>Objectif difficilement atteignable</span></>
+                  }
+                </div>
+                {feasibility.monthsToReach != null && (
+                  <div className="goal-feasibility-detail">
+                    <span>Date estimée (inflation {(INFLATION_RATE * 100).toFixed(0)}%/an déduite) :</span>
+                    <strong>
+                      {feasibility.projectedDate
+                        ? new Date(feasibility.projectedDate + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                        : '—'}
+                      {' '}({fmtMonths(feasibility.monthsToReach)})
+                    </strong>
+                  </div>
+                )}
+                {feasibility.monthsToReach === null && (
+                  <div className="goal-feasibility-detail" style={{ color: 'var(--danger)' }}>
+                    Avec cette épargne et ce rendement, l'objectif ne peut pas être atteint (l'inflation érode l'épargne plus vite).
+                  </div>
+                )}
+                {feasibility.suggestions.length > 0 && (
+                  <div className="goal-feasibility-suggestions">
+                    <div className="goal-feasibility-suggestions-title">
+                      <Lightbulb size={13} /> Suggestions d'ajustement
+                    </div>
+                    {feasibility.suggestions.map((s, i) => (
+                      <div key={i} className="goal-feasibility-suggestion">
+                        <span className="goal-feasibility-suggestion-label">{s.label}</span>
+                        <button
+                          type="button"
+                          className="goal-feasibility-suggestion-value"
+                          onClick={() => {
+                            if (s.type === 'contribution') setForm(f => ({ ...f, monthlyContribution: s.value }))
+                            else if (s.type === 'target') setForm(f => ({ ...f, targetAmount: s.value }))
+                            else if (s.type === 'horizon') setForm(f => ({ ...f, targetDate: s.value + '-01' }))
+                          }}
+                        >
+                          {s.type === 'contribution' ? fmt(s.value) + '/mois' : s.type === 'target' ? fmt(s.value) : new Date(s.value + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                          <span style={{ fontSize: '0.68rem', marginLeft: 4 }}>Appliquer</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
               <button className="btn btn-ghost" onClick={closeModal}>Annuler</button>
