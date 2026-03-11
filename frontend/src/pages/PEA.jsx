@@ -70,7 +70,7 @@ function AddPeaModal({ onClose, onAdd }) {
         setForm(f => ({ ...f, name: f.name || result.name }))
       }
     } catch {
-      setSearchError('Impossible de trouver ce titre (v\u00e9rifiez le code ISIN)')
+      setSearchError('Impossible de trouver ce titre (vérifiez le code ISIN)')
     } finally {
       setSearching(false)
     }
@@ -176,7 +176,7 @@ function MovementForm({ peaId, onAdd }) {
           <ArrowUpRight size={12} />Vente
         </button>
       </div>
-      <input type="number" className="form-input asset-form-qty" step="1" min="1" placeholder="Qt\u00e9" required value={quantity} onChange={e => setQuantity(e.target.value)} />
+      <input type="number" className="form-input asset-form-qty" step="1" min="1" placeholder="Qté" required value={quantity} onChange={e => setQuantity(e.target.value)} />
       <input type="number" className="form-input asset-form-price" step="0.01" min="0.01" placeholder="Prix" required value={price} onChange={e => setPrice(e.target.value)} />
       <input type="number" className="form-input asset-form-fees" step="0.01" min="0" placeholder="Frais" value={fees} onChange={e => setFees(e.target.value)} />
       <button type="submit" className="btn btn-primary btn-sm"><Plus size={14} /> Ajouter</button>
@@ -189,7 +189,7 @@ function PerformanceChart({ asset }) {
   const data = useMemo(() => buildChartData(asset), [asset])
 
   if (data.length < 2) {
-    return <div className="asset-chart-empty">Pas assez de donn\u00e9es pour le graphique (ajoutez au moins 2 mouvements)</div>
+    return <div className="asset-chart-empty">Pas assez de données pour le graphique (ajoutez au moins 2 mouvements)</div>
   }
 
   return (
@@ -324,14 +324,14 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
         <div className="asset-card-body-inner">
           {/* Market Data */}
           <div>
-            <h4 className="asset-section-title">Donn\u00e9es de march\u00e9</h4>
+            <h4 className="asset-section-title">Données de marché</h4>
             <div className="asset-market-grid">
               <div className="asset-market-box">
                 <div className="asset-market-box-label">Ouverture</div>
                 <div className="asset-market-box-value">{fmt(asset.openPrice)}</div>
               </div>
               <div className="asset-market-box">
-                <div className="asset-market-box-label">Cl\u00f4ture veille</div>
+                <div className="asset-market-box-label">Clôture veille</div>
                 <div className="asset-market-box-value">{fmt(asset.previousClose)}</div>
               </div>
               <div className="asset-market-box">
@@ -360,7 +360,7 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
                     <tr>
                       <th>Date</th>
                       <th>Type</th>
-                      <th>Qt\u00e9</th>
+                      <th>Qté</th>
                       <th>Prix</th>
                       <th>Prix moy.</th>
                       <th className="col-fees">Frais</th>
@@ -398,7 +398,7 @@ function PeaCard({ asset, isExpanded, onToggle, onDelete, onAddMovement, onDelet
               </div>
             )}
             {movements.length === 0 && (
-              <p className="text-sm text-muted" style={{ marginBottom: 8 }}>Aucune transaction enregistr\u00e9e.</p>
+              <p className="text-sm text-muted" style={{ marginBottom: 8 }}>Aucune transaction enregistrée.</p>
             )}
             <MovementForm peaId={asset.id} onAdd={onAddMovement} />
           </div>
@@ -442,7 +442,7 @@ export default function PEA() {
       <div className="card mb-24 page-hero">
         <div className="asset-header-top">
           <div>
-            <p className="stat-label">Mon PEA (Plan d'\u00c9pargne en Actions)</p>
+            <p className="stat-label">Mon PEA (Plan d'Épargne en Actions)</p>
             <p className="stat-value page-hero-value">{m(fmt(totals.pea))}</p>
             <div className="flex items-center gap-12 mt-8 flex-wrap">
               {(() => {
@@ -480,7 +480,7 @@ export default function PEA() {
           <div className="asset-header-actions">
             {pricesLastUpdated && (
               <span className="text-xs text-muted">
-                Mis \u00e0 jour {fmtTime(pricesLastUpdated)}
+                Mis à jour {fmtTime(pricesLastUpdated)}
               </span>
             )}
             <button
@@ -522,7 +522,7 @@ export default function PEA() {
           <div className="empty-state">
             <div className="empty-state-icon"><TrendingUp /></div>
             <h3>Aucune action en portefeuille</h3>
-            <p>Ajoutez vos premi\u00e8res actions pour suivre votre PEA.</p>
+            <p>Ajoutez vos premières actions pour suivre votre PEA.</p>
             <button className="btn btn-primary mt-16" onClick={() => setShowModal(true)}>
               <Plus size={16} /> Ajouter une action
             </button>

@@ -167,7 +167,7 @@ function AddCryptoModal({ onClose, onAdd, editAsset }) {
           )}
 
           <div className="form-group">
-            <label className="form-label">Quantit\u00e9</label>
+            <label className="form-label">Quantité</label>
             <input className="form-input" type="number" step="any" placeholder="0.5" required
               value={form.quantity} onChange={e => setForm({ ...form, quantity: e.target.value })} />
           </div>
@@ -223,7 +223,7 @@ function MovementForm({ assetId, onAdd }) {
           <ArrowUpRight size={12} />Vente
         </button>
       </div>
-      <input type="number" className="form-input asset-form-qty" step="any" min="0.000001" placeholder="Qt\u00e9" required value={quantity} onChange={e => setQuantity(e.target.value)} />
+      <input type="number" className="form-input asset-form-qty" step="any" min="0.000001" placeholder="Qté" required value={quantity} onChange={e => setQuantity(e.target.value)} />
       <input type="number" className="form-input asset-form-price" step="0.01" min="0.01" placeholder="Prix" required value={price} onChange={e => setPrice(e.target.value)} />
       <input type="number" className="form-input asset-form-fees" step="0.01" min="0" placeholder="Frais" value={fees} onChange={e => setFees(e.target.value)} />
       <button type="submit" className="btn btn-primary btn-sm"><Plus size={14} /> Ajouter</button>
@@ -236,7 +236,7 @@ function PerformanceChart({ asset }) {
   const data = useMemo(() => buildChartData(asset), [asset])
 
   if (data.length < 2) {
-    return <div className="asset-chart-empty">Pas assez de donn\u00e9es pour le graphique (ajoutez au moins 2 mouvements)</div>
+    return <div className="asset-chart-empty">Pas assez de données pour le graphique (ajoutez au moins 2 mouvements)</div>
   }
 
   return (
@@ -380,7 +380,7 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
         <div className="asset-card-body-inner">
           {/* Market Data */}
           <div>
-            <h4 className="asset-section-title">Donn\u00e9es de march\u00e9</h4>
+            <h4 className="asset-section-title">Données de marché</h4>
             <div className="asset-market-grid">
               <div className="asset-market-box">
                 <div className="asset-market-box-label">Variation 24h</div>
@@ -397,7 +397,7 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
                 <div className="asset-market-box-value">{fmt(asset.low24h)}</div>
               </div>
               <div className="asset-market-box">
-                <div className="asset-market-box-label">Volume \u00e9chang\u00e9</div>
+                <div className="asset-market-box-label">Volume échangé</div>
                 <div className="asset-market-box-value">{asset.volume ? fmt(asset.volume) : '\u2014'}</div>
               </div>
             </div>
@@ -407,7 +407,7 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
           <div>
             <h4 className="asset-section-title">Historique des transactions</h4>
             {movements.length === 0 && (
-              <p className="text-sm text-muted mb-8">Aucune transaction enregistr\u00e9e.</p>
+              <p className="text-sm text-muted mb-8">Aucune transaction enregistrée.</p>
             )}
             {movements.length > 0 && (
               <div className="asset-table-wrap">
@@ -416,7 +416,7 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
                     <tr>
                       <th>Date</th>
                       <th>Type</th>
-                      <th>Quantit\u00e9</th>
+                      <th>Quantité</th>
                       <th>Prix</th>
                       <th>Prix moy.</th>
                       <th className="col-fees">Frais</th>
@@ -455,7 +455,7 @@ function CryptoCard({ asset, isExpanded, onToggle, onDelete, onEdit, onAddMoveme
 
           {/* Chart */}
           <div>
-            <h4 className="asset-section-title">\u00c9volution : investi vs valeur actuelle</h4>
+            <h4 className="asset-section-title">Évolution : investi vs valeur actuelle</h4>
             <div className="asset-chart-container">
               <PerformanceChart asset={asset} />
             </div>
@@ -629,7 +629,7 @@ export default function Crypto() {
           <div className="asset-header-actions">
             {pricesLastUpdated && (
               <span className="text-xs text-muted">
-                Mis \u00e0 jour {fmtTime(pricesLastUpdated)}
+                Mis à jour {fmtTime(pricesLastUpdated)}
               </span>
             )}
             {hasBinanceKeys && (
@@ -662,7 +662,7 @@ export default function Crypto() {
       {syncResult && (
         <div className={`card mb-16 crypto-sync-result ${syncResult.success ? 'crypto-sync-result--success' : 'crypto-sync-result--error'}`}>
           {syncResult.success
-            ? `Synchronisation Binance : ${syncResult.total} actifs trouv\u00e9s, ${syncResult.added} ajout\u00e9s, ${syncResult.updated} mis \u00e0 jour`
+            ? `Synchronisation Binance : ${syncResult.total} actifs trouvés, ${syncResult.added} ajoutés, ${syncResult.updated} mis à jour`
             : `Erreur Binance : ${syncResult.error}`
           }
         </div>
@@ -674,7 +674,7 @@ export default function Crypto() {
           <div className="card crypto-empty-state">
             <p>Vous n'avez pas encore de crypto</p>
             <button className="btn btn-primary" onClick={() => { setEditAsset(null); setShowModal(true) }}>
-              <Plus size={16} /> Ajouter ma premi\u00e8re crypto
+              <Plus size={16} /> Ajouter ma première crypto
             </button>
           </div>
         )}

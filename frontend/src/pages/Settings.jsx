@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Sun, Moon, Download, Upload, LogOut, Key, Globe, User, Palette, Check, AlertCircle, CheckCircle, Bell, BellOff, Send, MessageSquare, Bug, Lightbulb, HelpCircle, Loader2, Trash2, Info } from 'lucide-react'
+import { Download, Upload, LogOut, Key, Globe, User, Check, AlertCircle, CheckCircle, Bell, BellOff, Send, MessageSquare, Bug, Lightbulb, HelpCircle, Loader2, Trash2, Info } from 'lucide-react'
 import packageJson from '../../package.json'
-import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { usePortfolio } from '../context/PortfolioContext'
 import { loadFileFromDrive, saveFileToDrive } from '../services/googleDrive'
@@ -14,14 +13,6 @@ import { sendBugReport } from '../services/emailService'
 const BINANCE_KEY_STORAGE = 'pm_binance_api_key'
 const BINANCE_SECRET_STORAGE = 'pm_binance_api_secret'
 const ANTHROPIC_KEY_STORAGE = 'pm_anthropic_api_key'
-
-const THEME_META = {
-  crimson: { label: 'Crimson', colors: ['#0f1729', '#dc2626', '#f1f5f9'] },
-  ocean: { label: 'Ocean', colors: ['#0a1628', '#2563eb', '#f0f4f8'] },
-  slate: { label: 'Slate', colors: ['#111318', '#64748b', '#f8f9fa'] },
-  amethyst: { label: 'Amethyst', colors: ['#0e0f1a', '#8b5cf6', '#f5f3ff'] },
-  teal: { label: 'Teal', colors: ['#0a1a1e', '#06b6d4', '#f0fdfa'] },
-}
 
 function Section({ title, icon: Icon, children }) {
   return (
@@ -37,7 +28,6 @@ function Section({ title, icon: Icon, children }) {
 }
 
 export default function Settings() {
-  const { theme, darkMode, toggleDarkMode, changeTheme, THEMES } = useTheme()
   const { user, login, logout, isGuest } = useAuth()
   const { driveConnected, driveError, portfolio } = usePortfolio()
   const [binanceKey, setBinanceKey] = useState(() => localStorage.getItem(BINANCE_KEY_STORAGE) || '')
@@ -230,42 +220,6 @@ export default function Settings() {
             {driveConnected ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
             <span>Google Drive {driveConnected ? 'synchronisé' : driveError || 'en attente'}</span>
           </div>
-        </div>
-      </Section>
-
-      <Section title="Apparence" icon={Palette}>
-        <div className="settings-row">
-          <div>
-            <div className="settings-label">Thème de couleur</div>
-            <div className="settings-hint">Choisissez votre palette de couleurs préférée</div>
-          </div>
-        </div>
-        <div className="theme-grid">
-          {THEMES.map(t => {
-            const meta = THEME_META[t]
-            return (
-              <button key={t} className={`theme-swatch ${theme === t ? 'theme-swatch--active' : ''}`} onClick={() => changeTheme(t)}>
-                <div className="theme-colors">
-                  {meta.colors.map((c, i) => (
-                    <div key={i} style={{ background: c, flex: 1, height: '100%' }} />
-                  ))}
-                </div>
-                <span className="theme-label">{meta.label}</span>
-                {theme === t && <div className="theme-check"><Check size={12} /></div>}
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="settings-row mt-24">
-          <div>
-            <div className="settings-label">Mode sombre</div>
-            <div className="settings-hint">Basculer entre le mode clair et le mode sombre</div>
-          </div>
-          <button className="settings-toggle" onClick={toggleDarkMode}>
-            <div className={`settings-toggle-ball ${darkMode ? 'settings-toggle-ball--on' : ''}`} />
-            {darkMode ? <Moon size={14} /> : <Sun size={14} />}
-          </button>
         </div>
       </Section>
 

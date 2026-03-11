@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Menu, Sun, Moon, Bell, Search, Check, Eye, EyeOff, RefreshCw } from 'lucide-react'
-import { useTheme } from '../context/ThemeContext'
+import { Menu, Bell, Search, Check, Eye, EyeOff, RefreshCw } from 'lucide-react'
 import { usePrivacy } from '../context/PrivacyContext'
 import { usePortfolio } from '../context/PortfolioContext'
 import { getDueNotifications, markNotificationDone } from '../services/notifications'
@@ -41,7 +40,6 @@ const PAGE_DESCRIPTIONS = {
 }
 
 export default function Header({ onMenuClick }) {
-  const { darkMode, toggleDarkMode } = useTheme()
   const { hideValues, toggleHideValues } = usePrivacy()
   const { pricesLastUpdated, isRefreshingPrices, manualRefreshRef } = usePortfolio()
   const location = useLocation()
@@ -154,11 +152,6 @@ export default function Header({ onMenuClick }) {
         {/* Confidentialité */}
         <button className="btn-icon" onClick={toggleHideValues} title={hideValues ? 'Afficher les montants' : 'Masquer les montants'}>
           {hideValues ? <EyeOff size={17} /> : <Eye size={17} />}
-        </button>
-
-        {/* Mode sombre */}
-        <button className="btn-icon" onClick={toggleDarkMode} title={darkMode ? 'Mode clair' : 'Mode sombre'}>
-          {darkMode ? <Sun size={17} /> : <Moon size={17} />}
         </button>
       </div>
     </header>

@@ -1,17 +1,10 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { TrendingUp, Shield, BarChart3, Brain, Zap } from 'lucide-react'
 import stratifyIcon from '../assets/icon.svg'
 
-const THEME_META = {
-  crimson: { label: 'Crimson', accent: '#dc2626' },
-  ocean: { label: 'Ocean', accent: '#2563eb' },
-  slate: { label: 'Slate', accent: '#64748b' },
-  amethyst: { label: 'Amethyst', accent: '#8b5cf6' },
-  teal: { label: 'Teal', accent: '#06b6d4' },
-}
+const ACCENT = '#dc2626'
 
 const FEATURES = [
   { icon: TrendingUp, text: 'Projection de votre patrimoine et modélisation de trajectoire' },
@@ -23,7 +16,6 @@ const FEATURES = [
 
 export default function Login() {
   const { login, loginAsGuest, error, handleOAuthCallback } = useAuth()
-  const { theme, darkMode, toggleDarkMode, changeTheme, THEMES } = useTheme()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -33,7 +25,7 @@ export default function Login() {
     })
   }, [handleOAuthCallback, navigate])
 
-  const accent = THEME_META[theme]?.accent || '#dc2626'
+  const accent = ACCENT
 
   return (
     <div className="login-page">
@@ -96,24 +88,6 @@ export default function Login() {
             Vos données sont stockées en toute sécurité sur votre Google Drive personnel. Aucune donnée financière ne transite par nos serveurs.
           </p>
 
-          <div className="login-themes">
-            {THEMES.map(t => (
-              <button
-                key={t}
-                onClick={() => changeTheme(t)}
-                className={`login-theme-btn ${theme === t ? 'login-theme-btn--active' : ''}`}
-                style={{ background: THEME_META[t]?.accent }}
-                title={THEME_META[t]?.label}
-              />
-            ))}
-            <button
-              onClick={toggleDarkMode}
-              className="login-theme-btn login-theme-btn--mode"
-              title={darkMode ? 'Mode clair' : 'Mode sombre'}
-            >
-              {darkMode ? '☀' : '🌙'}
-            </button>
-          </div>
         </div>
       </div>
     </div>
