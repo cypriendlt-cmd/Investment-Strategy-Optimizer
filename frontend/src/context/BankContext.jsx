@@ -588,23 +588,24 @@ export function BankProvider({ children }) {
 
   const healthScore = useMemo(() => healthData.score, [healthData])
 
-  // Auto-compute finance profile
+  // Auto-compute finance profile (preserve manual overrides like dashIncomeOverride)
   const autoFinanceProfile = useMemo(() => {
-    const manual = bankHistory.financeProfile
+    const manual = bankHistory.financeProfile || EMPTY_PROFILE
     if (aggregates.length > 0) {
       const recent = aggregates.slice(-3)
       const avgIncome = recent.reduce((s, a) => s + a.income, 0) / recent.length
       const avgExpenses = recent.reduce((s, a) => s + a.expenses, 0) / recent.length
       const totalCash = accountBalances.reduce((s, acc) => s + (acc.balance || 0), 0)
       return {
+        ...manual,
         monthlyIncome: Math.round(avgIncome),
         monthlyExpenses: Math.round(avgExpenses),
         currentCash: Math.round(totalCash),
-        investmentHorizon: manual?.investmentHorizon || 'moyen',
-        riskTolerance: manual?.riskTolerance || 'modere',
+        investmentHorizon: manual.investmentHorizon || 'moyen',
+        riskTolerance: manual.riskTolerance || 'modere',
       }
     }
-    return manual || EMPTY_PROFILE
+    return manual
   }, [aggregates, bankHistory.financeProfile, accountBalances])
 
   // Enriched transactions from worker (with category, confidence, etc.)
