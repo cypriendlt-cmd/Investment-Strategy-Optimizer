@@ -68,33 +68,50 @@ export function projectGoal(goal) {
 
   const nominalRate = ANNUAL_RATES[type] || 0.03
   const useCompound = ['investment', 'real_estate', 'freedom'].includes(type)
+  // Only apply inflation for long-term goal types (investment, real_estate, freedom)
+  const isLongTerm = ['investment', 'real_estate', 'freedom'].includes(type)
+  const inflationApplied = isLongTerm ? INFLATION_RATE : 0
 
   let monthsToReach
 
   if (useCompound && nominalRate > 0) {
-    const realAnnual = (1 + nominalRate) / (1 + INFLATION_RATE) - 1
+    const realAnnual = (1 + nominalRate) / (1 + inflationApplied) - 1
     const monthlyReal = realAnnual / 12
     monthsToReach = findMonthsToTarget(currentAmount, monthlyContribution, monthlyReal, targetAmount)
   } else {
-    // Simple accumulation (no compound), still account for inflation eroding savings
-    const monthlyInflation = INFLATION_RATE / 12
-    const monthlyReal = -monthlyInflation
-    monthsToReach = findMonthsToTarget(currentAmount, monthlyContribution, monthlyReal, targetAmount)
+    // Simple accumulation (no compound)
+    if (isLongTerm) {
+      const monthlyInflation = inflationApplied / 12
+      const monthlyReal = -monthlyInflation
+      monthsToReach = findMonthsToTarget(currentAmount, monthlyContribution, monthlyReal, targetAmount)
+    } else {
+      // Short-term / security: no inflation, simple division
+      const remaining = targetAmount - currentAmount
+      monthsToReach = Math.ceil(remaining / monthlyContribution)
+    }
   }
 
   if (monthsToReach === null) {
-    return { monthsToReach: null, projectedDate: null, progressPct, projectedAmount: currentAmount, realRate: nominalRate - INFLATION_RATE, nominalRate }
+    return { monthsToReach: null, projectedDate: null, progressPct, projectedAmount: currentAmount, realRate: nominalRate - inflationApplied, nominalRate }
   }
 
-  const projDate = new Date()
-  projDate.setMonth(projDate.getMonth() + monthsToReach)
+  // Cap at 50 years (600 months) — beyond that, date is not meaningful
+  let projectedDate = null
+  if (monthsToReach <= 600) {
+    try {
+      const projDate = new Date()
+      projDate.setMonth(projDate.getMonth() + monthsToReach)
+      const iso = projDate.toISOString().slice(0, 7)
+      if (iso && !iso.includes('NaN')) projectedDate = iso
+    } catch { /* invalid date — leave null */ }
+  }
 
   return {
     monthsToReach,
-    projectedDate:   projDate.toISOString().slice(0, 7),
+    projectedDate,
     progressPct,
     projectedAmount: Math.round(targetAmount),
-    realRate:        nominalRate - INFLATION_RATE,
+    realRate:        nominalRate - inflationApplied,
     nominalRate,
   }
 }
@@ -121,7 +138,9 @@ export function analyzeFeasibility({ type, targetAmount, currentAmount, monthlyC
 
   if (!feasible || !withinDate) {
     const nominalRate = ANNUAL_RATES[type] || 0.03
-    const realAnnual = (1 + nominalRate) / (1 + INFLATION_RATE) - 1
+    const isLongTerm = ['investment', 'real_estate', 'freedom'].includes(type)
+    const inflationApplied = isLongTerm ? INFLATION_RATE : 0
+    const realAnnual = (1 + nominalRate) / (1 + inflationApplied) - 1
     const monthlyReal = realAnnual / 12
     const horizon = targetDateMonths || 240 // default 20 years if no date
 
@@ -203,6 +222,7 @@ export function getDefaultGoals(avgMonthlyExpenses, totalCash) {
 export function fmtMonths(months) {
   if (months === null || months === undefined) return '—'
   if (months <= 0)  return 'Atteint !'
+  if (months > 600) return '+50 ans'
   if (months < 12)  return `${months} mois`
   const y = Math.floor(months / 12)
   const m = months % 12

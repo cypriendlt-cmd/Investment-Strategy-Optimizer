@@ -17,7 +17,7 @@ function generateId() {
 
 // ─── CRUD ────────────────────────────────────────────────────────────────────────
 
-function createGoal({ label, type, targetAmount, targetDate = null, icon = 'default', monthlyContribution = 0 }) {
+function createGoal({ label, type, targetAmount, targetDate = null, icon = 'default', monthlyContribution = 0, riskProfile = 'balanced' }) {
   return {
     id: generateId(),
     label,
@@ -25,6 +25,7 @@ function createGoal({ label, type, targetAmount, targetDate = null, icon = 'defa
     targetAmount,
     targetDate,
     monthlyContribution,
+    riskProfile,
     linkedAssets: [],
     createdAt: new Date().toISOString(),
     icon,
