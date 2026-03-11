@@ -217,7 +217,7 @@ function computeStrategyScore(allocationData, progressPct, dcaSummary) {
 
 export default function Dashboard() {
   const { portfolio, totals, dcaPlans } = usePortfolio()
-  const { accountBalances, aggregates } = useBank() || {}
+  const { accountBalances, aggregates, financeProfile } = useBank() || {}
   const { user, isGuest } = useAuth()
   const { m, mp } = usePrivacyMask()
   const [fearGreed, setFearGreed] = useState({ crypto: 0, market: 0 })
@@ -308,7 +308,20 @@ export default function Dashboard() {
   }, [dcaPlans, portfolio])
 
   const lastAgg = aggregates?.[aggregates.length - 1]
-  const monthSavings = (lastAgg?.income || 0) - (lastAgg?.expenses || 0)
+  const monthlyIncome = financeProfile?.monthlyIncome || lastAgg?.income || 0
+  const monthlyExpenses = financeProfile?.monthlyExpenses || lastAgg?.expenses || 0
+  const monthSavings = monthlyIncome - monthlyExpenses
+  const savingsRate = monthlyIncome > 0 ? (monthSavings / monthlyIncome) * 100 : null
+
+  const monthlyEvolution = useMemo(() => {
+    if (perfData.length < 2) return null
+    const prev = perfData[perfData.length - 2]?.value
+    const curr = perfData[perfData.length - 1]?.value
+    if (!prev || prev === 0) return null
+    const delta = curr - prev
+    const pct = (delta / prev) * 100
+    return { delta, pct }
+  }, [perfData])
 
   const performers = useMemo(() => {
     const cryptoGains = portfolio.crypto
@@ -363,17 +376,43 @@ export default function Dashboard() {
             {m(fmt(totalGain))} ({mp(fmtPct(gainPct))})
           </span>
           <div className="bento-hero-divider" />
-          <div className="bento-hero-meta">
-            <span className="bento-hero-meta-label">Projection 10 ans</span>
-            <span className="bento-hero-meta-value">{m(fmt(projectedTarget))}</span>
+          <div className="bento-hero-metas">
+            <div className="bento-hero-meta">
+              <span className="bento-hero-meta-label">Projection 10 ans</span>
+              <span className="bento-hero-meta-value">{m(fmt(projectedTarget))}</span>
+            </div>
+            {monthlyEvolution && (
+              <div className="bento-hero-meta">
+                <span className="bento-hero-meta-label">Évolution récente</span>
+                <span className="bento-hero-meta-value" style={{ color: monthlyEvolution.delta >= 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
+                  {monthlyEvolution.delta >= 0 ? '+' : ''}{m(fmt(monthlyEvolution.delta))} ({monthlyEvolution.pct >= 0 ? '+' : ''}{monthlyEvolution.pct.toFixed(1)}%)
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* KPI cards */}
         <div className="bento-card bento-card--kpi dash-card">
+          <span className="bento-card-eyebrow">Revenu mensuel</span>
+          <span className="bento-kpi-value">{monthlyIncome > 0 ? m(fmt(monthlyIncome)) : <span className="text-muted">—</span>}</span>
+          <span className="bento-kpi-sub">{monthlyIncome > 0 ? 'net estimé' : <Link to="/portfolio/banking" className="bento-kpi-link">Configurer →</Link>}</span>
+        </div>
+
+        <div className="bento-card bento-card--kpi dash-card">
           <span className="bento-card-eyebrow">Épargne mensuelle</span>
-          <span className="bento-kpi-value">{m(fmt(monthSavings > 0 ? monthSavings : 500))}</span>
-          <span className="bento-kpi-sub">ce mois</span>
+          <span className="bento-kpi-value" style={{ color: monthSavings > 0 ? 'var(--color-success)' : monthSavings < 0 ? 'var(--color-error)' : undefined }}>
+            {monthlyIncome > 0 ? m(fmt(monthSavings)) : <span className="text-muted">—</span>}
+          </span>
+          <span className="bento-kpi-sub">{monthlyIncome > 0 ? 'revenu − dépenses' : 'données requises'}</span>
+        </div>
+
+        <div className="bento-card bento-card--kpi dash-card">
+          <span className="bento-card-eyebrow">Taux d'épargne</span>
+          <span className="bento-kpi-value" style={{ color: savingsRate !== null && savingsRate >= 20 ? 'var(--color-success)' : savingsRate !== null && savingsRate >= 10 ? 'var(--warning)' : savingsRate !== null ? 'var(--color-error)' : undefined }}>
+            {savingsRate !== null ? <>{savingsRate.toFixed(0)}<span className="bento-kpi-unit">%</span></> : <span className="text-muted">—</span>}
+          </span>
+          <span className="bento-kpi-sub">{savingsRate !== null ? (savingsRate >= 20 ? 'excellent' : savingsRate >= 10 ? 'correct' : 'à améliorer') : 'revenu requis'}</span>
         </div>
 
         <div className="bento-card bento-card--kpi dash-card">
@@ -575,7 +614,7 @@ export default function Dashboard() {
                 <Calendar size={15} className="text-accent" />
                 <span className="dash-card-title" style={{ margin: 0 }}>Invest. programmé</span>
               </div>
-              <Link to="/portfolio/dca" className="insight-link" style={{ margin: 0, padding: 0 }}>Voir <ArrowRight size={12} /></Link>
+              <Link to="/strategy" className="insight-link" style={{ margin: 0, padding: 0 }}>Voir <ArrowRight size={12} /></Link>
             </div>
             <div className="dca-dash-stats">
               <div className="dca-dash-stat">
@@ -615,7 +654,7 @@ export default function Dashboard() {
           <div className="bento-card dash-card bento-card--empty">
             <Calendar size={28} className="text-muted" />
             <p className="text-muted text-sm">Aucun plan DCA actif</p>
-            <Link to="/portfolio/dca" className="btn btn-secondary btn-sm" style={{ marginTop: 12 }}>Créer un plan</Link>
+            <Link to="/strategy" className="btn btn-secondary btn-sm" style={{ marginTop: 12 }}>Créer un plan</Link>
           </div>
         )}
 

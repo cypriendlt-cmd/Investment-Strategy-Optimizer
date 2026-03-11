@@ -726,7 +726,7 @@ tbody tr:hover td { background: var(--bg-hover); }
 .dashboard-date           { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; text-transform: capitalize; }
 
 .bento-row         { display: grid; gap: 14px; }
-.bento-row--hero   { grid-template-columns: 2fr 1fr 1fr 1fr 1fr; }
+.bento-row--hero   { grid-template-columns: 2fr repeat(6, 1fr); }
 .bento-row--middle { grid-template-columns: 1fr 1.4fr 1.2fr; }
 .bento-row--bottom { grid-template-columns: 1.4fr 1fr 1fr; }
 .bento-card        { position: relative; }
@@ -742,6 +742,7 @@ tbody tr:hover td { background: var(--bg-hover); }
 .dashboard-hero-badge--down { background: var(--danger-light); color: var(--color-error); }
 
 .bento-hero-divider    { height: 1px; background: var(--border-color); margin: 16px 0 12px; }
+.bento-hero-metas      { display: flex; gap: 24px; }
 .bento-hero-meta       { display: flex; flex-direction: column; gap: 2px; }
 .bento-hero-meta-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
 .bento-hero-meta-value { font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
@@ -1398,9 +1399,11 @@ tbody tr:hover td { background: var(--bg-hover); }
   .scenarios-grid      { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1400px) {
   .bento-row--hero   { grid-template-columns: 1fr 1fr 1fr; }
   .bento-card--hero  { grid-column: 1 / -1; }
+}
+@media (max-width: 1100px) {
   .bento-row--middle { grid-template-columns: 1fr 1fr; }
   .bento-row--bottom { grid-template-columns: 1fr 1fr; }
 }
@@ -1424,6 +1427,7 @@ tbody tr:hover td { background: var(--bg-hover); }
   .dashboard-total  { font-size: 1.8rem; }
   .bento-row--hero  { grid-template-columns: 1fr 1fr; }
   .bento-card--hero { grid-column: 1 / -1; }
+  .bento-hero-metas { flex-direction: column; gap: 8px; }
   .bento-row--middle{ grid-template-columns: 1fr; }
   .bento-row--bottom{ grid-template-columns: 1fr; }
   .dashboard-greeting { flex-direction: column; align-items: flex-start; gap: 4px; }
