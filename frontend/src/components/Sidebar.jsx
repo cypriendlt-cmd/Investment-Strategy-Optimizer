@@ -204,22 +204,11 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
         <div className="sidebar-header">
           {!collapsed ? (
             <div className="sidebar-logo">
-              {/* Stratify S-mark icon */}
-              <svg width="30" height="30" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style={{flexShrink:0}}>
-                <rect width="36" height="36" rx="8" fill="#0891B2"/>
-                <path d="M10 24 L18 10 L26 24" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                <path d="M13 19.5 H23" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-              <div className="sidebar-logo-text">
-                <span className="sidebar-logo-title" style={{fontFamily:"'Inter',sans-serif",fontWeight:700,letterSpacing:'-0.02em'}}>Stratify</span>
-              </div>
+              <img src="/icon.svg" width="30" height="30" alt="" className="sidebar-logo-icon-img" />
+              <img src="/logo.svg" height="20" alt="Stratify" className="sidebar-logo-wordmark" />
             </div>
           ) : (
-            <svg width="30" height="30" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style={{flexShrink:0,margin:'0 auto'}}>
-              <rect width="36" height="36" rx="8" fill="#0891B2"/>
-              <path d="M10 24 L18 10 L26 24" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-              <path d="M13 19.5 H23" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
+            <img src="/icon.svg" width="30" height="30" alt="Stratify" className="sidebar-logo-collapsed" />
           )}
           <button className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)} title={collapsed ? 'Développer' : 'Réduire'}>
             {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}

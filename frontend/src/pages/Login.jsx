@@ -42,13 +42,9 @@ export default function Login() {
       <div className="login-branding">
         <div className="login-branding-content">
           <div className="login-branding-logo">
-            <div className="login-logo-icon" style={{ background: accent }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-              </svg>
-            </div>
+            <img src="/icon.svg" width="48" height="48" alt="Stratify" style={{borderRadius:'12px'}} />
           </div>
-          <h1 className="login-branding-title">Investment Strategy<br />Optimizer</h1>
+          <h1 className="login-branding-title">Stratify</h1>
           <p className="login-branding-subtitle">Votre copilote IA pour optimiser votre stratégie d'investissement</p>
 
           <div className="login-branding-features">
