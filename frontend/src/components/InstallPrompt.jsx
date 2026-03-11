@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Download, X } from 'lucide-react'
+import stratifyIcon from '../assets/icon.svg'
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
@@ -56,10 +57,10 @@ export default function InstallPrompt() {
       animation: 'slideUp 0.4s ease',
       maxWidth: 'calc(100vw - 32px)',
     }}>
-      <img src="./icons/icon-72x72.png" alt="" style={{ width: 40, height: 40, borderRadius: 10 }} />
+      <img src={stratifyIcon} alt="" style={{ width: 40, height: 40, borderRadius: 10 }} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-          Installer Strategy Optimizer
+          Installer Stratify
         </div>
         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
           Accès rapide depuis votre écran d'accueil
