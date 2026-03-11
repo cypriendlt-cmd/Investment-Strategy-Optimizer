@@ -251,13 +251,13 @@ export default function Dashboard() {
 
   const projectedTarget = projectionKpis?.projected || 0
 
-  const objective = useMemo(() => {
+  const goalsData = useMemo(() => {
     const goals = portfolio?.goals || []
-    const longTermGoals = goals.filter(g => g.type === 'long_term')
-    if (longTermGoals.length === 1) return longTermGoals[0].targetAmount
-    if (longTermGoals.length > 1) return longTermGoals.reduce((s, g) => s + g.targetAmount, 0)
-    return null
+    if (goals.length === 0) return null
+    const totalTarget = goals.reduce((s, g) => s + (g.targetAmount || 0), 0)
+    return { count: goals.length, totalTarget }
   }, [portfolio?.goals])
+  const objective = goalsData?.totalTarget || null
   const progressPct = objective ? Math.min((patrimoineNet / objective) * 100, 100) : 0
 
   const analytics = useMemo(() => analyzePortfolio(totals, bankLivrets), [totals, bankLivrets])
