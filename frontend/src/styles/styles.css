@@ -1042,7 +1042,7 @@ tbody tr:hover td { background: var(--bg-hover); }
    ============================================================ */
 .dca-page-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
 .dca-card         { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; }
-.dca-plan-card    { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; transition: border-color var(--transition-fast); }
+.dca-plan-card    { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; transition: border-color var(--transition-fast); min-width: 0; overflow: hidden; }
 .dca-plan-card:hover  { border-color: var(--text-muted); }
 .dca-plan-card--paused{ opacity: 0.6; }
 .dca-plan-header       { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -1092,7 +1092,7 @@ tbody tr:hover td { background: var(--bg-hover); }
 .dca-gstat             { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
 .dca-gstat-label       { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 4px; }
 .dca-gstat-value       { font-family: 'IBM Plex Mono', monospace; font-size: 1.1rem; font-weight: 700; }
-.dca-plans-grid        { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 16px; }
+.dca-plans-grid        { display: grid; grid-template-columns: 1fr; gap: 16px; }
 .dca-empty-state       { text-align: center; padding: 48px 24px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
 .dca-form-title        { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
 .dca-form-group        { display: flex; flex-direction: column; gap: 4px; }

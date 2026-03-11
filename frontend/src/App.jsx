@@ -16,7 +16,6 @@ import Livrets from './pages/Livrets'
 import Fundraising from './pages/Fundraising'
 import Objectives from './pages/Objectives'
 import Insights from './pages/Insights'
-import DCA from './pages/DCA'
 import Banking from './pages/Banking'
 import Settings from './pages/Settings'
 import Login from './pages/Login'
@@ -76,7 +75,7 @@ export default function App() {
               <Route path="/portfolio/fundraising" element={<Fundraising />} />
               <Route path="/portfolio/objectives" element={<Objectives />} />
               <Route path="/portfolio/banking" element={<Banking />} />
-              <Route path="/portfolio/dca" element={<DCA />} />
+              <Route path="/portfolio/dca" element={<Navigate to="/strategy" replace />} />
               <Route path="/insights" element={<Insights />} />
               {/* Legacy redirects */}
               <Route path="/crypto" element={<Navigate to="/portfolio/crypto" replace />} />
@@ -85,7 +84,7 @@ export default function App() {
               <Route path="/fundraising" element={<Navigate to="/portfolio/fundraising" replace />} />
               <Route path="/objectives" element={<Navigate to="/portfolio/objectives" replace />} />
               <Route path="/banking" element={<Navigate to="/portfolio/banking" replace />} />
-              <Route path="/dca" element={<Navigate to="/portfolio/dca" replace />} />
+              <Route path="/dca" element={<Navigate to="/strategy" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Layout>

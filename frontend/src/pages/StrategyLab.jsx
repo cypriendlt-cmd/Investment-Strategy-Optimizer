@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { TrendingUp, Layers, GitBranch, Target, Crosshair, ArrowRight, Lock, Sunrise, Sparkles } from 'lucide-react'
+import DCA from './DCA'
 
 const MODULES = [
   {
@@ -109,6 +110,9 @@ export default function StrategyLab() {
           </div>
         ))}
       </div>
+
+      {/* ── Section DCA ── */}
+      <DCA />
 
       <div className="strategy-lab-info">
         <div className="strategy-lab-info-icon">

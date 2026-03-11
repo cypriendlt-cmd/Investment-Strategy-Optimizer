@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, TrendingUp, Landmark, Target, Brain, Settings,
   ChevronLeft, ChevronRight, ChevronDown, X,
-  Bitcoin, LineChart, PiggyBank, Rocket, Calculator,
-  FlaskConical, Crosshair, GitBranch, Flame, ArrowUpRight, Compass,
+  Bitcoin, LineChart, PiggyBank, Rocket,
+  Crosshair, GitBranch, Flame, ArrowUpRight, Compass,
   HelpCircle, Sparkles
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -34,7 +34,6 @@ const NAV_GROUPS = [
           { path: '/portfolio/pea', label: 'PEA / Actions', icon: LineChart },
           { path: '/portfolio/livrets', label: 'Livrets', icon: PiggyBank },
           { path: '/portfolio/fundraising', label: 'Crowdfunding', icon: Rocket },
-          { path: '/portfolio/dca', label: 'Invest. programmé', icon: Calculator },
         ],
       },
       {
@@ -52,7 +51,6 @@ const NAV_GROUPS = [
         shortLabel: 'Stratégie',
         children: [
           { path: '/portfolio/objectives', label: 'Objectifs', icon: Crosshair, exact: true },
-          { path: '/strategy', label: 'Labo Stratégie', icon: FlaskConical, exact: true },
           { path: '/strategy/projection', label: 'Projection', icon: ArrowUpRight },
           { path: '/strategy/fire', label: 'Liberté financière', icon: Flame },
           { path: '/strategy/scenarios', label: 'Scénarios', icon: GitBranch },
@@ -95,6 +93,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
   const { user } = useAuth()
   const { theme } = useTheme()
   const location = useLocation()
+  const navigate = useNavigate()
 
   const accent = themeColors[theme] || themeColors.crimson
 
@@ -139,6 +138,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
               } else {
                 toggleSection(id)
               }
+              if (path) navigate(path)
             }}
           >
             <span className="nav-icon">
