@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Bitcoin, TrendingUp, PiggyBank, Rocket, Target, Landmark, Calculator, ArrowRight, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { Bitcoin, TrendingUp, PiggyBank, Rocket, ArrowRight, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { usePortfolio } from '../context/PortfolioContext'
 import { useBank } from '../context/BankContext'
 import { usePrivacyMask } from '../hooks/usePrivacyMask'
@@ -11,9 +11,6 @@ const SECTIONS = [
   { path: '/portfolio/pea', icon: TrendingUp, label: 'PEA / Actions', description: 'Mon portefeuille actions', color: '#10b981', colorLight: 'rgba(16, 185, 129, 0.1)', key: 'pea' },
   { path: '/portfolio/livrets', icon: PiggyBank, label: 'Livrets', description: 'Mes livrets d\'épargne', color: '#f59e0b', colorLight: 'rgba(245, 158, 11, 0.1)', key: 'livrets' },
   { path: '/portfolio/fundraising', icon: Rocket, label: 'Crowdfunding', description: 'Mes levées de fonds', color: '#8b5cf6', colorLight: 'rgba(139, 92, 246, 0.1)', key: 'fundraising' },
-  { path: '/portfolio/objectives', icon: Target, label: 'Objectifs', description: 'Suivre mes objectifs d\'épargne', color: '#06b6d4', colorLight: 'rgba(6, 182, 212, 0.1)', key: null },
-  { path: '/portfolio/banking', icon: Landmark, label: 'Banque', description: 'Comptes bancaires et flux', color: '#64748b', colorLight: 'rgba(100, 116, 139, 0.1)', key: null },
-  { path: '/portfolio/dca', icon: Calculator, label: 'Plans DCA', description: 'Investissement programmé (DCA)', color: '#ec4899', colorLight: 'rgba(236, 72, 153, 0.1)', key: null },
 ]
 
 export default function Portfolio() {
