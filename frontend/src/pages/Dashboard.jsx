@@ -187,8 +187,8 @@ function GaugeChart({ value, label }) {
             filter={`url(#glow-${label})`}
           />
         )}
-        <text x={cx} y={cy - 10} textAnchor="middle" fill="var(--text-primary)" fontSize="22" fontWeight="700">{value}</text>
-        <text x={cx} y={cy + 8} textAnchor="middle" fill={c} fontSize="8" fontWeight="600">{getLabel(value)}</text>
+        <text x={cx} y={cy - 14} textAnchor="middle" fill="var(--text-primary)" fontSize="24" fontWeight="700">{value}</text>
+        <text x={cx} y={cy + 4} textAnchor="middle" fill={c} fontSize="9" fontWeight="600">{getLabel(value)}</text>
       </svg>
       <span className="gauge-label">{label}</span>
     </div>
@@ -311,10 +311,12 @@ export default function Dashboard() {
   const monthSavings = (lastAgg?.income || 0) - (lastAgg?.expenses || 0)
 
   const performers = useMemo(() => {
-    const cryptoGains = portfolio.crypto.map(c => ({
-      name: c.symbol,
-      gain: ((c.currentPrice || c.buyPrice) - c.buyPrice) / c.buyPrice * 100
-    }))
+    const cryptoGains = portfolio.crypto
+      .filter(c => c.buyPrice > 0)
+      .map(c => ({
+        name: c.symbol,
+        gain: ((c.currentPrice || c.buyPrice) - c.buyPrice) / c.buyPrice * 100
+      }))
     const sorted = [...cryptoGains].sort((a, b) => b.gain - a.gain)
     return { best: sorted[0] || null, worst: sorted[sorted.length - 1] || null }
   }, [portfolio.crypto])
