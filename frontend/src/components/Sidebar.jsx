@@ -50,7 +50,7 @@ const NAV_GROUPS = [
         label: 'Stratégie',
         shortLabel: 'Stratégie',
         children: [
-          { path: '/portfolio/objectives', label: 'Objectifs', icon: Crosshair, exact: true },
+          { path: '/strategy/objectifs', label: 'Objectifs', icon: Crosshair, exact: true },
           { path: '/strategy/projection', label: 'Projection', icon: ArrowUpRight },
           { path: '/strategy/fire', label: 'Liberté financière', icon: Flame },
           { path: '/strategy/scenarios', label: 'Scénarios', icon: GitBranch },

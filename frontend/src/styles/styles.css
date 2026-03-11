@@ -1392,7 +1392,51 @@ tbody tr:hover td { background: var(--bg-hover); }
 
 .bank-upload-area { border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 32px; text-align: center; cursor: pointer; transition: all var(--transition-fast); }
 .bank-upload-area:hover { border-color: var(--accent); background: var(--accent-subtle); }
-.goal-selector { position: relative; display: inline-block; }
+/* ── Goal Selector (custom dropdown) ── */
+.goal-selector-wrapper { position: relative; display: inline-block; }
+.goal-selector-trigger {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: var(--radius-full);
+  border: 1px solid var(--border); background: var(--bg-card);
+  color: var(--text-muted); font-size: 0.75rem; font-weight: 500;
+  cursor: pointer; transition: all var(--transition-fast);
+  white-space: nowrap; max-width: 180px;
+}
+.goal-selector-trigger:hover { border-color: var(--text-muted); background: var(--bg-hover); }
+.goal-selector-trigger--active {
+  border-color: var(--goal-color, var(--accent));
+  color: var(--goal-color, var(--accent));
+  background: color-mix(in srgb, var(--goal-color, var(--accent)) 10%, transparent);
+}
+.goal-selector-trigger--active:hover {
+  background: color-mix(in srgb, var(--goal-color, var(--accent)) 16%, transparent);
+}
+.goal-selector-label { overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+.goal-selector-clear {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%; border: none;
+  background: transparent; color: inherit; cursor: pointer;
+  margin-left: 2px; padding: 0; transition: background var(--transition-fast);
+}
+.goal-selector-clear:hover { background: rgba(255,255,255,0.15); }
+.goal-selector-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 50;
+  min-width: 200px; max-width: 260px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+  padding: 4px; animation: fadeIn 0.12s ease;
+}
+.goal-selector-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  font-size: 0.8rem; color: var(--text-secondary);
+  cursor: pointer; transition: background var(--transition-fast);
+}
+.goal-selector-option:hover { background: var(--bg-hover); }
+.goal-selector-option--active { background: var(--accent-subtle); color: var(--text); font-weight: 600; }
+.goal-selector-option-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
 
 .ai-panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 500; display: flex; justify-content: flex-end; }
 .ai-panel         { width: 560px; max-width: 100%; height: 100vh; background: var(--bg-card); border-left: 1px solid var(--border-color); display: flex; flex-direction: column; animation: slideInRight 0.3s ease; overflow: hidden; }

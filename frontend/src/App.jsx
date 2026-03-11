@@ -14,7 +14,6 @@ import Crypto from './pages/Crypto'
 import PEA from './pages/PEA'
 import Livrets from './pages/Livrets'
 import Fundraising from './pages/Fundraising'
-import Objectives from './pages/Objectives'
 import Insights from './pages/Insights'
 import Banking from './pages/Banking'
 import Settings from './pages/Settings'
@@ -73,7 +72,7 @@ export default function App() {
               <Route path="/portfolio/pea" element={<PEA />} />
               <Route path="/portfolio/livrets" element={<Livrets />} />
               <Route path="/portfolio/fundraising" element={<Fundraising />} />
-              <Route path="/portfolio/objectives" element={<Objectives />} />
+              <Route path="/portfolio/objectives" element={<Navigate to="/strategy/objectifs" replace />} />
               <Route path="/portfolio/banking" element={<Banking />} />
               <Route path="/portfolio/dca" element={<Navigate to="/strategy" replace />} />
               <Route path="/insights" element={<Insights />} />
@@ -82,7 +81,7 @@ export default function App() {
               <Route path="/pea" element={<Navigate to="/portfolio/pea" replace />} />
               <Route path="/livrets" element={<Navigate to="/portfolio/livrets" replace />} />
               <Route path="/fundraising" element={<Navigate to="/portfolio/fundraising" replace />} />
-              <Route path="/objectives" element={<Navigate to="/portfolio/objectives" replace />} />
+              <Route path="/objectives" element={<Navigate to="/strategy/objectifs" replace />} />
               <Route path="/banking" element={<Navigate to="/portfolio/banking" replace />} />
               <Route path="/dca" element={<Navigate to="/strategy" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
