@@ -161,7 +161,14 @@ function runScenarioSet(portfolio, totals, accountBalances, aggregates, dcaPlans
 
       // If we have an objective, compute time to target for each
       if (objectiveTarget && objectiveTarget > 0) {
-        const monthlyReturn = Math.pow(1 + 0.07, 1 / 12) - 1
+        // Use weighted average return from actual envelope projections instead of hardcoded 7%
+        const totalValue = snapshot.totalValue || 1
+        const avgAnnualReturn = snapshot.envelopes.reduce((sum, env) => {
+          const weight = (env.currentValue || 0) / totalValue
+          const assetReturn = DEFAULT_RETURNS[env.assetClass] || 0.05
+          return sum + weight * assetReturn
+        }, 0) || 0.07
+        const monthlyReturn = Math.pow(1 + avgAnnualReturn, 1 / 12) - 1
         const currentMonths = computeTimeToTarget(snapshot.totalValue, objectiveTarget, scenarios[0].monthlyContribution, monthlyReturn)
         const thisMonths = computeTimeToTarget(snapshot.totalValue, objectiveTarget, s.monthlyContribution, monthlyReturn)
         if (currentMonths > 0 && thisMonths > 0) {

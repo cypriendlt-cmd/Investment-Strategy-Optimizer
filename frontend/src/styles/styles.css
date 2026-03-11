@@ -806,6 +806,14 @@ tbody tr:hover td { background: var(--bg-hover); }
 .scenario-desc   { font-size: 0.72rem; color: var(--text-muted); }
 .dashboard-scenarios-cta { margin-top: 12px; text-align: center; }
 
+/* Dashboard projection card */
+.dash-projection-card    { min-width: 0; }
+.dash-projection-summary { display: flex; gap: 24px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-color); }
+.dash-projection-kpi     { flex: 1; text-align: center; }
+.dash-projection-kpi-label { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; font-weight: 500; margin-bottom: 4px; }
+.dash-projection-kpi-value { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+.dash-projection-footer  { display: flex; gap: 8px; margin-top: 14px; justify-content: center; flex-wrap: wrap; }
+
 .dca-dash-stats      { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .dca-dash-stat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-bottom: 2px; }
 .dca-dash-stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 0.95rem; font-weight: 600; }
@@ -1436,6 +1444,8 @@ tbody tr:hover td { background: var(--bg-hover); }
   .bento-row--bottom{ grid-template-columns: 1fr; }
   .dashboard-greeting { flex-direction: column; align-items: flex-start; gap: 4px; }
   .scenarios-grid   { grid-template-columns: 1fr; }
+  .dash-projection-summary { gap: 12px; }
+  .dash-projection-kpi-value { font-size: 0.85rem; }
   .dca-dash-stats   { grid-template-columns: 1fr 1fr; }
   .objective-stats  { grid-template-columns: 1fr; }
   .dashboard-pie-row{ flex-direction: column; }

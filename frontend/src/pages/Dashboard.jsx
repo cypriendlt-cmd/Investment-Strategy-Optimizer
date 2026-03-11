@@ -4,9 +4,9 @@ import {
   ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid
 } from 'recharts'
 import {
-  TrendingUp, TrendingDown, Target, Zap, ArrowRight,
-  Activity, Award, AlertTriangle, Sparkles,
-  Calendar, GitBranch, Shield, BarChart3, Flame, ArrowUpRight
+  TrendingUp, TrendingDown, Target, ArrowRight,
+  Award, AlertTriangle, Sparkles,
+  Calendar, GitBranch, ArrowUpRight
 } from 'lucide-react'
 import { usePortfolio } from '../context/PortfolioContext'
 import { useBank } from '../context/BankContext'
@@ -112,36 +112,23 @@ function buildPortfolioHistory(portfolio, totals, rangeKey = '6m') {
   return result.length > 0 ? result : [{ month: MONTH_NAMES[now.getMonth()], value: Math.round(currentTotal) }]
 }
 
-function buildProjectionData(currentTotal) {
-  const years = 10
-  const rate = 0.07
-  const monthlyContribution = 500
-  const data = []
-  let projected = currentTotal
-  let nominal = currentTotal
+const PROJECTION_HORIZONS = [
+  { key: 1, label: '1A' },
+  { key: 3, label: '3A' },
+  { key: 5, label: '5A' },
+  { key: 10, label: '10A' },
+]
 
-  for (let y = 0; y <= years; y++) {
-    data.push({
-      year: y === 0 ? 'Maintenant' : `+${y}a`,
-      projected: Math.round(projected),
-      nominal: Math.round(nominal),
-    })
-    projected = projected * (1 + rate) + monthlyContribution * 12
-    nominal = nominal + monthlyContribution * 12
-  }
-  return data
-}
-
-function useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans) {
+function useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans, horizonYears) {
   return useMemo(() => {
     try {
       return runProjection(portfolio, totals, accountBalances || [], aggregates || [], dcaPlans, {
-        horizonYears: 10,
+        horizonYears,
       })
     } catch {
       return null
     }
-  }, [portfolio, totals, accountBalances, aggregates, dcaPlans])
+  }, [portfolio, totals, accountBalances, aggregates, dcaPlans, horizonYears])
 }
 
 function GaugeChart({ value, label }) {
@@ -224,6 +211,7 @@ export default function Dashboard() {
   const [insight, setInsight] = useState(null)
   const [insightLoading, setInsightLoading] = useState(true)
   const [timeRange, setTimeRange] = useState('6m')
+  const [projectionHorizon, setProjectionHorizon] = useState(10)
 
   useEffect(() => {
     if (isGuest) { setInsightLoading(false); return }
@@ -257,19 +245,29 @@ export default function Dashboard() {
   const gainPct = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0
   const isPositive = totalGain >= 0
 
-  const strategyResult = useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans)
+  const strategyResult = useStrategyProjection(portfolio, totals, accountBalances, aggregates, dcaPlans, projectionHorizon)
 
   const projectionData = useMemo(() => {
-    if (strategyResult?.viewModel?.chartData) {
-      return strategyResult.viewModel.chartData.map(p => ({
-        year: p.label,
-        projected: p.nominal,
-        nominal: p.invested,
-      }))
+    if (!strategyResult?.viewModel?.chartData?.length) return []
+    return strategyResult.viewModel.chartData.map(p => ({
+      year: p.label,
+      projected: p.nominal,
+      invested: p.invested,
+      gains: Math.max(0, p.nominal - p.invested),
+    }))
+  }, [strategyResult])
+
+  const projectionKpis = useMemo(() => {
+    if (!projectionData.length) return null
+    const last = projectionData[projectionData.length - 1]
+    return {
+      projected: last.projected,
+      invested: last.invested,
+      gains: last.gains,
     }
-    return buildProjectionData(patrimoineNet)
-  }, [strategyResult, patrimoineNet])
-  const projectedTarget = projectionData[projectionData.length - 1]?.projected || 0
+  }, [projectionData])
+
+  const projectedTarget = projectionKpis?.projected || 0
 
   const objective = useMemo(() => {
     const goals = portfolio?.goals || []
@@ -396,7 +394,7 @@ export default function Dashboard() {
           <div className="bento-hero-divider" />
           <div className="bento-hero-metas">
             <div className="bento-hero-meta">
-              <span className="bento-hero-meta-label">Projection 10 ans</span>
+              <span className="bento-hero-meta-label">Projection {projectionHorizon} ans</span>
               <span className="bento-hero-meta-value">{m(fmt(projectedTarget))}</span>
             </div>
             {monthlyEvolution && (
@@ -630,33 +628,81 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ══ BENTO ROW 4 : Scénarios + DCA + IA ══ */}
+      {/* ══ BENTO ROW 4 : Projection + DCA + IA ══ */}
       <div className="bento-row bento-row--bottom">
 
-        {/* Scénarios */}
-        <div className="bento-card dash-card dashboard-scenarios">
-          <div className="dash-card-title">Scénarios à 5 ans</div>
-          <div className="scenarios-grid">
-            {[
-              { name: 'Actuel', value: projectionData[5]?.projected || 0, icon: Activity, desc: 'Sans changement', variant: 'muted' },
-              { name: 'Optimisé', value: Math.round((projectionData[5]?.projected || 0) * 1.15), icon: TrendingUp, desc: 'Meilleure allocation', variant: 'success' },
-              { name: 'Ambitieux', value: Math.round((projectionData[5]?.projected || 0) * 1.35), icon: Zap, desc: 'Effort maximal', variant: 'accent' },
-            ].map(s => (
-              <div key={s.name} className={`scenario-card scenario-card--${s.variant}`}>
-                <div className="scenario-header">
-                  <s.icon size={16} />
-                  <span className="scenario-name">{s.name}</span>
+        {/* Projection patrimoniale */}
+        <div className="bento-card dash-card dash-projection-card">
+          <div className="perf-chart-header">
+            <div className="dash-card-title">Projection patrimoniale</div>
+            <div className="time-range-selector">
+              {PROJECTION_HORIZONS.map(h => (
+                <button key={h.key} className={`time-range-btn${projectionHorizon === h.key ? ' active' : ''}`} onClick={() => setProjectionHorizon(h.key)}>
+                  {h.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {projectionData.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={projectionData}>
+                  <defs>
+                    <linearGradient id="projInvestedGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--text-muted)" stopOpacity={0.15} />
+                      <stop offset="100%" stopColor="var(--text-muted)" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="projGainsGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                  <XAxis dataKey="year" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip
+                    formatter={(v, name) => [m(fmt(v)), name === 'invested' ? 'Capital investi' : name === 'gains' ? 'Gains estimés' : 'Valeur projetée']}
+                    contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem', boxShadow: 'var(--shadow)' }}
+                    cursor={{ stroke: 'var(--accent)', strokeWidth: 1, strokeDasharray: '4 4' }}
+                  />
+                  <Area type="monotone" dataKey="invested" stackId="1" stroke="var(--text-muted)" strokeWidth={1.5} fill="url(#projInvestedGrad)" dot={false} />
+                  <Area type="monotone" dataKey="gains" stackId="1" stroke="var(--accent)" strokeWidth={2} fill="url(#projGainsGrad)" dot={false} activeDot={{ r: 4, strokeWidth: 0, fill: 'var(--accent)' }} />
+                </AreaChart>
+              </ResponsiveContainer>
+
+              {projectionKpis && (
+                <div className="dash-projection-summary">
+                  <div className="dash-projection-kpi">
+                    <span className="dash-projection-kpi-label">Capital investi</span>
+                    <span className="dash-projection-kpi-value">{m(fmt(projectionKpis.invested))}</span>
+                  </div>
+                  <div className="dash-projection-kpi">
+                    <span className="dash-projection-kpi-label">Gains estimés</span>
+                    <span className="dash-projection-kpi-value" style={{ color: 'var(--accent)' }}>{m(fmt(projectionKpis.gains))}</span>
+                  </div>
+                  <div className="dash-projection-kpi">
+                    <span className="dash-projection-kpi-label">Valeur projetée</span>
+                    <span className="dash-projection-kpi-value" style={{ fontWeight: 700 }}>{m(fmt(projectionKpis.projected))}</span>
+                  </div>
                 </div>
-                <div className="scenario-value">{m(fmt(s.value))}</div>
-                <span className="scenario-desc">{s.desc}</span>
+              )}
+
+              <div className="dash-projection-footer">
+                <Link to="/strategy/projection" className="btn btn-secondary btn-sm">
+                  <ArrowUpRight size={14} /> Projection détaillée
+                </Link>
+                <Link to="/strategy/scenarios" className="btn btn-secondary btn-sm">
+                  <GitBranch size={14} /> Scénarios
+                </Link>
               </div>
-            ))}
-          </div>
-          <div className="dashboard-scenarios-cta">
-            <Link to="/strategy/scenarios" className="btn btn-secondary btn-sm">
-              <GitBranch size={14} /> Comparer les scénarios
-            </Link>
-          </div>
+            </>
+          ) : (
+            <div className="objective-empty" style={{ padding: '24px 0' }}>
+              <TrendingUp size={28} className="text-muted" />
+              <p className="text-muted text-sm">Ajoutez des actifs pour voir la projection.</p>
+            </div>
+          )}
         </div>
 
         {/* DCA */}
