@@ -727,7 +727,7 @@ tbody tr:hover td { background: var(--bg-hover); }
 
 .bento-row         { display: grid; gap: 14px; }
 .bento-row--hero   { grid-template-columns: 2fr 1fr 1fr 1fr 1fr; }
-.bento-row--middle { grid-template-columns: 1fr 1fr 1.2fr; }
+.bento-row--middle { grid-template-columns: 1fr 1.4fr 1.2fr; }
 .bento-row--bottom { grid-template-columns: 1.4fr 1fr 1fr; }
 .bento-card        { position: relative; }
 .bento-card--empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; min-height: 160px; }
