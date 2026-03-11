@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import stratifyIcon from '../assets/icon.svg'
 
 const NAV_GROUPS = [
   {
@@ -204,11 +205,11 @@ export default function Sidebar({ mobileOpen, onMobileClose }) {
         <div className="sidebar-header">
           {!collapsed ? (
             <div className="sidebar-logo">
-              <img src="/icon.svg" width="30" height="30" alt="" className="sidebar-logo-icon-img" />
-              <img src="/logo.svg" height="20" alt="Stratify" className="sidebar-logo-wordmark" />
+              <img src={stratifyIcon} width="30" height="30" alt="" className="sidebar-logo-icon-img" />
+              <span className="sidebar-logo-title">Stratify</span>
             </div>
           ) : (
-            <img src="/icon.svg" width="30" height="30" alt="Stratify" className="sidebar-logo-collapsed" />
+            <img src={stratifyIcon} width="30" height="30" alt="Stratify" className="sidebar-logo-collapsed" />
           )}
           <button className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)} title={collapsed ? 'Développer' : 'Réduire'}>
             {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}

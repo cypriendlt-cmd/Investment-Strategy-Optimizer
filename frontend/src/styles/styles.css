@@ -314,18 +314,10 @@ body::before {
   flex-shrink: 0;
 }
 
-.sidebar-logo            { display: flex; align-items: center; gap: var(--space-3); overflow: hidden; }
-.sidebar-logo-icon-img   { width: 30px; height: 30px; display: block; flex-shrink: 0; }
-.sidebar-logo-wordmark   { height: 20px; width: auto; display: block; flex-shrink: 0; }
-.sidebar-logo-collapsed  { width: 30px; height: 30px; display: block; margin: 0 auto; flex-shrink: 0; }
-
-/* Dark mode: wordmark (dark text) → white via invert; icon stays untouched */
-[data-theme]:not([data-mode="light"]) .sidebar-logo-wordmark { filter: brightness(0) invert(1); }
-
-/* Legacy */
-.sidebar-logo-icon  { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.sidebar-logo-text  { display: flex; flex-direction: column; }
-.sidebar-logo-title { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; letter-spacing: -0.02em; }
+.sidebar-logo           { display: flex; align-items: center; gap: var(--space-3); overflow: hidden; }
+.sidebar-logo-icon-img  { width: 30px; height: 30px; display: block; flex-shrink: 0; }
+.sidebar-logo-collapsed { width: 30px; height: 30px; display: block; margin: 0 auto; flex-shrink: 0; }
+.sidebar-logo-title     { font-size: 1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; white-space: nowrap; }
 .sidebar-logo-sub   { font-size: 0.65rem; color: var(--text-muted); font-weight: 500; letter-spacing: 0.04em; }
 
 .sidebar-toggle { width: 28px; height: 28px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all var(--transition-fast); flex-shrink: 0; }

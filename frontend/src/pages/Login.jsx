@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { TrendingUp, Shield, BarChart3, Brain, Zap } from 'lucide-react'
+import stratifyIcon from '../assets/icon.svg'
 
 const THEME_META = {
   crimson: { label: 'Crimson', accent: '#dc2626' },
@@ -42,7 +43,7 @@ export default function Login() {
       <div className="login-branding">
         <div className="login-branding-content">
           <div className="login-branding-logo">
-            <img src="/icon.svg" width="48" height="48" alt="Stratify" style={{borderRadius:'12px'}} />
+            <img src={stratifyIcon} width="48" height="48" alt="Stratify" style={{borderRadius:'12px'}} />
           </div>
           <h1 className="login-branding-title">Stratify</h1>
           <p className="login-branding-subtitle">Votre copilote IA pour optimiser votre stratégie d'investissement</p>
