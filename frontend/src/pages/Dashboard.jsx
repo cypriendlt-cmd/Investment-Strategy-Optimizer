@@ -145,8 +145,8 @@ function useStrategyProjection(portfolio, totals, accountBalances, aggregates, d
 }
 
 function GaugeChart({ value, label }) {
-  const r = 62
-  const cx = 80, cy = 80
+  const r = 70
+  const cx = 90, cy = 90
   const endAngle = Math.PI + (value / 100) * Math.PI
   const x2 = cx + r * Math.cos(endAngle)
   const y2 = cy + r * Math.sin(endAngle)
@@ -172,23 +172,23 @@ function GaugeChart({ value, label }) {
 
   return (
     <div className="gauge-chart">
-      <svg viewBox="0 0 160 100" width="160" height="100">
+      <svg viewBox="0 0 180 110" width="180" height="110">
         <defs>
           <filter id={`glow-${label}`}>
             <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
         </defs>
-        <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="var(--border)" strokeWidth="10" strokeLinecap="round" />
+        <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="var(--bg-secondary)" strokeWidth="14" strokeLinecap="round" />
         {value > 0 && (
           <path
             d={`M ${cx - r} ${cy} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`}
-            fill="none" stroke={c} strokeWidth="10" strokeLinecap="round"
+            fill="none" stroke={c} strokeWidth="14" strokeLinecap="round"
             filter={`url(#glow-${label})`}
           />
         )}
-        <text x={cx} y={cy - 14} textAnchor="middle" fill="var(--text-primary)" fontSize="24" fontWeight="700">{value}</text>
-        <text x={cx} y={cy + 4} textAnchor="middle" fill={c} fontSize="9" fontWeight="600">{getLabel(value)}</text>
+        <text x={cx} y={cy - 8} textAnchor="middle" fill="var(--text-primary)" fontSize="24" fontWeight="700">{value}</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fill={c} fontSize="11" fontWeight="600">{getLabel(value)}</text>
       </svg>
       <span className="gauge-label">{label}</span>
     </div>
