@@ -814,6 +814,50 @@ tbody tr:hover td { background: var(--bg-hover); }
 .dash-projection-kpi-value { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
 .dash-projection-footer  { display: flex; gap: 8px; margin-top: 14px; justify-content: center; flex-wrap: wrap; }
 
+/* ── Portfolio Analytics Row ──────────────────────────────────────────────── */
+.bento-row--analytics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.dash-analytics-card  { min-width: 0; }
+
+/* Risk gauge */
+.dash-risk-gauge             { margin: 16px 0 10px; }
+.dash-risk-gauge-track       { position: relative; height: 10px; border-radius: 5px; background: var(--bg-secondary); overflow: visible; }
+.dash-risk-gauge-fill        { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+.dash-risk-gauge-cursor      { position: absolute; top: -3px; width: 4px; height: 16px; border-radius: 2px; background: var(--text-primary); transform: translateX(-2px); transition: left 0.5s ease; }
+.dash-risk-gauge-labels      { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+.dash-risk-score             { display: flex; align-items: baseline; gap: 6px; margin-top: 12px; }
+.dash-risk-score-value       { font-family: 'IBM Plex Mono', monospace; font-size: 1.6rem; font-weight: 700; }
+.dash-risk-score-label       { font-size: 0.78rem; color: var(--text-muted); }
+
+/* Diversification */
+.dash-diversification-header { display: flex; align-items: center; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+.dash-diversification-badge  { display: inline-flex; padding: 3px 10px; border-radius: 20px; color: #fff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em; }
+.dash-diversification-meta   { font-size: 0.72rem; color: var(--text-muted); }
+
+/* Concentration bars */
+.dash-concentration-bars      { display: flex; flex-direction: column; gap: 8px; }
+.dash-concentration-bar-row   { display: grid; grid-template-columns: 100px 1fr 40px; align-items: center; gap: 8px; }
+.dash-concentration-bar-label { font-size: 0.75rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-concentration-bar-track { height: 7px; border-radius: 4px; background: var(--bg-secondary); overflow: hidden; }
+.dash-concentration-bar-fill  { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+.dash-concentration-bar-pct   { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--text-muted); text-align: right; }
+
+/* Alerts & Insights */
+.dash-alerts        { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.dash-alert         { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 0.78rem; line-height: 1.35; }
+.dash-alert--high   { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); }
+.dash-alert--medium { background: color-mix(in srgb, var(--warning) 12%, transparent); color: var(--warning); }
+.dash-alert--low    { background: color-mix(in srgb, var(--accent) 8%, transparent); color: var(--text-secondary); }
+.dash-alert svg     { flex-shrink: 0; margin-top: 1px; }
+
+.dash-insights-list { display: flex; flex-direction: column; gap: 8px; }
+.dash-insight-item  { display: flex; align-items: flex-start; gap: 8px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; }
+.dash-insight-item svg { flex-shrink: 0; margin-top: 2px; }
+
+@media (max-width: 768px) {
+  .bento-row--analytics { grid-template-columns: 1fr; }
+  .dash-concentration-bar-row { grid-template-columns: 80px 1fr 36px; }
+}
+
 .dca-dash-stats      { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .dca-dash-stat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-bottom: 2px; }
 .dca-dash-stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 0.95rem; font-weight: 600; }

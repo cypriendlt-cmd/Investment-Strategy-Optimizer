@@ -17,6 +17,7 @@ import { getFearGreed } from '../services/market'
 import { getMonthlyDcaSummary, getLinkedAsset, computeDcaProgress } from '../services/dcaEngine'
 import { Link } from 'react-router-dom'
 import { runProjection } from '../services/strategy'
+import { analyzePortfolio } from '../services/portfolioAnalytics'
 import { fmt, fmtPct } from '../utils/format'
 
 const MONTH_NAMES = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -182,25 +183,6 @@ function GaugeChart({ value, label }) {
   )
 }
 
-function computeStrategyScore(allocationData, progressPct, dcaSummary) {
-  let score = 50
-  const nonZero = allocationData.filter(a => a.value > 0).length
-  if (nonZero >= 4) score += 15
-  else if (nonZero >= 3) score += 10
-  else if (nonZero >= 2) score += 5
-  if (progressPct > 0) score += Math.min(progressPct * 0.2, 15)
-  if (dcaSummary) {
-    const ratio = dcaSummary.onTrack / Math.max(dcaSummary.total, 1)
-    score += ratio * 10
-  }
-  const total = allocationData.reduce((s, a) => s + a.value, 0)
-  if (total > 0) {
-    const max = Math.max(...allocationData.map(a => a.value))
-    if (max / total > 0.8) score -= 10
-    else if (max / total > 0.6) score -= 5
-  }
-  return Math.max(0, Math.min(100, Math.round(score)))
-}
 
 export default function Dashboard() {
   const { portfolio, totals, dcaPlans } = usePortfolio()
@@ -278,12 +260,8 @@ export default function Dashboard() {
   }, [portfolio?.goals])
   const progressPct = objective ? Math.min((patrimoineNet / objective) * 100, 100) : 0
 
-  const allocationData = [
-    { name: 'Crypto', value: totals.crypto, color: 'var(--color-crypto)' },
-    { name: 'PEA', value: totals.pea, color: 'var(--color-pea)' },
-    { name: 'Livrets', value: totalLivrets, color: 'var(--color-livrets)' },
-    { name: 'Crowdfunding', value: totals.fundraising, color: 'var(--color-fundraising)' },
-  ]
+  const analytics = useMemo(() => analyzePortfolio(totals, bankLivrets), [totals, bankLivrets])
+  const allocationData = analytics.allocation.map(c => ({ name: c.label, value: c.value, color: c.color }))
 
   const dcaSummary = useMemo(() => {
     const plans = dcaPlans?.plans || []
@@ -350,19 +328,8 @@ export default function Dashboard() {
     return { best: sorted[0] || null, worst: sorted[sorted.length - 1] || null }
   }, [portfolio.crypto])
 
-  const strategyScore = useMemo(() =>
-    computeStrategyScore(allocationData, progressPct, dcaSummary),
-    [allocationData, progressPct, dcaSummary]
-  )
-
-  const riskLevel = useMemo(() => {
-    const total = allocationData.reduce((s, a) => s + a.value, 0)
-    if (total === 0) return { label: 'N/A', color: 'var(--text-muted)' }
-    const cryptoPct = totals.crypto / total
-    if (cryptoPct > 0.6) return { label: 'Élevé', color: 'var(--danger)' }
-    if (cryptoPct > 0.35) return { label: 'Modéré', color: 'var(--warning)' }
-    return { label: 'Faible', color: 'var(--success)' }
-  }, [allocationData, totals.crypto])
+  const riskLevel = analytics.risk
+  const diversification = analytics.diversification
 
   const firstName = user?.name?.split(' ')[0] || 'Investisseur'
 
@@ -467,15 +434,15 @@ export default function Dashboard() {
         </div>
 
         <div className="bento-card bento-card--kpi dash-card">
-          <span className="bento-card-eyebrow">Score stratégie</span>
-          <span className="bento-kpi-value text-accent">{strategyScore}<span className="bento-kpi-unit">/100</span></span>
-          <span className="bento-kpi-sub">cohérence globale</span>
+          <span className="bento-card-eyebrow">Diversification</span>
+          <span className="bento-kpi-value" style={{ color: diversification.color }}>{diversification.score}<span className="bento-kpi-unit">/100</span></span>
+          <span className="bento-kpi-sub">{diversification.level}</span>
         </div>
 
         <div className="bento-card bento-card--kpi dash-card">
           <span className="bento-card-eyebrow">Niveau de risque</span>
-          <span className="bento-kpi-value" style={{ color: riskLevel.color }}>{riskLevel.label}</span>
-          <span className="bento-kpi-sub">concentration crypto</span>
+          <span className="bento-kpi-value" style={{ color: riskLevel.color }}>{riskLevel.score}<span className="bento-kpi-unit">/100</span></span>
+          <span className="bento-kpi-sub">{riskLevel.level} — {riskLevel.description?.split(' ').slice(-1)[0]}</span>
         </div>
 
         <div className="bento-card bento-card--kpi dash-card">
@@ -627,6 +594,85 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* ══ BENTO ROW 3b : Analyse portefeuille ══ */}
+      {analytics.totalValue > 0 && (
+        <div className="bento-row bento-row--analytics">
+
+          {/* Risque — gauge horizontale */}
+          <div className="bento-card dash-card dash-analytics-card">
+            <div className="dash-card-title">Risque du portefeuille</div>
+            <div className="dash-risk-gauge">
+              <div className="dash-risk-gauge-track">
+                <div className="dash-risk-gauge-fill" style={{ width: `${riskLevel.score}%`, background: riskLevel.color }} />
+                <div className="dash-risk-gauge-cursor" style={{ left: `${riskLevel.score}%` }} />
+              </div>
+              <div className="dash-risk-gauge-labels">
+                <span>Faible</span>
+                <span>Modéré</span>
+                <span>Élevé</span>
+              </div>
+            </div>
+            <div className="dash-risk-score">
+              <span className="dash-risk-score-value" style={{ color: riskLevel.color }}>{riskLevel.score}</span>
+              <span className="dash-risk-score-label">/100 — {riskLevel.description}</span>
+            </div>
+          </div>
+
+          {/* Diversification — badge + barres */}
+          <div className="bento-card dash-card dash-analytics-card">
+            <div className="dash-card-title">Diversification</div>
+            <div className="dash-diversification-header">
+              <span className="dash-diversification-badge" style={{ background: diversification.color }}>
+                {diversification.score}/100 · {diversification.level}
+              </span>
+              <span className="dash-diversification-meta">
+                {diversification.effectiveN} classes effectives
+              </span>
+            </div>
+            <div className="dash-concentration-bars">
+              {analytics.allocation.filter(c => c.value > 0).sort((a, b) => b.pct - a.pct).map(c => (
+                <div key={c.key} className="dash-concentration-bar-row">
+                  <span className="dash-concentration-bar-label">{c.label}</span>
+                  <div className="dash-concentration-bar-track">
+                    <div className="dash-concentration-bar-fill" style={{ width: `${Math.round(c.pct * 100)}%`, background: c.color }} />
+                  </div>
+                  <span className="dash-concentration-bar-pct">{mp(`${Math.round(c.pct * 100)}%`)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Alertes + Conseils */}
+          <div className="bento-card dash-card dash-analytics-card">
+            <div className="dash-card-title">Alertes & Conseils</div>
+            {analytics.alerts.length > 0 && (
+              <div className="dash-alerts">
+                {analytics.alerts.map((a, i) => (
+                  <div key={i} className={`dash-alert dash-alert--${a.severity}`}>
+                    <AlertTriangle size={14} />
+                    <span>{a.message}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {analytics.insights.length > 0 && (
+              <div className="dash-insights-list">
+                {analytics.insights.map((ins, i) => (
+                  <div key={i} className="dash-insight-item">
+                    <Sparkles size={13} className="text-accent" />
+                    <span>{ins.message}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {analytics.alerts.length === 0 && analytics.insights.length === 0 && (
+              <p className="text-muted text-sm" style={{ margin: '12px 0 0' }}>Aucune alerte — portefeuille équilibré.</p>
+            )}
+          </div>
+
+        </div>
+      )}
 
       {/* ══ BENTO ROW 4 : Projection + DCA + IA ══ */}
       <div className="bento-row bento-row--bottom">
