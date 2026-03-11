@@ -750,8 +750,12 @@ tbody tr:hover td { background: var(--bg-hover); }
 .bento-kpi-value { font-family: 'IBM Plex Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--text-primary); line-height: 1.1; display: block; margin: 6px 0 4px; }
 .bento-kpi-unit  { font-size: 1rem; font-weight: 600; }
 .bento-kpi-sub   { font-size: 0.72rem; color: var(--text-muted); }
-.bento-kpi-link  { color: var(--accent) !important; transition: color var(--transition-fast); }
+.bento-kpi-link  { color: var(--accent) !important; transition: color var(--transition-fast); cursor: pointer; }
 .bento-kpi-link:hover { color: var(--accent-hover) !important; }
+.bento-kpi-editable  { cursor: pointer; border-bottom: 1px dashed transparent; transition: border-color var(--transition-fast); }
+.bento-kpi-editable:hover { border-bottom-color: var(--text-muted); }
+.bento-kpi-edit      { margin: 6px 0 4px; }
+.bento-kpi-input     { font-family: 'IBM Plex Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--text-primary); background: var(--bg-input); border: 1px solid var(--accent); border-radius: var(--radius-sm); padding: 4px 8px; width: 100%; outline: none; text-align: center; }
 
 .perf-chart-header   { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .time-range-selector { display: flex; gap: 2px; background: var(--bg-input); padding: 3px; border-radius: var(--radius-md); }

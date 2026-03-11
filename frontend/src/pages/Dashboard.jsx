@@ -217,7 +217,7 @@ function computeStrategyScore(allocationData, progressPct, dcaSummary) {
 
 export default function Dashboard() {
   const { portfolio, totals, dcaPlans } = usePortfolio()
-  const { accountBalances, aggregates, financeProfile } = useBank() || {}
+  const { accountBalances, aggregates, financeProfile, updateFinanceProfile } = useBank() || {}
   const { user, isGuest } = useAuth()
   const { m, mp } = usePrivacyMask()
   const [fearGreed, setFearGreed] = useState({ crypto: 0, market: 0 })
@@ -307,11 +307,17 @@ export default function Dashboard() {
     return { totalInvested: totalInvestedDca, onTrack, total: enabled.length, nextDates: nextDates.slice(0, 3), monthPlanned: monthly.planned_total, monthActual: monthly.actual_total }
   }, [dcaPlans, portfolio])
 
-  const lastAgg = aggregates?.[aggregates.length - 1]
-  const monthlyIncome = financeProfile?.monthlyIncome || lastAgg?.income || 0
-  const monthlyExpenses = financeProfile?.monthlyExpenses || lastAgg?.expenses || 0
+  // Revenus : override manuel > moyenne agrégats bank > profil finance > 0
+  const recentAggs = (aggregates || []).slice(-3)
+  const aggIncome = recentAggs.length > 0 ? Math.round(recentAggs.reduce((s, a) => s + a.income, 0) / recentAggs.length) : 0
+  const aggExpenses = recentAggs.length > 0 ? Math.round(recentAggs.reduce((s, a) => s + a.expenses, 0) / recentAggs.length) : 0
+  const monthlyIncome = financeProfile?.dashIncomeOverride || aggIncome || financeProfile?.monthlyIncome || 0
+  const monthlyExpenses = financeProfile?.dashExpensesOverride || aggExpenses || financeProfile?.monthlyExpenses || 0
   const monthSavings = monthlyIncome - monthlyExpenses
   const savingsRate = monthlyIncome > 0 ? (monthSavings / monthlyIncome) * 100 : null
+  const hasAutoIncome = aggIncome > 0
+  const [editingField, setEditingField] = useState(null) // 'income' | 'savings' | null
+  const [editValue, setEditValue] = useState('')
 
   const monthlyEvolution = useMemo(() => {
     if (perfData.length < 2) return null
@@ -322,6 +328,18 @@ export default function Dashboard() {
     const pct = (delta / prev) * 100
     return { delta, pct }
   }, [perfData])
+
+  const handleOverrideSave = (field) => {
+    const val = Number(editValue)
+    if (!Number.isFinite(val) || val < 0) { setEditingField(null); return }
+    if (field === 'income') {
+      updateFinanceProfile?.({ dashIncomeOverride: Math.round(val) })
+    } else if (field === 'savings') {
+      // Savings override = on stocke les dépenses overridées (revenu - épargne souhaitée)
+      updateFinanceProfile?.({ dashExpensesOverride: Math.round(monthlyIncome - val) })
+    }
+    setEditingField(null)
+  }
 
   const performers = useMemo(() => {
     const cryptoGains = portfolio.crypto
@@ -395,16 +413,51 @@ export default function Dashboard() {
         {/* KPI cards */}
         <div className="bento-card bento-card--kpi dash-card">
           <span className="bento-card-eyebrow">Revenu mensuel</span>
-          <span className="bento-kpi-value">{monthlyIncome > 0 ? m(fmt(monthlyIncome)) : <span className="text-muted">—</span>}</span>
-          <span className="bento-kpi-sub">{monthlyIncome > 0 ? 'net estimé' : <Link to="/portfolio/banking" className="bento-kpi-link">Configurer →</Link>}</span>
+          {editingField === 'income' ? (
+            <form className="bento-kpi-edit" onSubmit={e => { e.preventDefault(); handleOverrideSave('income') }}>
+              <input type="number" min="0" autoFocus value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+                onBlur={() => handleOverrideSave('income')}
+                className="bento-kpi-input" placeholder="€ / mois" />
+            </form>
+          ) : (
+            <span className="bento-kpi-value bento-kpi-editable"
+              onClick={() => { setEditingField('income'); setEditValue(monthlyIncome || '') }}
+              title="Cliquez pour corriger">
+              {monthlyIncome > 0 ? m(fmt(monthlyIncome)) : <span className="text-muted">—</span>}
+            </span>
+          )}
+          <span className="bento-kpi-sub">
+            {monthlyIncome > 0
+              ? (hasAutoIncome
+                ? (financeProfile?.dashIncomeOverride ? 'corrigé manuellement' : 'via transactions bank')
+                : 'saisie manuelle')
+              : <span className="bento-kpi-link" onClick={() => { setEditingField('income'); setEditValue('') }}>Saisir →</span>}
+          </span>
         </div>
 
         <div className="bento-card bento-card--kpi dash-card">
           <span className="bento-card-eyebrow">Épargne mensuelle</span>
-          <span className="bento-kpi-value" style={{ color: monthSavings > 0 ? 'var(--color-success)' : monthSavings < 0 ? 'var(--color-error)' : undefined }}>
-            {monthlyIncome > 0 ? m(fmt(monthSavings)) : <span className="text-muted">—</span>}
+          {editingField === 'savings' ? (
+            <form className="bento-kpi-edit" onSubmit={e => { e.preventDefault(); handleOverrideSave('savings') }}>
+              <input type="number" autoFocus value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+                onBlur={() => handleOverrideSave('savings')}
+                className="bento-kpi-input" placeholder="€ / mois" />
+            </form>
+          ) : (
+            <span className="bento-kpi-value bento-kpi-editable"
+              style={{ color: monthSavings > 0 ? 'var(--color-success)' : monthSavings < 0 ? 'var(--color-error)' : undefined }}
+              onClick={() => { setEditingField('savings'); setEditValue(monthSavings || '') }}
+              title="Cliquez pour corriger">
+              {monthlyIncome > 0 ? m(fmt(monthSavings)) : <span className="text-muted">—</span>}
+            </span>
+          )}
+          <span className="bento-kpi-sub">
+            {monthlyIncome > 0
+              ? (financeProfile?.dashExpensesOverride ? 'corrigé manuellement' : 'revenu − dépenses')
+              : 'revenu requis'}
           </span>
-          <span className="bento-kpi-sub">{monthlyIncome > 0 ? 'revenu − dépenses' : 'données requises'}</span>
         </div>
 
         <div className="bento-card bento-card--kpi dash-card">

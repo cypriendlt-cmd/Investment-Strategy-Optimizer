@@ -907,44 +907,44 @@ function categorizeTx(tx, customRulesCompiled, learnedRules, aiCache) {
   // P1: Transfer
   if (tx.isTransfer) return { category: 'virement', subcategory: 'interne', confidence: 1.0, reason: 'Virement détecté', method: 'transfer_detected' }
 
-  // P2: User learned
+  // P2: User custom regex (highest priority — user rules always win)
+  for (const rule of customRulesCompiled) {
+    if (rule.re.test(label_norm)) return { category: rule.category, subcategory: null, confidence: 0.95, reason: `Custom: ${rule.pattern}`, method: 'regex_custom' }
+  }
+
+  // P3: User learned
   if (merchant_key && learnedRules[merchant_key]) {
     const r = learnedRules[merchant_key]
     return { category: r.category, subcategory: r.subcategory || null, confidence: 0.95, reason: `Appris: ${merchant_key}`, method: 'user_learned' }
   }
 
-  // P2.5: Static merchant lexicon (O(1) offline, covers ~85% of common merchants)
+  // P4: Static merchant lexicon (O(1) offline, covers ~85% of common merchants)
   const lexHit = lookupMerchant(merchant_key)
   if (lexHit) {
     return { category: lexHit.category, subcategory: lexHit.subcategory, confidence: lexHit.confidence, reason: `Lexique: ${merchant_key}`, method: 'lexicon' }
   }
 
-  // P3: AI cached (<30 days)
+  // P5: AI cached (<30 days)
   if (merchant_key && aiCache[merchant_key]) {
     const c = aiCache[merchant_key]
     const age = (Date.now() - new Date(c.cachedAt).getTime()) / 86400000
     if (age < 30) return { category: c.category, subcategory: c.subcategory || null, confidence: c.confidence || 0.75, reason: `IA: ${merchant_key}`, method: 'ai_cached' }
   }
 
-  // P4: Custom regex
-  for (const rule of customRulesCompiled) {
-    if (rule.re.test(label_norm)) return { category: rule.category, subcategory: null, confidence: 0.85, reason: `Custom: ${rule.pattern}`, method: 'regex_custom' }
-  }
-
-  // P5: Strong regex
+  // P6: Strong regex
   for (const rule of STRONG_RULES) {
     if (rule.re.test(label_norm)) return { category: rule.cat, subcategory: rule.sub, confidence: 0.80, reason: `Forte: ${rule.re.source.slice(0, 25)}`, method: 'regex_strong' }
   }
 
-  // P6: Default regex
+  // P7: Default regex
   for (const rule of DEFAULT_RULES) {
     if (rule.re.test(label_norm)) return { category: rule.cat, subcategory: rule.sub, confidence: 0.70, reason: `Regex: ${rule.re.source.slice(0, 25)}`, method: 'regex_default' }
   }
 
-  // P7: Revenue heuristic
+  // P8: Revenue heuristic
   if (tx.amount > 0) return { category: 'revenus', subcategory: 'revenus_divers', confidence: 0.50, reason: 'Montant positif', method: 'revenue_heuristic' }
 
-  // P8: Default
+  // P9: Default
   return { category: 'autre', subcategory: null, confidence: 0.0, reason: 'Aucun match', method: 'default' }
 }
 
