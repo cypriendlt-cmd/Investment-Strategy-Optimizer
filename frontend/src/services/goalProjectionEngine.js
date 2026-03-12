@@ -16,7 +16,18 @@ export const INFLATION_RATE = 0.02
 // Annual nominal rates used for compound-interest goals
 const ANNUAL_RATES = { emergency_fund: 0.02, investment: 0.07, real_estate: 0.04, freedom: 0.06, other: 0.03 }
 
-export { ANNUAL_RATES }
+// Rates derived from user-selected risk profile (used preferentially over ANNUAL_RATES)
+const RISK_PROFILE_RATES = {
+  conservative: 0.04,
+  balanced: 0.06,
+  growth: 0.08,
+  aggressive: 0.10,
+}
+
+// Goal types that use compound interest and inflation adjustment
+const LONG_TERM_TYPES = ['investment', 'real_estate', 'freedom', 'long_term']
+
+export { ANNUAL_RATES, RISK_PROFILE_RATES }
 
 /**
  * Compute future value at month n with real (inflation-adjusted) monthly rate.
@@ -56,7 +67,7 @@ function findMonthsToTarget(currentAmount, monthlyContribution, monthlyRealRate,
  * @returns {{ monthsToReach, projectedDate, progressPct, projectedAmount, realRate, nominalRate }}
  */
 export function projectGoal(goal) {
-  const { type, targetAmount = 0, currentAmount = 0, monthlyContribution = 0 } = goal
+  const { type, targetAmount = 0, currentAmount = 0, monthlyContribution = 0, riskProfile } = goal
   const progressPct = targetAmount > 0 ? Math.min(100, Math.round((currentAmount / targetAmount) * 1000) / 10) : 0
 
   if (currentAmount >= targetAmount) {
@@ -66,10 +77,10 @@ export function projectGoal(goal) {
     return { monthsToReach: null, projectedDate: null, progressPct, projectedAmount: currentAmount, realRate: 0, nominalRate: 0 }
   }
 
-  const nominalRate = ANNUAL_RATES[type] || 0.03
-  const useCompound = ['investment', 'real_estate', 'freedom'].includes(type)
-  // Only apply inflation for long-term goal types (investment, real_estate, freedom)
-  const isLongTerm = ['investment', 'real_estate', 'freedom'].includes(type)
+  // Use riskProfile rate if available, otherwise fall back to type-based rate
+  const nominalRate = (riskProfile && RISK_PROFILE_RATES[riskProfile]) || ANNUAL_RATES[type] || 0.03
+  const useCompound = LONG_TERM_TYPES.includes(type) || !!(riskProfile && RISK_PROFILE_RATES[riskProfile])
+  const isLongTerm = LONG_TERM_TYPES.includes(type)
   const inflationApplied = isLongTerm ? INFLATION_RATE : 0
 
   let monthsToReach

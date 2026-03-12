@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import {
   AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid,
-  ReferenceLine,
+  ReferenceLine, Line, ComposedChart,
 } from 'recharts'
 import { Target, ArrowLeft, CheckCircle, AlertTriangle, TrendingUp, Info, Lightbulb, Save } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -9,8 +9,8 @@ import { usePortfolio } from '../../context/PortfolioContext'
 import { useBank } from '../../context/BankContext'
 import { usePrivacyMask } from '../../hooks/usePrivacyMask'
 import { updateGoal } from '../../services/goalsEngine'
-import { analyzeFeasibility, INFLATION_RATE } from '../../services/goalProjectionEngine'
-import { runObjectiveAnalysis, DEFAULT_INFLATION } from '../../services/strategy'
+import { INFLATION_RATE } from '../../services/goalProjectionEngine'
+import { runObjectiveAnalysis } from '../../services/strategy'
 import { fmt } from '../../utils/format'
 
 const STRATEGY_PROFILES = [
@@ -50,7 +50,6 @@ export default function ObjectifFinancier() {
   const [horizonYears, setHorizonYears] = useState(10)
   const [contribution, setContribution] = useState(500)
   const [strategyProfile, setStrategyProfile] = useState('balanced')
-  const [inflation, setInflation] = useState(DEFAULT_INFLATION * 100)
   const [linkedGoalId, setLinkedGoalId] = useState(urlGoalId)
   const [goalApplied, setGoalApplied] = useState(false)
 
@@ -116,27 +115,76 @@ export default function ObjectifFinancier() {
       horizonYears,
       monthlyContribution: contribution,
       annualReturn: selectedProfile.returnRate,
-      inflation: inflation / 100,
+      inflation: 0,
     })
-  }, [portfolio, totals, accountBalances, aggregates, dcaPlans, targetAmount, horizonYears, contribution, strategyProfile, inflation])
-
-  // Feasibility analysis for suggestions
-  const feasibility = useMemo(() => {
-    if (!linkedGoalId || contribution <= 0) return null
-    const goal = allGoals.find(g => g.id === linkedGoalId)
-    if (!goal) return null
-    const targetDate = new Date()
-    targetDate.setFullYear(targetDate.getFullYear() + horizonYears)
-    return analyzeFeasibility({
-      type: goal.type,
-      targetAmount,
-      currentAmount: 0,
-      monthlyContribution: contribution,
-      targetDate: targetDate.toISOString().slice(0, 10),
-    })
-  }, [linkedGoalId, allGoals, targetAmount, contribution, horizonYears])
+  }, [portfolio, totals, accountBalances, aggregates, dcaPlans, targetAmount, horizonYears, contribution, strategyProfile])
 
   const { viewModel } = result
+
+  // Suggestions when not achievable — based on the same engine as the result banner
+  const suggestions = useMemo(() => {
+    if (viewModel.isAchievable) return []
+    const s = []
+    // Required monthly contribution
+    if (result.objectiveResult.requiredContribution > contribution) {
+      s.push({
+        type: 'contribution',
+        label: 'Épargne mensuelle nécessaire',
+        formatted: fmt(result.objectiveResult.requiredContribution) + '/mois',
+        apply: () => setContribution(result.objectiveResult.requiredContribution),
+      })
+    }
+    // Achievable amount with current params
+    if (result.objectiveResult.projectedValue < targetAmount) {
+      const achievable = Math.floor(result.objectiveResult.projectedValue / 1000) * 1000
+      if (achievable > 0) {
+        s.push({
+          type: 'target',
+          label: 'Montant atteignable à cet horizon',
+          formatted: fmt(achievable),
+          apply: () => setTargetAmount(achievable),
+        })
+      }
+    }
+    // Extended horizon needed
+    const mtt = result.objectiveResult.monthsToTarget
+    if (mtt > 0 && mtt > horizonYears * 12) {
+      const extYears = Math.ceil(mtt / 12)
+      s.push({
+        type: 'horizon',
+        label: 'Horizon nécessaire',
+        formatted: `${extYears} ans`,
+        apply: () => setHorizonYears(Math.min(50, extYears)),
+      })
+    }
+    return s
+  }, [viewModel.isAchievable, result.objectiveResult, contribution, targetAmount, horizonYears])
+
+  // Inflation impact data — show how purchasing power erodes the target over time
+  const inflationData = useMemo(() => {
+    const rate = INFLATION_RATE
+    const data = []
+    const step = horizonYears <= 10 ? 1 : horizonYears <= 20 ? 2 : 5
+    for (let year = 0; year <= horizonYears; year += step) {
+      data.push({
+        label: year === 0 ? 'Auj.' : `+${year}a`,
+        year,
+        objectif: targetAmount,
+        coutReel: Math.round(targetAmount * (1 + rate) ** year),
+      })
+    }
+    if (data[data.length - 1].year !== horizonYears) {
+      data.push({
+        label: `+${horizonYears}a`,
+        year: horizonYears,
+        objectif: targetAmount,
+        coutReel: Math.round(targetAmount * (1 + rate) ** horizonYears),
+      })
+    }
+    return data
+  }, [targetAmount, horizonYears])
+
+  const inflationImpact = inflationData[inflationData.length - 1].coutReel - targetAmount
 
   return (
     <div className="projection-page">
@@ -228,17 +276,10 @@ export default function ObjectifFinancier() {
             {STRATEGY_PROFILES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
           </select>
         </div>
-        <div className="projection-control">
-          <label>Inflation</label>
-          <div className="projection-input-group">
-            <input type="number" value={inflation} onChange={e => setInflation(Number(e.target.value))} min="0" max="10" step="0.1" />
-            <span>%/an</span>
-          </div>
-        </div>
       </div>
 
-      {/* Feasibility suggestions when not achievable */}
-      {feasibility && !feasibility.feasible && feasibility.suggestions.length > 0 && (
+      {/* Suggestions when not achievable */}
+      {suggestions.length > 0 && (
         <div className="goal-feasibility-panel" style={{ marginBottom: 16 }}>
           <div className="goal-feasibility-header goal-feasibility--warn">
             <AlertTriangle size={15} /> <span>Objectif difficilement atteignable avec ces paramètres</span>
@@ -247,23 +288,15 @@ export default function ObjectifFinancier() {
             <div className="goal-feasibility-suggestions-title">
               <Lightbulb size={13} /> Suggestions d'ajustement
             </div>
-            {feasibility.suggestions.map((s, i) => (
+            {suggestions.map((s, i) => (
               <div key={i} className="goal-feasibility-suggestion">
                 <span className="goal-feasibility-suggestion-label">{s.label}</span>
                 <button
                   type="button"
                   className="goal-feasibility-suggestion-value"
-                  onClick={() => {
-                    if (s.type === 'contribution') setContribution(s.value)
-                    else if (s.type === 'target') setTargetAmount(s.value)
-                    else if (s.type === 'horizon') {
-                      const d = new Date(s.value + '-01')
-                      const yrs = Math.max(1, Math.round((d - new Date()) / (1000 * 60 * 60 * 24 * 365.25)))
-                      setHorizonYears(yrs)
-                    }
-                  }}
+                  onClick={s.apply}
                 >
-                  {s.type === 'contribution' ? fmt(s.value) + '/mois' : s.type === 'target' ? fmt(s.value) : new Date(s.value + '-01').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                  {s.formatted}
                   <span style={{ fontSize: '0.68rem', marginLeft: 4 }}>Appliquer</span>
                 </button>
               </div>
@@ -363,12 +396,67 @@ export default function ObjectifFinancier() {
         </div>
       </div>
 
+      {/* Inflation Impact Section */}
+      <div className="projection-chart-card">
+        <div className="projection-chart-title">Impact de l'inflation sur votre objectif</div>
+        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0 0 16px' }}>
+          Votre objectif de {m(fmt(targetAmount))} aujourd'hui nécessitera {m(fmt(inflationData[inflationData.length - 1].coutReel))} dans {horizonYears} ans pour conserver le même pouvoir d'achat
+          <span style={{ color: 'var(--warning)', fontWeight: 600 }}> (+{m(fmt(inflationImpact))}, inflation {(INFLATION_RATE * 100).toFixed(0)}%/an)</span>.
+        </p>
+        <ResponsiveContainer width="100%" height={220}>
+          <ComposedChart data={inflationData}>
+            <defs>
+              <linearGradient id="inflGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--warning)" stopOpacity={0.15} />
+                <stop offset="100%" stopColor="var(--warning)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+            <Tooltip
+              formatter={(v, name) => [m(fmt(v)), name === 'objectif' ? 'Objectif nominal' : 'Coût réel (inflation)']}
+              contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: '0.82rem' }}
+            />
+            <Area type="monotone" dataKey="coutReel" stroke="var(--warning)" strokeWidth={2} fill="url(#inflGrad)" name="coutReel" />
+            <Line type="monotone" dataKey="objectif" stroke="var(--accent)" strokeWidth={2} strokeDasharray="6 4" dot={false} name="objectif" />
+          </ComposedChart>
+        </ResponsiveContainer>
+        <div className="projection-chart-legend">
+          <span><span className="projection-dot" style={{ background: 'var(--accent)' }} /> Objectif nominal ({m(fmt(targetAmount))})</span>
+          <span><span className="projection-dot" style={{ background: 'var(--warning)' }} /> Équivalent réel avec inflation</span>
+        </div>
+        {/* Milestones table */}
+        <div className="table-container" style={{ marginTop: 16 }}>
+          <table>
+            <thead>
+              <tr>
+                <th>Année</th>
+                <th>Objectif nominal</th>
+                <th>Équivalent réel</th>
+                <th>Surcoût inflation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inflationData.filter(d => d.year > 0).map(d => (
+                <tr key={d.year}>
+                  <td>+{d.year} an{d.year > 1 ? 's' : ''}</td>
+                  <td>{m(fmt(d.objectif))}</td>
+                  <td style={{ color: 'var(--warning)', fontWeight: 600 }}>{m(fmt(d.coutReel))}</td>
+                  <td style={{ color: 'var(--text-muted)' }}>+{m(fmt(d.coutReel - d.objectif))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Hypotheses */}
       <div className="projection-hypotheses">
         <Info size={14} style={{ color: 'var(--text-muted)', minWidth: 14 }} />
         <p>
           Croissance estimée : {(selectedProfile.returnRate * 100)}% / an ({selectedProfile.label}).
-          Inflation : {inflation}%/an.
+          L'impact de l'inflation ({(INFLATION_RATE * 100).toFixed(0)}%/an) est présenté séparément ci-dessus.
           Ces projections sont indicatives et ne constituent pas un conseil en investissement.
         </p>
       </div>

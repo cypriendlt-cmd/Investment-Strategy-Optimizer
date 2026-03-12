@@ -137,6 +137,7 @@ function computeGoalProgress(goal, portfolio, totals, accountBalances) {
     targetAmount,
     currentAmount,
     monthlyContribution: goal.monthlyContribution || 0,
+    riskProfile: goal.riskProfile,
   })
 
   const estimatedDate = goalProjection.projectedDate || goal.targetDate || null
